@@ -180,7 +180,7 @@ const StockManagement = () => {
 
   // Unique product names for autocomplete
   const existingProductNames = useMemo(() => {
-    return [...new Set(stockEntries.map(e => e.productName))];
+    return [...new Set(stockEntries.map(e => e.productName))] as string[];
   }, [stockEntries]);
 
   const [showSuggestions, setShowSuggestions] = useState(false);

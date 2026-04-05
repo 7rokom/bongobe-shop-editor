@@ -67,7 +67,7 @@ const ProductForm = () => {
 
   const stockProductNames = useMemo(() => {
     const names = new Set(stockEntries.map(e => e.productName));
-    return Array.from(names);
+    return Array.from(names) as string[];
   }, [stockEntries]);
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
