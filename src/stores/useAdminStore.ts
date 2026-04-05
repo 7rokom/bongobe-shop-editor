@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-const DEFAULT_ADMIN_EMAIL = 'hey.mdmahfuzurrahman@gmail.com';
+const DEFAULT_ADMIN_EMAIL = '786.mahfuzurrahman@gmail.com';
 const DEFAULT_ADMIN_PASSWORD = 'mdmahfuzurrahman';
 
 interface AdminStore {
