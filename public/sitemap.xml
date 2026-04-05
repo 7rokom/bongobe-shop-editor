@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://bongobe.com/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://bongobe.com/shop</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://bongobe.com/blog</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+
+  <!-- Products -->
+  <url><loc>https://bongobe.com/product/selfie-stick-k8-microphone-mobile-stand</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://bongobe.com/product/14-in-1-multifunctional-vegetable-chopper</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://bongobe.com/product/acupressure-massage-slipper</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://bongobe.com/product/maxtel-max-11-mini-button-phone</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://bongobe.com/product/maxtel-max-21-ultra-cordless-phone</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://bongobe.com/product/৫টি-স্পোর্টস-টি-শার্ট-কম্</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://bongobe.com/product/v380-sq002-3mp-wi-fi-ip-bulb-camera</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://bongobe.com/product/6-fit-tripod-stand-10-ring-light-k8-microphone</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://bongobe.com/product/linnex-lx4g-android-button-phone</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://bongobe.com/product/vmax-note-14-4g-android-button-phone</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://bongobe.com/product/tensile-t23-pro-max-touch-button-phone</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://bongobe.com/product/winstar-w57-stylish-button-phone</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://bongobe.com/product/imam-c7-vista-dual-sim-3000mah-battery</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://bongobe.com/product/imam-c7-big-button-phone</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://bongobe.com/product/8-in-1-girls-gift-set-a58-smart-watch</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://bongobe.com/product/kgtel-k1000-4-sim-button-phone</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+
+  <!-- Pages -->
+  <url><loc>https://bongobe.com/page/contact-us</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://bongobe.com/page/terms-of-services</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://bongobe.com/page/privacy-policy</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://bongobe.com/page/refund-and-returns-policy</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://bongobe.com/page/about-us</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+</urlset>

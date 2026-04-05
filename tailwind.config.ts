@@ -13,6 +13,9 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        bangla: ["'Hind Siliguri'", "sans-serif"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -39,6 +42,10 @@ export default {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
         },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
@@ -62,28 +69,38 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        "2xl": "1rem",
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+        "ping-shadow": {
+          "0%": { boxShadow: "0 0 0 0 hsl(var(--primary) / 0.6)" },
+          "70%": { boxShadow: "0 0 0 15px hsl(var(--primary) / 0)" },
+          "100%": { boxShadow: "0 0 0 0 hsl(var(--primary) / 0)" },
+        },
+        "ping-shadow-wa": {
+          "0%": { boxShadow: "0 0 0 0 rgba(37, 211, 102, 0.6)" },
+          "70%": { boxShadow: "0 0 0 15px rgba(37, 211, 102, 0)" },
+          "100%": { boxShadow: "0 0 0 0 rgba(37, 211, 102, 0)" },
+        },
+        "subtle-pulse": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.85" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "ping-shadow": "ping-shadow 2s ease-in-out infinite",
+        "ping-shadow-wa": "ping-shadow-wa 2s ease-in-out infinite",
+        "subtle-pulse": "subtle-pulse 3s ease-in-out infinite",
       },
     },
   },
