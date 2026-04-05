@@ -34,8 +34,8 @@ interface SiteSettingsStore extends SiteSettings {
 }
 
 const defaultSettings: SiteSettings = {
-  siteName: 'BongoBe', tagline: 'আপনার বিশ্বস্ত অনলাইন শপ',
-  primaryColor: '130 100% 28%', logoUrl: '/images/logo.png', faviconUrl: '/favicon.ico',
+  siteName: 'BongoBee | Best Online Shop', tagline: 'আপনার বিশ্বস্ত অনলাইন শপ',
+  primaryColor: '130 100% 28%', logoUrl: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiuzxV6RAai9nkkRjWf6ZEL50oBSOjPIyxNMRIVj8-X8dDkr2hScbGzPt6fZiepBt-VcWCfTo0lgKLw-s1sDfypQ2vYdeqSULHz4F_JtaePzT67609KkvQMC6-NZBmdqNweci664OCAd7LUwSJSm6qJzxqdeiSmxj3B0Ev_q7ULAA_9yW3ZGELrOpeEixk/s1068/converted_image_2%20(3).webp', faviconUrl: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEilmT3NsAkGKwe-ysQMCZ0CjmVsN-w1JGGjiWMShT_UH8tH3vxdhgF1s5RjTSO9CD65Zf_-3Pbh1wvX7roPje9HLFAEq9xjRAUaqlvGwS4pJgkfQ_eVf01nSgWcA4cXf4nMEkVDvBdYyp2Y8-eMLvkI0Ehe0_oOwykQZ9mU6Hvjivu384WkTF0sWnMnl9k/s1080/converted_image_1%20(5).webp',
   address: 'Maniknagor Pukur Par, Mugda, Dhaka', phone: '01948818255',
   email: 'info@BongoBe.com', whatsappNumber: '01948818255',
   facebookUrl: 'https://facebook.com', youtubeUrl: 'https://youtube.com',

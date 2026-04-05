@@ -16,9 +16,9 @@ const Footer = () => {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Col 1 - About */}
             <div>
-              <img src={logoUrl} alt="BongoBe" className="h-10 w-auto object-contain mb-3 brightness-0 invert" />
+              <img src={logoUrl} alt="BongoBee" className="h-10 w-auto object-contain mb-3 brightness-0 invert" />
               <p className="text-[15px] text-white/70 leading-relaxed">
-                BongoBe is a Bangladeshi online shopping platform where you can easily find authentic products including and more at affordable prices. We prioritize fast delivery, easy ordering and customer satisfaction.
+                BongoBee is a Bangladeshi online shopping platform where you can easily find authentic products including and more at affordable prices. We prioritize fast delivery, easy ordering and customer satisfaction.
               </p>
             </div>
 
