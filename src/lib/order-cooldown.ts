@@ -52,7 +52,7 @@ export async function checkServerCooldown(
     if (fingerprint) filters.push(`customer_fingerprint.eq.${fingerprint}`);
 
     const { data, error } = await supabase
-      .from('orders')
+      .from('orders' as any)
       .select('id')
       .gte('created_at', cutoff)
       .or(filters.join(','))
