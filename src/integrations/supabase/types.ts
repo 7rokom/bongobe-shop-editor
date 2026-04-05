@@ -16,8 +16,7 @@ export type Database = {
     Tables: {
       blocked_customers: {
         Row: {
-          blocked_at: string | null
-          created_at: string
+          blocked_at: string
           customer_name: string | null
           id: string
           linked_group: string | null
@@ -26,8 +25,7 @@ export type Database = {
           value: string
         }
         Insert: {
-          blocked_at?: string | null
-          created_at?: string
+          blocked_at?: string
           customer_name?: string | null
           id?: string
           linked_group?: string | null
@@ -36,8 +34,7 @@ export type Database = {
           value: string
         }
         Update: {
-          blocked_at?: string | null
-          created_at?: string
+          blocked_at?: string
           customer_name?: string | null
           id?: string
           linked_group?: string | null
@@ -52,7 +49,7 @@ export type Database = {
           author: string | null
           category: string | null
           content: string | null
-          created_at: string
+          created_at: string | null
           date: string | null
           excerpt: string | null
           gallery_images: Json | null
@@ -69,7 +66,7 @@ export type Database = {
           author?: string | null
           category?: string | null
           content?: string | null
-          created_at?: string
+          created_at?: string | null
           date?: string | null
           excerpt?: string | null
           gallery_images?: Json | null
@@ -86,7 +83,7 @@ export type Database = {
           author?: string | null
           category?: string | null
           content?: string | null
-          created_at?: string
+          created_at?: string | null
           date?: string | null
           excerpt?: string | null
           gallery_images?: Json | null
@@ -103,7 +100,6 @@ export type Database = {
       }
       categories: {
         Row: {
-          created_at: string
           icon: string | null
           id: string
           name: string
@@ -111,7 +107,6 @@ export type Database = {
           slug: string
         }
         Insert: {
-          created_at?: string
           icon?: string | null
           id: string
           name: string
@@ -119,7 +114,6 @@ export type Database = {
           slug: string
         }
         Update: {
-          created_at?: string
           icon?: string | null
           id?: string
           name?: string
@@ -145,71 +139,82 @@ export type Database = {
       }
       courier_dispatch: {
         Row: {
-          courier: string
-          created_at: string
-          data: Json | null
+          consignment_id: string | null
+          courier_status: string | null
+          courier_type: string | null
           order_id: string
+          sent_at: string | null
+          store_id: string | null
+          tracking_code: string | null
+          updated_at: string | null
         }
         Insert: {
-          courier: string
-          created_at?: string
-          data?: Json | null
+          consignment_id?: string | null
+          courier_status?: string | null
+          courier_type?: string | null
           order_id: string
+          sent_at?: string | null
+          store_id?: string | null
+          tracking_code?: string | null
+          updated_at?: string | null
         }
         Update: {
-          courier?: string
-          created_at?: string
-          data?: Json | null
+          consignment_id?: string | null
+          courier_status?: string | null
+          courier_type?: string | null
           order_id?: string
+          sent_at?: string | null
+          store_id?: string | null
+          tracking_code?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
       courier_ratio_cache: {
         Row: {
           all_count: number | null
+          checked_at: string | null
           delivered: number | null
           phone: string
           returned: number | null
-          updated_at: string
         }
         Insert: {
           all_count?: number | null
+          checked_at?: string | null
           delivered?: number | null
           phone: string
           returned?: number | null
-          updated_at?: string
         }
         Update: {
           all_count?: number | null
+          checked_at?: string | null
           delivered?: number | null
           phone?: string
           returned?: number | null
-          updated_at?: string
         }
         Relationships: []
       }
       courier_settings: {
         Row: {
-          created_at: string
           data: Json
           id: string
+          updated_at: string | null
         }
         Insert: {
-          created_at?: string
           data?: Json
           id?: string
+          updated_at?: string | null
         }
         Update: {
-          created_at?: string
           data?: Json
           id?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
       deposits: {
         Row: {
           amount: number | null
-          created_at: string
           date: string | null
           id: string
           note: string | null
@@ -218,7 +223,6 @@ export type Database = {
         }
         Insert: {
           amount?: number | null
-          created_at?: string
           date?: string | null
           id: string
           note?: string | null
@@ -227,7 +231,6 @@ export type Database = {
         }
         Update: {
           amount?: number | null
-          created_at?: string
           date?: string | null
           id?: string
           note?: string | null
@@ -239,30 +242,27 @@ export type Database = {
       employee_activities: {
         Row: {
           action: string | null
-          created_at: string
           details: string | null
-          employee_id: string | null
-          employee_name: string | null
+          employee_id: string
+          employee_name: string
           id: string
           order_id: string | null
           timestamp: string | null
         }
         Insert: {
           action?: string | null
-          created_at?: string
           details?: string | null
-          employee_id?: string | null
-          employee_name?: string | null
-          id?: string
+          employee_id: string
+          employee_name: string
+          id: string
           order_id?: string | null
           timestamp?: string | null
         }
         Update: {
           action?: string | null
-          created_at?: string
           details?: string | null
-          employee_id?: string | null
-          employee_name?: string | null
+          employee_id?: string
+          employee_name?: string
           id?: string
           order_id?: string | null
           timestamp?: string | null
@@ -309,7 +309,6 @@ export type Database = {
         Row: {
           amount: number | null
           category: string | null
-          created_at: string
           date: string | null
           employee_id: string | null
           id: string
@@ -319,7 +318,6 @@ export type Database = {
         Insert: {
           amount?: number | null
           category?: string | null
-          created_at?: string
           date?: string | null
           employee_id?: string | null
           id: string
@@ -329,7 +327,6 @@ export type Database = {
         Update: {
           amount?: number | null
           category?: string | null
-          created_at?: string
           date?: string | null
           employee_id?: string | null
           id?: string
@@ -342,136 +339,133 @@ export type Database = {
         Row: {
           courier_locked: boolean | null
           courier_name: string | null
-          created_at: string
           note: string | null
           order_id: string
           status: string | null
           stock_type: string | null
           tracking_url: string | null
+          updated_at: string | null
           vendor_buy_price: number | null
         }
         Insert: {
           courier_locked?: boolean | null
           courier_name?: string | null
-          created_at?: string
           note?: string | null
           order_id: string
           status?: string | null
           stock_type?: string | null
           tracking_url?: string | null
+          updated_at?: string | null
           vendor_buy_price?: number | null
         }
         Update: {
           courier_locked?: boolean | null
           courier_name?: string | null
-          created_at?: string
           note?: string | null
           order_id?: string
           status?: string | null
           stock_type?: string | null
           tracking_url?: string | null
+          updated_at?: string | null
           vendor_buy_price?: number | null
         }
         Relationships: []
       }
       fraud_settings: {
         Row: {
-          created_at: string
           data: Json
           id: string
+          updated_at: string | null
         }
         Insert: {
-          created_at?: string
           data?: Json
           id?: string
+          updated_at?: string | null
         }
         Update: {
-          created_at?: string
           data?: Json
           id?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
       incomplete_orders: {
         Row: {
-          address: string | null
+          address: string
           block_reason: string | null
           created_at: string
           customer_fingerprint: string | null
           customer_ip: string | null
-          date: string | null
-          delivery_charge: number | null
-          delivery_zone: string | null
-          grand_total: number | null
+          delivery_charge: number
+          delivery_zone: string
+          grand_total: number
           id: string
-          items: Json | null
+          items: Json
           name: string
           phone: string
           status: string | null
-          total_price: number | null
-          type: string | null
+          total_price: number
+          type: string
         }
         Insert: {
-          address?: string | null
+          address?: string
           block_reason?: string | null
           created_at?: string
           customer_fingerprint?: string | null
           customer_ip?: string | null
-          date?: string | null
-          delivery_charge?: number | null
-          delivery_zone?: string | null
-          grand_total?: number | null
+          delivery_charge?: number
+          delivery_zone?: string
+          grand_total?: number
           id: string
-          items?: Json | null
-          name: string
-          phone: string
-          status?: string | null
-          total_price?: number | null
-          type?: string | null
-        }
-        Update: {
-          address?: string | null
-          block_reason?: string | null
-          created_at?: string
-          customer_fingerprint?: string | null
-          customer_ip?: string | null
-          date?: string | null
-          delivery_charge?: number | null
-          delivery_zone?: string | null
-          grand_total?: number | null
-          id?: string
-          items?: Json | null
+          items?: Json
           name?: string
           phone?: string
           status?: string | null
-          total_price?: number | null
-          type?: string | null
+          total_price?: number
+          type?: string
+        }
+        Update: {
+          address?: string
+          block_reason?: string | null
+          created_at?: string
+          customer_fingerprint?: string | null
+          customer_ip?: string | null
+          delivery_charge?: number
+          delivery_zone?: string
+          grand_total?: number
+          id?: string
+          items?: Json
+          name?: string
+          phone?: string
+          status?: string | null
+          total_price?: number
+          type?: string
         }
         Relationships: []
       }
       landing_pages: {
         Row: {
-          created_at: string
+          created_at: string | null
           id: string
           product_id: string
           slug: string
-          status: string | null
+          status: string
           title: string
         }
         Insert: {
-          created_at?: string
-          id: string
+          created_at?: string | null
+          id?: string
           product_id: string
           slug: string
-          status?: string | null
+          status?: string
           title: string
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           id?: string
           product_id?: string
           slug?: string
-          status?: string | null
+          status?: string
           title?: string
         }
         Relationships: []
@@ -482,7 +476,7 @@ export type Database = {
           assigned_to: string | null
           assigned_to_name: string | null
           confirmed_by: string | null
-          created_at: string
+          created_at: string | null
           customer: string
           customer_fingerprint: string | null
           customer_ip: string | null
@@ -490,7 +484,7 @@ export type Database = {
           delivery_charge: number | null
           id: string
           iso_date: string | null
-          items: Json | null
+          items: Json
           note: string | null
           original_delivery_charge: number | null
           paid_return_amount: number | null
@@ -503,7 +497,7 @@ export type Database = {
           assigned_to?: string | null
           assigned_to_name?: string | null
           confirmed_by?: string | null
-          created_at?: string
+          created_at?: string | null
           customer: string
           customer_fingerprint?: string | null
           customer_ip?: string | null
@@ -511,7 +505,7 @@ export type Database = {
           delivery_charge?: number | null
           id: string
           iso_date?: string | null
-          items?: Json | null
+          items?: Json
           note?: string | null
           original_delivery_charge?: number | null
           paid_return_amount?: number | null
@@ -524,7 +518,7 @@ export type Database = {
           assigned_to?: string | null
           assigned_to_name?: string | null
           confirmed_by?: string | null
-          created_at?: string
+          created_at?: string | null
           customer?: string
           customer_fingerprint?: string | null
           customer_ip?: string | null
@@ -532,7 +526,7 @@ export type Database = {
           delivery_charge?: number | null
           id?: string
           iso_date?: string | null
-          items?: Json | null
+          items?: Json
           note?: string | null
           original_delivery_charge?: number | null
           paid_return_amount?: number | null
@@ -546,7 +540,6 @@ export type Database = {
         Row: {
           account_number: string | null
           amount: number | null
-          created_at: string
           date: string | null
           id: string
           method: string | null
@@ -557,7 +550,6 @@ export type Database = {
         Insert: {
           account_number?: string | null
           amount?: number | null
-          created_at?: string
           date?: string | null
           id: string
           method?: string | null
@@ -568,7 +560,6 @@ export type Database = {
         Update: {
           account_number?: string | null
           amount?: number | null
-          created_at?: string
           date?: string | null
           id?: string
           method?: string | null
@@ -580,10 +571,11 @@ export type Database = {
       }
       products: {
         Row: {
+          brand: string | null
           buy_price: number | null
           category: string | null
           colors: Json | null
-          created_at: string
+          created_at: string | null
           featured_image: string | null
           featured_video: string | null
           free_delivery: boolean | null
@@ -593,6 +585,7 @@ export type Database = {
           long_description: string | null
           meta_description: string | null
           meta_keywords: string | null
+          meta_tags: Json | null
           original_price: number | null
           price: number
           rating: number | null
@@ -611,10 +604,11 @@ export type Database = {
           weights: Json | null
         }
         Insert: {
+          brand?: string | null
           buy_price?: number | null
           category?: string | null
           colors?: Json | null
-          created_at?: string
+          created_at?: string | null
           featured_image?: string | null
           featured_video?: string | null
           free_delivery?: boolean | null
@@ -624,6 +618,7 @@ export type Database = {
           long_description?: string | null
           meta_description?: string | null
           meta_keywords?: string | null
+          meta_tags?: Json | null
           original_price?: number | null
           price?: number
           rating?: number | null
@@ -642,10 +637,11 @@ export type Database = {
           weights?: Json | null
         }
         Update: {
+          brand?: string | null
           buy_price?: number | null
           category?: string | null
           colors?: Json | null
-          created_at?: string
+          created_at?: string | null
           featured_image?: string | null
           featured_video?: string | null
           free_delivery?: boolean | null
@@ -655,6 +651,7 @@ export type Database = {
           long_description?: string | null
           meta_description?: string | null
           meta_keywords?: string | null
+          meta_tags?: Json | null
           original_price?: number | null
           price?: number
           rating?: number | null
@@ -677,14 +674,13 @@ export type Database = {
       reseller_orders: {
         Row: {
           cod_charge: number | null
-          created_at: string
           customer_address: string | null
           customer_name: string
           customer_phone: string | null
           date: string | null
           delivery_charge: number | null
           id: string
-          items: Json | null
+          items: Json
           notes: Json | null
           packaging_charge: number | null
           reseller_id: string
@@ -696,14 +692,13 @@ export type Database = {
         }
         Insert: {
           cod_charge?: number | null
-          created_at?: string
           customer_address?: string | null
           customer_name: string
           customer_phone?: string | null
           date?: string | null
           delivery_charge?: number | null
           id: string
-          items?: Json | null
+          items?: Json
           notes?: Json | null
           packaging_charge?: number | null
           reseller_id: string
@@ -715,14 +710,13 @@ export type Database = {
         }
         Update: {
           cod_charge?: number | null
-          created_at?: string
           customer_address?: string | null
           customer_name?: string
           customer_phone?: string | null
           date?: string | null
           delivery_charge?: number | null
           id?: string
-          items?: Json | null
+          items?: Json
           notes?: Json | null
           packaging_charge?: number | null
           reseller_id?: string
@@ -731,6 +725,54 @@ export type Database = {
           total_profit?: number | null
           total_reseller_cost?: number | null
           total_selling_price?: number | null
+        }
+        Relationships: []
+      }
+      reseller_payment_methods: {
+        Row: {
+          account_number: string
+          created_at: string | null
+          id: string
+          label: string | null
+          method_type: string
+          reseller_id: string
+        }
+        Insert: {
+          account_number?: string
+          created_at?: string | null
+          id: string
+          label?: string | null
+          method_type?: string
+          reseller_id: string
+        }
+        Update: {
+          account_number?: string
+          created_at?: string | null
+          id?: string
+          label?: string | null
+          method_type?: string
+          reseller_id?: string
+        }
+        Relationships: []
+      }
+      reseller_product_prices: {
+        Row: {
+          custom_price: number
+          id: string
+          product_id: string
+          reseller_id: string
+        }
+        Insert: {
+          custom_price: number
+          id?: string
+          product_id: string
+          reseller_id: string
+        }
+        Update: {
+          custom_price?: number
+          id?: string
+          product_id?: string
+          reseller_id?: string
         }
         Relationships: []
       }
@@ -746,6 +788,7 @@ export type Database = {
           name: string
           password: string
           phone: string | null
+          shop_name: string | null
         }
         Insert: {
           approval_status?: string | null
@@ -758,6 +801,7 @@ export type Database = {
           name: string
           password: string
           phone?: string | null
+          shop_name?: string | null
         }
         Update: {
           approval_status?: string | null
@@ -770,31 +814,31 @@ export type Database = {
           name?: string
           password?: string
           phone?: string | null
+          shop_name?: string | null
         }
         Relationships: []
       }
       site_settings: {
         Row: {
-          created_at: string
           data: Json
           id: string
+          updated_at: string | null
         }
         Insert: {
-          created_at?: string
           data?: Json
           id?: string
+          updated_at?: string | null
         }
         Update: {
-          created_at?: string
           data?: Json
           id?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
       stock_entries: {
         Row: {
           buy_price: number | null
-          created_at: string
           damage: number | null
           date: string | null
           id: string
@@ -806,7 +850,6 @@ export type Database = {
         }
         Insert: {
           buy_price?: number | null
-          created_at?: string
           damage?: number | null
           date?: string | null
           id: string
@@ -818,7 +861,6 @@ export type Database = {
         }
         Update: {
           buy_price?: number | null
-          created_at?: string
           damage?: number | null
           date?: string | null
           id?: string
@@ -832,19 +874,16 @@ export type Database = {
       }
       variations: {
         Row: {
-          created_at: string
           id: string
           name: string
           type: string
         }
         Insert: {
-          created_at?: string
           id: string
           name: string
           type: string
         }
         Update: {
-          created_at?: string
           id?: string
           name?: string
           type?: string
