@@ -14,7 +14,843 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      blocked_customers: {
+        Row: {
+          blocked_at: string | null
+          created_at: string
+          customer_name: string | null
+          id: string
+          linked_group: string | null
+          reason: string | null
+          type: string
+          value: string
+        }
+        Insert: {
+          blocked_at?: string | null
+          created_at?: string
+          customer_name?: string | null
+          id?: string
+          linked_group?: string | null
+          reason?: string | null
+          type: string
+          value: string
+        }
+        Update: {
+          blocked_at?: string | null
+          created_at?: string
+          customer_name?: string | null
+          id?: string
+          linked_group?: string | null
+          reason?: string | null
+          type?: string
+          value?: string
+        }
+        Relationships: []
+      }
+      blog_posts: {
+        Row: {
+          author: string | null
+          category: string | null
+          content: string | null
+          created_at: string
+          date: string | null
+          excerpt: string | null
+          gallery_images: Json | null
+          id: string
+          image: string | null
+          meta_description: string | null
+          meta_keywords: string | null
+          slug: string
+          status: string | null
+          title: string
+          type: string | null
+        }
+        Insert: {
+          author?: string | null
+          category?: string | null
+          content?: string | null
+          created_at?: string
+          date?: string | null
+          excerpt?: string | null
+          gallery_images?: Json | null
+          id: string
+          image?: string | null
+          meta_description?: string | null
+          meta_keywords?: string | null
+          slug: string
+          status?: string | null
+          title: string
+          type?: string | null
+        }
+        Update: {
+          author?: string | null
+          category?: string | null
+          content?: string | null
+          created_at?: string
+          date?: string | null
+          excerpt?: string | null
+          gallery_images?: Json | null
+          id?: string
+          image?: string | null
+          meta_description?: string | null
+          meta_keywords?: string | null
+          slug?: string
+          status?: string | null
+          title?: string
+          type?: string | null
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          created_at: string
+          icon: string | null
+          id: string
+          name: string
+          product_count: number | null
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          icon?: string | null
+          id: string
+          name: string
+          product_count?: number | null
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          name?: string
+          product_count?: number | null
+          slug?: string
+        }
+        Relationships: []
+      }
+      counters: {
+        Row: {
+          id: string
+          value: number
+        }
+        Insert: {
+          id: string
+          value?: number
+        }
+        Update: {
+          id?: string
+          value?: number
+        }
+        Relationships: []
+      }
+      courier_dispatch: {
+        Row: {
+          courier: string
+          created_at: string
+          data: Json | null
+          order_id: string
+        }
+        Insert: {
+          courier: string
+          created_at?: string
+          data?: Json | null
+          order_id: string
+        }
+        Update: {
+          courier?: string
+          created_at?: string
+          data?: Json | null
+          order_id?: string
+        }
+        Relationships: []
+      }
+      courier_ratio_cache: {
+        Row: {
+          all_count: number | null
+          delivered: number | null
+          phone: string
+          returned: number | null
+          updated_at: string
+        }
+        Insert: {
+          all_count?: number | null
+          delivered?: number | null
+          phone: string
+          returned?: number | null
+          updated_at?: string
+        }
+        Update: {
+          all_count?: number | null
+          delivered?: number | null
+          phone?: string
+          returned?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      courier_settings: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+        }
+        Relationships: []
+      }
+      deposits: {
+        Row: {
+          amount: number | null
+          created_at: string
+          date: string | null
+          id: string
+          note: string | null
+          source: string | null
+          title: string
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          date?: string | null
+          id: string
+          note?: string | null
+          source?: string | null
+          title: string
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          date?: string | null
+          id?: string
+          note?: string | null
+          source?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      employee_activities: {
+        Row: {
+          action: string | null
+          created_at: string
+          details: string | null
+          employee_id: string | null
+          employee_name: string | null
+          id: string
+          order_id: string | null
+          timestamp: string | null
+        }
+        Insert: {
+          action?: string | null
+          created_at?: string
+          details?: string | null
+          employee_id?: string | null
+          employee_name?: string | null
+          id?: string
+          order_id?: string | null
+          timestamp?: string | null
+        }
+        Update: {
+          action?: string | null
+          created_at?: string
+          details?: string | null
+          employee_id?: string | null
+          employee_name?: string | null
+          id?: string
+          order_id?: string | null
+          timestamp?: string | null
+        }
+        Relationships: []
+      }
+      employees: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          is_active: boolean | null
+          name: string
+          password: string
+          permissions: Json | null
+          phone: string | null
+          role: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id: string
+          is_active?: boolean | null
+          name: string
+          password: string
+          permissions?: Json | null
+          phone?: string | null
+          role?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          password?: string
+          permissions?: Json | null
+          phone?: string | null
+          role?: string | null
+        }
+        Relationships: []
+      }
+      expenses: {
+        Row: {
+          amount: number | null
+          category: string | null
+          created_at: string
+          date: string | null
+          employee_id: string | null
+          id: string
+          note: string | null
+          title: string
+        }
+        Insert: {
+          amount?: number | null
+          category?: string | null
+          created_at?: string
+          date?: string | null
+          employee_id?: string | null
+          id: string
+          note?: string | null
+          title: string
+        }
+        Update: {
+          amount?: number | null
+          category?: string | null
+          created_at?: string
+          date?: string | null
+          employee_id?: string | null
+          id?: string
+          note?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      follow_up_data: {
+        Row: {
+          courier_locked: boolean | null
+          courier_name: string | null
+          created_at: string
+          note: string | null
+          order_id: string
+          status: string | null
+          stock_type: string | null
+          tracking_url: string | null
+          vendor_buy_price: number | null
+        }
+        Insert: {
+          courier_locked?: boolean | null
+          courier_name?: string | null
+          created_at?: string
+          note?: string | null
+          order_id: string
+          status?: string | null
+          stock_type?: string | null
+          tracking_url?: string | null
+          vendor_buy_price?: number | null
+        }
+        Update: {
+          courier_locked?: boolean | null
+          courier_name?: string | null
+          created_at?: string
+          note?: string | null
+          order_id?: string
+          status?: string | null
+          stock_type?: string | null
+          tracking_url?: string | null
+          vendor_buy_price?: number | null
+        }
+        Relationships: []
+      }
+      fraud_settings: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+        }
+        Relationships: []
+      }
+      incomplete_orders: {
+        Row: {
+          address: string | null
+          block_reason: string | null
+          created_at: string
+          customer_fingerprint: string | null
+          customer_ip: string | null
+          date: string | null
+          delivery_charge: number | null
+          delivery_zone: string | null
+          grand_total: number | null
+          id: string
+          items: Json | null
+          name: string
+          phone: string
+          status: string | null
+          total_price: number | null
+          type: string | null
+        }
+        Insert: {
+          address?: string | null
+          block_reason?: string | null
+          created_at?: string
+          customer_fingerprint?: string | null
+          customer_ip?: string | null
+          date?: string | null
+          delivery_charge?: number | null
+          delivery_zone?: string | null
+          grand_total?: number | null
+          id: string
+          items?: Json | null
+          name: string
+          phone: string
+          status?: string | null
+          total_price?: number | null
+          type?: string | null
+        }
+        Update: {
+          address?: string | null
+          block_reason?: string | null
+          created_at?: string
+          customer_fingerprint?: string | null
+          customer_ip?: string | null
+          date?: string | null
+          delivery_charge?: number | null
+          delivery_zone?: string | null
+          grand_total?: number | null
+          id?: string
+          items?: Json | null
+          name?: string
+          phone?: string
+          status?: string | null
+          total_price?: number | null
+          type?: string | null
+        }
+        Relationships: []
+      }
+      landing_pages: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          slug: string
+          status: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          product_id: string
+          slug: string
+          status?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          slug?: string
+          status?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          address: string
+          assigned_to: string | null
+          assigned_to_name: string | null
+          confirmed_by: string | null
+          created_at: string
+          customer: string
+          customer_fingerprint: string | null
+          customer_ip: string | null
+          date: string | null
+          delivery_charge: number | null
+          id: string
+          iso_date: string | null
+          items: Json | null
+          note: string | null
+          original_delivery_charge: number | null
+          paid_return_amount: number | null
+          phone: string
+          status: string | null
+          total: number | null
+        }
+        Insert: {
+          address: string
+          assigned_to?: string | null
+          assigned_to_name?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          customer: string
+          customer_fingerprint?: string | null
+          customer_ip?: string | null
+          date?: string | null
+          delivery_charge?: number | null
+          id: string
+          iso_date?: string | null
+          items?: Json | null
+          note?: string | null
+          original_delivery_charge?: number | null
+          paid_return_amount?: number | null
+          phone: string
+          status?: string | null
+          total?: number | null
+        }
+        Update: {
+          address?: string
+          assigned_to?: string | null
+          assigned_to_name?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          customer?: string
+          customer_fingerprint?: string | null
+          customer_ip?: string | null
+          date?: string | null
+          delivery_charge?: number | null
+          id?: string
+          iso_date?: string | null
+          items?: Json | null
+          note?: string | null
+          original_delivery_charge?: number | null
+          paid_return_amount?: number | null
+          phone?: string
+          status?: string | null
+          total?: number | null
+        }
+        Relationships: []
+      }
+      payment_requests: {
+        Row: {
+          account_number: string | null
+          amount: number | null
+          created_at: string
+          date: string | null
+          id: string
+          method: string | null
+          reseller_id: string
+          reseller_name: string | null
+          status: string | null
+        }
+        Insert: {
+          account_number?: string | null
+          amount?: number | null
+          created_at?: string
+          date?: string | null
+          id: string
+          method?: string | null
+          reseller_id: string
+          reseller_name?: string | null
+          status?: string | null
+        }
+        Update: {
+          account_number?: string | null
+          amount?: number | null
+          created_at?: string
+          date?: string | null
+          id?: string
+          method?: string | null
+          reseller_id?: string
+          reseller_name?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          buy_price: number | null
+          category: string | null
+          colors: Json | null
+          created_at: string
+          featured_image: string | null
+          featured_video: string | null
+          free_delivery: boolean | null
+          id: string
+          images: Json | null
+          in_stock: boolean | null
+          long_description: string | null
+          meta_description: string | null
+          meta_keywords: string | null
+          original_price: number | null
+          price: number
+          rating: number | null
+          reseller_price: number | null
+          review_count: number | null
+          reviews: Json | null
+          short_description: string | null
+          sizes: Json | null
+          slug: string
+          status: string | null
+          stock_product_name: string | null
+          stock_type: string | null
+          title: string
+          variation_prices: Json | null
+          variations: Json | null
+          weights: Json | null
+        }
+        Insert: {
+          buy_price?: number | null
+          category?: string | null
+          colors?: Json | null
+          created_at?: string
+          featured_image?: string | null
+          featured_video?: string | null
+          free_delivery?: boolean | null
+          id: string
+          images?: Json | null
+          in_stock?: boolean | null
+          long_description?: string | null
+          meta_description?: string | null
+          meta_keywords?: string | null
+          original_price?: number | null
+          price?: number
+          rating?: number | null
+          reseller_price?: number | null
+          review_count?: number | null
+          reviews?: Json | null
+          short_description?: string | null
+          sizes?: Json | null
+          slug: string
+          status?: string | null
+          stock_product_name?: string | null
+          stock_type?: string | null
+          title: string
+          variation_prices?: Json | null
+          variations?: Json | null
+          weights?: Json | null
+        }
+        Update: {
+          buy_price?: number | null
+          category?: string | null
+          colors?: Json | null
+          created_at?: string
+          featured_image?: string | null
+          featured_video?: string | null
+          free_delivery?: boolean | null
+          id?: string
+          images?: Json | null
+          in_stock?: boolean | null
+          long_description?: string | null
+          meta_description?: string | null
+          meta_keywords?: string | null
+          original_price?: number | null
+          price?: number
+          rating?: number | null
+          reseller_price?: number | null
+          review_count?: number | null
+          reviews?: Json | null
+          short_description?: string | null
+          sizes?: Json | null
+          slug?: string
+          status?: string | null
+          stock_product_name?: string | null
+          stock_type?: string | null
+          title?: string
+          variation_prices?: Json | null
+          variations?: Json | null
+          weights?: Json | null
+        }
+        Relationships: []
+      }
+      reseller_orders: {
+        Row: {
+          cod_charge: number | null
+          created_at: string
+          customer_address: string | null
+          customer_name: string
+          customer_phone: string | null
+          date: string | null
+          delivery_charge: number | null
+          id: string
+          items: Json | null
+          notes: Json | null
+          packaging_charge: number | null
+          reseller_id: string
+          reseller_name: string | null
+          status: string | null
+          total_profit: number | null
+          total_reseller_cost: number | null
+          total_selling_price: number | null
+        }
+        Insert: {
+          cod_charge?: number | null
+          created_at?: string
+          customer_address?: string | null
+          customer_name: string
+          customer_phone?: string | null
+          date?: string | null
+          delivery_charge?: number | null
+          id: string
+          items?: Json | null
+          notes?: Json | null
+          packaging_charge?: number | null
+          reseller_id: string
+          reseller_name?: string | null
+          status?: string | null
+          total_profit?: number | null
+          total_reseller_cost?: number | null
+          total_selling_price?: number | null
+        }
+        Update: {
+          cod_charge?: number | null
+          created_at?: string
+          customer_address?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          date?: string | null
+          delivery_charge?: number | null
+          id?: string
+          items?: Json | null
+          notes?: Json | null
+          packaging_charge?: number | null
+          reseller_id?: string
+          reseller_name?: string | null
+          status?: string | null
+          total_profit?: number | null
+          total_reseller_cost?: number | null
+          total_selling_price?: number | null
+        }
+        Relationships: []
+      }
+      resellers: {
+        Row: {
+          approval_status: string | null
+          balance: number | null
+          created_at: string | null
+          deactivation_note: string | null
+          email: string
+          id: string
+          is_active: boolean | null
+          name: string
+          password: string
+          phone: string | null
+        }
+        Insert: {
+          approval_status?: string | null
+          balance?: number | null
+          created_at?: string | null
+          deactivation_note?: string | null
+          email: string
+          id: string
+          is_active?: boolean | null
+          name: string
+          password: string
+          phone?: string | null
+        }
+        Update: {
+          approval_status?: string | null
+          balance?: number | null
+          created_at?: string | null
+          deactivation_note?: string | null
+          email?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          password?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+        }
+        Relationships: []
+      }
+      stock_entries: {
+        Row: {
+          buy_price: number | null
+          created_at: string
+          damage: number | null
+          date: string | null
+          id: string
+          note: string | null
+          product_name: string
+          quantity: number | null
+          sell_price: number | null
+          supplier: string | null
+        }
+        Insert: {
+          buy_price?: number | null
+          created_at?: string
+          damage?: number | null
+          date?: string | null
+          id: string
+          note?: string | null
+          product_name: string
+          quantity?: number | null
+          sell_price?: number | null
+          supplier?: string | null
+        }
+        Update: {
+          buy_price?: number | null
+          created_at?: string
+          damage?: number | null
+          date?: string | null
+          id?: string
+          note?: string | null
+          product_name?: string
+          quantity?: number | null
+          sell_price?: number | null
+          supplier?: string | null
+        }
+        Relationships: []
+      }
+      variations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          name: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
