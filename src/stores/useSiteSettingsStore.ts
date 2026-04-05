@@ -89,7 +89,7 @@ export const useSiteSettingsStore = create<SiteSettingsStore>()((set, get) => ({
       headerCode: state.headerCode, bodyCode: state.bodyCode, footerCode: state.footerCode,
       adsenseCode: state.adsenseCode, adsTxtCode: state.adsTxtCode,
     };
-    await db.from('site_settings').upsert({ id: 'default', data: allSettings, updated_at: new Date().toISOString() });
+    await db.from('site_settings').upsert({ id: 'default', data: allSettings });
   },
 
   addHomepageSection: (section) => {
