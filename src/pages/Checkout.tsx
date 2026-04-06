@@ -221,7 +221,7 @@ const Checkout = () => {
     <div className="bg-background min-h-screen">
       {/* Red instruction banner */}
       <div className="bg-destructive text-destructive-foreground text-center py-3 px-4">
-        <p className="text-sm md:text-base font-bold">
+        <p className="text-[25px] font-bold leading-tight">
           ১০০% নিশ্চিত হয়ে অর্ডার করতে এই ফর্মটি পূরণ করে নিচের "Place Order" বাটনে ক্লিক করুন
         </p>
       </div>
