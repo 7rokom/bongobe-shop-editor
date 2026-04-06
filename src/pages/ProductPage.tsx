@@ -290,7 +290,7 @@ const ProductPage = () => {
               ))}
             </div>
             {/* Guarantee text with decorative lines */}
-            <div className="bg-muted/50 rounded-[5px] p-3 mt-3">
+            <div className="bg-muted/50 rounded-[5px] p-3 mt-3 border border-black/50">
               <div className="flex items-center gap-3">
                 <div className="flex-1 h-[3px] bg-primary rounded-full" />
                 <span className="text-[22px] font-bold text-destructive whitespace-nowrap">ছবির মত হুবহু প্রডাক্ট পাবেন</span>
@@ -393,7 +393,6 @@ const ProductPage = () => {
 
             {/* Sales Count + Review Rating */}
             <div className="flex items-center gap-1 flex-wrap mt-[5px] mb-[2px]">
-              <span className="text-[18px] md:text-[18px] font-medium text-foreground font-['Noto_Serif_Bengali']">🔥 আজকে <strong className="text-primary">{salesCount}</strong> পিস বিক্রি হয়েছে!</span>
               {product.reviews && product.reviews.length > 0 && (() => {
                 const avg = product.reviews!.reduce((sum, r) => sum + r.rating, 0) / product.reviews!.length;
                 return (
@@ -423,7 +422,7 @@ const ProductPage = () => {
             </div>
 
             {/* Price Section */}
-            <div className="bg-muted/50 rounded-[5px] p-3 flex items-center gap-3">
+            <div className="bg-muted/50 rounded-[5px] p-3 flex items-center gap-3 border border-black/50">
               <span className="text-lg font-bold text-foreground">দামঃ</span>
               <span className="text-3xl font-extrabold text-primary">৳{currentPrice}</span>
               {product.originalPrice && (
@@ -517,24 +516,24 @@ const ProductPage = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-10" ref={tabsRef}>
-          <TabsList className="w-full bg-transparent p-0 h-auto gap-0 rounded-none border-b-[1px] border-primary overflow-x-auto flex-nowrap">
+          <TabsList className="w-full bg-transparent p-0 h-auto gap-0 rounded-none overflow-x-auto flex-nowrap">
             <TabsTrigger
               value="description"
-              className="rounded-none px-3 sm:px-6 py-3 text-[14px] sm:text-[16px] font-bold text-black dark:text-white uppercase tracking-wide data-[state=active]:text-black dark:data-[state=active]:text-white data-[state=active]:shadow-none data-[state=active]:border-t-[3px] data-[state=active]:border-t-primary data-[state=active]:bg-transparent border-t-[3px] border-t-transparent transition-all whitespace-nowrap"
+              className="flex-1 rounded-none rounded-t-md px-3 sm:px-6 py-3 text-[14px] sm:text-[16px] font-bold text-primary-foreground uppercase tracking-wide data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none bg-secondary text-secondary-foreground transition-all whitespace-nowrap"
             >
               Description
             </TabsTrigger>
             <TabsTrigger
               value="reviews"
-              className="rounded-none px-3 sm:px-6 py-3 text-[14px] sm:text-[16px] font-bold text-black dark:text-white uppercase tracking-wide data-[state=active]:text-black dark:data-[state=active]:text-white data-[state=active]:shadow-none data-[state=active]:border-t-[3px] data-[state=active]:border-t-primary data-[state=active]:bg-transparent border-t-[3px] border-t-transparent transition-all whitespace-nowrap"
+              className="flex-1 rounded-none rounded-t-md px-3 sm:px-6 py-3 text-[14px] sm:text-[16px] font-bold text-primary-foreground uppercase tracking-wide data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none bg-secondary text-secondary-foreground transition-all whitespace-nowrap"
             >
               Reviews
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="description" className="mt-[10px]">
-            <div className="p-0 bg-background overflow-hidden break-words">
+          <TabsContent value="description" className="mt-0">
+            <div className="p-4 md:p-6 bg-background overflow-hidden break-words border border-t-0 border-border">
               <div
-                className="prose prose-sm sm:prose max-w-none w-full [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-[5px] [&_img]:my-3 [&_img]:block [&_img]:mx-auto [&_*]:max-w-full [&_table]:w-full [&_table]:table-fixed [&_table]:border-collapse [&_table]:border [&_table]:border-border [&_th]:border [&_th]:border-border [&_th]:px-3 [&_th]:py-2 [&_th]:bg-muted [&_th]:text-left [&_th]:font-semibold [&_td]:border [&_td]:border-border [&_td]:px-3 [&_td]:py-2 break-words overflow-wrap-anywhere"
+                className="prose prose-sm sm:prose max-w-none w-full font-['Noto_Serif_Bengali'] text-foreground [&_p]:mb-3 [&_br]:block [&_br]:content-[''] [&_br]:mb-2 [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-[5px] [&_img]:my-3 [&_img]:block [&_img]:mx-auto [&_*]:max-w-full [&_table]:w-full [&_table]:table-fixed [&_table]:border-collapse [&_table]:border [&_table]:border-border [&_th]:border [&_th]:border-border [&_th]:px-3 [&_th]:py-2 [&_th]:bg-muted [&_th]:text-left [&_th]:font-semibold [&_td]:border [&_td]:border-border [&_td]:px-3 [&_td]:py-2 [&_h1]:text-xl [&_h1]:font-bold [&_h1]:mb-3 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mb-3 [&_h3]:text-base [&_h3]:font-bold [&_h3]:mb-2 break-words overflow-wrap-anywhere"
                 dangerouslySetInnerHTML={{ __html: product.longDescription || product.shortDescription || '' }}
               />
             </div>
