@@ -303,7 +303,7 @@ const ProductPage = () => {
           <div className="space-y-3">
             <h1 className="text-[25px] md:text-[27px] font-bold leading-tight text-black dark:text-white line-clamp-2">{product.title}</h1>
             <div className="h-px w-full bg-primary/80 rounded-full !mt-[7px]" />
-            <div className="text-black dark:text-white text-[18px] md:text-[18px] prose prose-sm max-w-none leading-[1.3] [&_*]:text-black dark:[&_*]:text-white [&_p]:mb-[2px] [&_li]:mb-[2px] !mt-[7px] overflow-hidden break-words [&_img]:max-w-full [&_img]:h-auto [&_*]:max-w-full font-['Noto_Serif_Bengali']" dangerouslySetInnerHTML={{ __html: product.shortDescription }} />
+            <div className="text-black dark:text-white text-[18px] md:text-[18px] prose prose-sm max-w-none leading-[1.3] [&_*]:text-black dark:[&_*]:text-white [&_p]:mb-[2px] [&_li]:mb-[2px] !mt-[7px] overflow-hidden break-words [&_img]:max-w-full [&_img]:h-auto [&_*]:max-w-full font-['Noto_Serif_Bengali'] whitespace-pre-line" dangerouslySetInnerHTML={{ __html: product.shortDescription }} />
 
             {/* Variations - side by side on desktop */}
             <div className="flex flex-col lg:flex-row lg:flex-wrap lg:items-center gap-2 lg:gap-4">
@@ -508,7 +508,29 @@ const ProductPage = () => {
                 অর্ডার করুন
               </Button>
 
-              {/* Fixed floating Call + WhatsApp buttons */}
+              {/* Call & WhatsApp inline buttons */}
+              <div className="flex items-center gap-[10px]">
+                <a href="tel:01930301724" className="flex-1">
+                  <Button
+                    size="lg"
+                    className="w-full rounded-[5px] text-[14px] sm:text-[16px] font-bold gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+                  >
+                    <Phone className="h-4 w-4" />
+                    <span className="hidden md:inline">কলে অর্ডার করুন</span>
+                    <span className="md:hidden">জরুরি কল করুন</span>
+                  </Button>
+                </a>
+                <a href="https://wa.me/8801930301724" target="_blank" rel="noopener noreferrer" className="flex-1">
+                  <Button
+                    size="lg"
+                    className="w-full rounded-[5px] text-[14px] sm:text-[16px] font-bold gap-2 bg-[#25D366] text-white hover:bg-[#1da851]"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    <span className="hidden md:inline">হোয়াটস্যাপ-এ অর্ডার করুন</span>
+                    <span className="md:hidden">হোয়াটস্যাপ মেসেজ</span>
+                  </Button>
+                </a>
+              </div>
             </div>
           </div>
 
@@ -519,19 +541,19 @@ const ProductPage = () => {
           <TabsList className="w-full bg-transparent p-0 h-auto gap-0 rounded-none overflow-x-auto flex-nowrap">
             <TabsTrigger
               value="description"
-              className="flex-1 rounded-none rounded-t-md px-3 sm:px-6 py-3 text-[14px] sm:text-[16px] font-bold text-primary-foreground uppercase tracking-wide data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none bg-secondary text-secondary-foreground transition-all whitespace-nowrap"
+              className="flex-1 rounded-none px-3 sm:px-6 py-3 text-[14px] sm:text-[16px] font-bold text-primary-foreground uppercase tracking-wide data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none bg-secondary text-secondary-foreground transition-all whitespace-nowrap"
             >
               Description
             </TabsTrigger>
             <TabsTrigger
               value="reviews"
-              className="flex-1 rounded-none rounded-t-md px-3 sm:px-6 py-3 text-[14px] sm:text-[16px] font-bold text-primary-foreground uppercase tracking-wide data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none bg-secondary text-secondary-foreground transition-all whitespace-nowrap"
+              className="flex-1 rounded-none px-3 sm:px-6 py-3 text-[14px] sm:text-[16px] font-bold text-primary-foreground uppercase tracking-wide data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none bg-secondary text-secondary-foreground transition-all whitespace-nowrap"
             >
               Reviews
             </TabsTrigger>
           </TabsList>
           <TabsContent value="description" className="mt-0">
-            <div className="p-4 md:p-6 bg-background overflow-hidden break-words border border-t-0 border-border">
+            <div className="p-1 bg-background overflow-hidden break-words border border-t-0 border-border">
               <div
                 className="prose prose-sm sm:prose max-w-none w-full font-['Noto_Serif_Bengali'] text-foreground [&_p]:mb-3 [&_br]:block [&_br]:content-[''] [&_br]:mb-2 [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-[5px] [&_img]:my-3 [&_img]:block [&_img]:mx-auto [&_*]:max-w-full [&_table]:w-full [&_table]:table-fixed [&_table]:border-collapse [&_table]:border [&_table]:border-border [&_th]:border [&_th]:border-border [&_th]:px-3 [&_th]:py-2 [&_th]:bg-muted [&_th]:text-left [&_th]:font-semibold [&_td]:border [&_td]:border-border [&_td]:px-3 [&_td]:py-2 [&_h1]:text-xl [&_h1]:font-bold [&_h1]:mb-3 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mb-3 [&_h3]:text-base [&_h3]:font-bold [&_h3]:mb-2 break-words overflow-wrap-anywhere"
                 dangerouslySetInnerHTML={{ __html: product.longDescription || product.shortDescription || '' }}
@@ -584,7 +606,7 @@ const ProductPage = () => {
             <div className="flex items-end justify-between mb-1">
               <h2 className="text-xl font-bold text-primary">সম্পর্কিত পণ্য</h2>
             </div>
-            <div className="border-t-[2px] border-primary pt-4">
+            <div className="border-t border-primary pt-4">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-[10px]">
               {related.map((p) => (
                 <ProductCard key={p.id} product={p} />
@@ -598,7 +620,7 @@ const ProductPage = () => {
       {/* Mobile Sticky Order Button */}
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-white p-3 md:hidden border-t border-border">
         <Button
-          className="w-full h-12 text-[20px] font-bold gap-2 rounded-[5px] animate-blink-order border border-foreground shadow-[0_4px_15px_rgba(0,0,0,0.15)]"
+          className="w-full h-12 text-[27px] font-bold gap-2 rounded-[5px] animate-blink-order border border-foreground shadow-[0_4px_15px_rgba(0,0,0,0.15)]"
           onClick={() => {
             if (isDeviceBlocked || isProductCooldown) {
               toast({ title: getCooldownMessage(), variant: 'destructive' });

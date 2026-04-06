@@ -52,7 +52,7 @@ const ProductCardBase = forwardRef<HTMLDivElement, ProductCardProps>(({ product 
   return (
     <div
       ref={ref}
-      className="group bg-card rounded-[5px] border border-primary shadow-sm hover:shadow-[0_2px_8px_rgba(0,80,10,0.35)] hover:-translate-y-[3px] transition-all duration-300 overflow-visible"
+      className="group bg-card rounded-[5px] border border-black/30 shadow-sm hover:shadow-[0_2px_8px_rgba(0,80,10,0.35)] hover:-translate-y-[3px] transition-all duration-300 overflow-visible"
     >
       <div className="relative aspect-square overflow-hidden rounded-t-[5px]">
         <Link to={`/product/${product.slug}`}>
@@ -100,13 +100,13 @@ const ProductCardBase = forwardRef<HTMLDivElement, ProductCardProps>(({ product 
           <div className="flex items-center gap-[4px]">
             <Button
               size="icon"
-              className="h-9 w-9 flex-shrink-0 bg-primary text-primary-foreground hover:bg-foreground hover:text-background"
+              className="h-9 w-9 flex-shrink-0 rounded-[5px] bg-primary text-primary-foreground hover:bg-foreground hover:text-background"
               onClick={handleAddToCart}
             >
               <ShoppingCart className="h-4 w-4" />
             </Button>
             <Button
-              className="flex-1 h-9 text-[16px] hover:bg-foreground hover:text-background"
+              className="flex-1 h-9 text-[16px] rounded-[5px] hover:bg-foreground hover:text-background"
               onClick={handleOrder}
             >
               অর্ডার করুন
