@@ -31,7 +31,36 @@ const useSalesCount = (productId: string) => {
   return useMemo(() => getHashNumber(productId, 1, 69), [productId]);
 };
 
-const FakeReviewForm = () => {
+const CallWhatsAppButtons = () => {
+  const phone = useSiteSettingsStore((s) => s.phone);
+  const whatsappNumber = useSiteSettingsStore((s) => s.whatsappNumber);
+  const waNumber = whatsappNumber?.replace(/^0/, '88') || '';
+  return (
+    <div className="flex items-center gap-[6px]">
+      <a href={`tel:${phone}`} className="flex-1 min-w-0">
+        <Button
+          size="lg"
+          className="w-full rounded-[5px] text-[12px] sm:text-[14px] font-bold gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 px-2 sm:px-4"
+        >
+          <Phone className="h-4 w-4 shrink-0" />
+          <span className="hidden md:inline truncate">কলে অর্ডার করুন</span>
+          <span className="md:hidden truncate">জরুরি কল করুন</span>
+        </Button>
+      </a>
+      <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-0">
+        <Button
+          size="lg"
+          className="w-full rounded-[5px] text-[12px] sm:text-[14px] font-bold gap-1.5 bg-[#25D366] text-white hover:bg-[#1da851] px-2 sm:px-4"
+        >
+          <MessageCircle className="h-4 w-4 shrink-0" />
+          <span className="hidden md:inline truncate">হোয়াটস্যাপ-এ অর্ডার করুন</span>
+          <span className="md:hidden truncate">হোয়াটস্যাপ মেসেজ</span>
+        </Button>
+      </a>
+    </div>
+  );
+};
+
   const [name, setName] = useState('');
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
