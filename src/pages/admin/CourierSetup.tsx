@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,13 +14,14 @@ const maskValue = (val: string) => {
 };
 
 const CourierSetup = () => {
-  const { settings: sfSettings, updateSettings: updateSfSettings } = useSteadfastStore();
+  const { settings: sfSettings, updateSettings: updateSfSettings, fetchSettings: fetchSfSettings } = useSteadfastStore();
+  const { settings: cbSettings, updateSettings: updateCbSettings, fetchSettings: fetchCbSettings } = useCarrybeeStore();
+
   const [sfApiKey, setSfApiKey] = useState(sfSettings.apiKey);
   const [sfSecretKey, setSfSecretKey] = useState(sfSettings.secretKey);
   const [sfShowApi, setSfShowApi] = useState(!sfSettings.apiKey);
   const [sfShowSecret, setSfShowSecret] = useState(!sfSettings.secretKey);
 
-  const { settings: cbSettings, updateSettings: updateCbSettings } = useCarrybeeStore();
   const [cbClientId, setCbClientId] = useState(cbSettings.clientId);
   const [cbClientSecret, setCbClientSecret] = useState(cbSettings.clientSecret);
   const [cbClientContext, setCbClientContext] = useState(cbSettings.clientContext);
@@ -28,6 +29,29 @@ const CourierSetup = () => {
   const [cbShowId, setCbShowId] = useState(!cbSettings.clientId);
   const [cbShowSecret, setCbShowSecret] = useState(!cbSettings.clientSecret);
   const [cbShowContext, setCbShowContext] = useState(!cbSettings.clientContext);
+
+  // Fetch settings on mount and sync local state when store updates
+  useEffect(() => {
+    fetchSfSettings();
+    fetchCbSettings();
+  }, []);
+
+  useEffect(() => {
+    setSfApiKey(sfSettings.apiKey);
+    setSfSecretKey(sfSettings.secretKey);
+    setSfShowApi(!sfSettings.apiKey);
+    setSfShowSecret(!sfSettings.secretKey);
+  }, [sfSettings.apiKey, sfSettings.secretKey]);
+
+  useEffect(() => {
+    setCbClientId(cbSettings.clientId);
+    setCbClientSecret(cbSettings.clientSecret);
+    setCbClientContext(cbSettings.clientContext);
+    setCbStoreId(cbSettings.defaultStoreId);
+    setCbShowId(!cbSettings.clientId);
+    setCbShowSecret(!cbSettings.clientSecret);
+    setCbShowContext(!cbSettings.clientContext);
+  }, [cbSettings.clientId, cbSettings.clientSecret, cbSettings.clientContext, cbSettings.defaultStoreId]);
 
   const handleSaveSteadfast = () => {
     updateSfSettings({ apiKey: sfApiKey.trim(), secretKey: sfSecretKey.trim() });
