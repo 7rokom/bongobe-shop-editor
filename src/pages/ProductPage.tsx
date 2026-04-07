@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useProductStore } from "@/stores/useProductStore";
 import { trackViewContent, trackAddToCart } from "@/lib/dataLayer";
 import { useCartStore, useWishlistStore } from "@/stores/useStore";
+import { useSiteSettingsStore } from "@/stores/useSiteSettingsStore";
 import { useFraudBlockedStore } from "@/stores/useFraudBlockedStore";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -509,28 +510,7 @@ const ProductPage = () => {
               </Button>
 
               {/* Call & WhatsApp inline buttons */}
-              <div className="flex items-center gap-[10px]">
-                <a href="tel:01930301724" className="flex-1">
-                  <Button
-                    size="lg"
-                    className="w-full rounded-[5px] text-[14px] sm:text-[16px] font-bold gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-                  >
-                    <Phone className="h-4 w-4" />
-                    <span className="hidden md:inline">কলে অর্ডার করুন</span>
-                    <span className="md:hidden">জরুরি কল করুন</span>
-                  </Button>
-                </a>
-                <a href="https://wa.me/8801930301724" target="_blank" rel="noopener noreferrer" className="flex-1">
-                  <Button
-                    size="lg"
-                    className="w-full rounded-[5px] text-[14px] sm:text-[16px] font-bold gap-2 bg-[#25D366] text-white hover:bg-[#1da851]"
-                  >
-                    <MessageCircle className="h-4 w-4" />
-                    <span className="hidden md:inline">হোয়াটস্যাপ-এ অর্ডার করুন</span>
-                    <span className="md:hidden">হোয়াটস্যাপ মেসেজ</span>
-                  </Button>
-                </a>
-              </div>
+              <CallWhatsAppButtons />
             </div>
           </div>
 
