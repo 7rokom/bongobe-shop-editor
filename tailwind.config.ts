@@ -101,6 +101,13 @@ export default {
         "ping-shadow": "ping-shadow 2s ease-in-out infinite",
         "ping-shadow-wa": "ping-shadow-wa 2s ease-in-out infinite",
         "subtle-pulse": "subtle-pulse 3s ease-in-out infinite",
+        "marquee": "marquee-scroll 15s linear infinite",
+      },
+      keyframes: {
+        "marquee-scroll": {
+          "0%": { transform: "translateX(100%)" },
+          "100%": { transform: "translateX(-100%)" },
+        },
       },
     },
   },
