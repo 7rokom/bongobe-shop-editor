@@ -61,6 +61,7 @@ const CallWhatsAppButtons = () => {
   );
 };
 
+const FakeReviewForm = () => {
   const [name, setName] = useState('');
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
