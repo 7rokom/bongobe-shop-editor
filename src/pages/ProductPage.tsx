@@ -453,17 +453,24 @@ const ProductPage = () => {
             </div>
 
             {/* Price Section */}
-            <div className="bg-muted/50 rounded-[5px] p-3 flex items-center gap-3 border border-black/50">
-              <span className="text-lg font-bold text-foreground">দামঃ</span>
-              <span className="text-3xl font-extrabold text-primary">৳{currentPrice}</span>
-              {product.originalPrice && (
-                <span className="text-2xl text-muted-foreground/60 line-through font-bold">৳{product.originalPrice}</span>
-              )}
-              {discount > 0 && (
-                <span className="bg-destructive/10 text-destructive text-sm font-bold px-2 py-0.5 rounded-[5px]">
-                  {discount}% ছাড়
-                </span>
-              )}
+            <div className="bg-muted/50 rounded-[5px] p-3 border border-black/50 overflow-hidden">
+              <div className="flex items-center gap-3">
+                <span className="text-lg font-bold text-foreground">একদামঃ</span>
+                <span className="text-3xl font-extrabold text-primary">৳{currentPrice}</span>
+                {product.originalPrice && (
+                  <span className="text-2xl text-muted-foreground/60 line-through font-bold">৳{product.originalPrice}</span>
+                )}
+                {discount > 0 && (
+                  <span className="bg-destructive/10 text-destructive text-sm font-bold px-2 py-0.5 rounded-[5px]">
+                    {discount}% ছাড়
+                  </span>
+                )}
+              </div>
+              <div className="mt-2 overflow-hidden">
+                <p className="text-[14px] text-foreground font-medium whitespace-nowrap animate-marquee">
+                  প্রিয় গ্রাহক! এটা একদামের পণ্য, তাই যাদের দামাদামি করার অভ্যাস আছে। প্লিজ🙏তারা অর্ডার করিবেন না। আর যারা সত্যিকারে নিতে চান, শুধু মাত্র তারাই অর্ডার করবেন। অন্যের ক্ষতি করলে তার বিচার আল্লাহ করবেন।
+                </p>
+              </div>
             </div>
 
 
