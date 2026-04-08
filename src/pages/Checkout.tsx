@@ -17,8 +17,7 @@ import { validatePhone, validateName } from "@/lib/order-validation";
 import ValidationPopup from "@/components/ValidationPopup";
 import { generateFingerprint } from "@/lib/fingerprint";
 import { trackInitiateCheckout, trackPurchase } from "@/lib/dataLayer";
-import { checkFraud, isFraudBlocked, setFraudBlock } from "@/lib/fraud-check";
-import { isOrderCooldownActive, setOrderCooldown, getCooldownMessage, checkServerCooldown } from "@/lib/order-cooldown";
+import { checkFraud, checkDeviceBlocked } from "@/lib/fraud-check";
 import PostOrderPopup from "@/components/PostOrderPopup";
 
 const deliveryOptions = [
