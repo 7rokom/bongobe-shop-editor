@@ -1,0 +1,49 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const { phone, apiKey } = await req.json();
+    if (!phone) {
+      return new Response(JSON.stringify({ error: "Phone number required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const key = apiKey || Deno.env.get("BDCOURIER_API_KEY") || "";
+    
+    const res = await fetch("https://bdcourier.com/api/courier-check", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${key}`,
+      },
+      body: JSON.stringify({ phone }),
+    });
+
+    const data = await res.json();
+
+    return new Response(
+      JSON.stringify({
+        all: data?.courier_data?.all || 0,
+        delivered: data?.courier_data?.delivered || 0,
+        returned: data?.courier_data?.returned || 0,
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    return new Response(
+      JSON.stringify({ error: "Failed to check courier", all: 0, delivered: 0, returned: 0 }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
