@@ -38,7 +38,7 @@ const AdminPasswordSettings = () => {
       }
     }
 
-    updateAdminCredentials(newEmail, finalPass);
+    await updateAdminCredentials(newEmail, finalPass);
     toast.success('অ্যাডমিন ক্রেডেনশিয়াল আপডেট হয়েছে ✅');
     setCurrentPass('');
     setNewPass('');
