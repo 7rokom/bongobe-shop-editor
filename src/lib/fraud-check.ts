@@ -52,3 +52,22 @@ export const checkFraud = async (phone: string): Promise<FraudCheckResult> => {
     return { passed: true };
   }
 };
+
+// Check if device has any order in blocking statuses
+export const checkDeviceBlocked = async (fingerprint: string): Promise<boolean> => {
+  if (!fingerprint) return false;
+  try {
+    const { supabase } = await import('@/integrations/supabase/client');
+    const blockingStatuses = ['পেন্ডিং', 'হোল্ড', 'ক্যান্সেল', 'রিটার্ন'];
+    const { data, error } = await (supabase as any)
+      .from('orders')
+      .select('id')
+      .eq('customer_fingerprint', fingerprint)
+      .in('status', blockingStatuses)
+      .limit(1);
+    if (error) return false;
+    return (data?.length || 0) > 0;
+  } catch {
+    return false;
+  }
+};
