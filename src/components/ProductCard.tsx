@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Product } from "@/data/store-data";
 import { useCartStore, useWishlistStore } from "@/stores/useStore";
 import { useFraudBlockedStore } from "@/stores/useFraudBlockedStore";
-import { isOrderCooldownActive, getCooldownMessage } from "@/lib/order-cooldown";
 
 interface ProductCardProps {
   product: Product;
@@ -18,7 +17,6 @@ const ProductCardBase = forwardRef<HTMLDivElement, ProductCardProps>(({ product 
   const toggleWishlist = useWishlistStore((s) => s.toggleItem);
   const isInWishlist = useWishlistStore((s) => !!s.items.find((i) => i.id === product.id));
   const isDeviceBlocked = useFraudBlockedStore((s) => s.isDeviceBlocked);
-  const isCooldown = useMemo(() => isOrderCooldownActive(), [product.id]);
 
   const hasVariations = (product.variations && product.variations.length > 0) ||
     (product.colors && product.colors.length > 0) ||
@@ -90,14 +88,7 @@ const ProductCardBase = forwardRef<HTMLDivElement, ProductCardProps>(({ product 
           )}
         </div>
 
-        {isCooldown ? (
-          <div className="bg-muted/80 border border-border rounded-[5px] p-2 text-center">
-            <p className="text-[11px] text-muted-foreground font-medium leading-tight">
-              {getCooldownMessage()}
-            </p>
-          </div>
-        ) : (
-          <div className="flex items-center gap-[4px]">
+        <div className="flex items-center gap-[4px]">
             <Button
               size="icon"
               className="h-9 w-9 flex-shrink-0 rounded-[5px] bg-primary text-primary-foreground hover:bg-foreground hover:text-background"
@@ -112,7 +103,6 @@ const ProductCardBase = forwardRef<HTMLDivElement, ProductCardProps>(({ product 
               অর্ডার করুন
             </Button>
           </div>
-        )}
       </div>
     </div>
   );
