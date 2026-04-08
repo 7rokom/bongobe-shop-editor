@@ -72,7 +72,7 @@ const LandingPage = () => {
   const removeByPhone = useIncompleteOrderStore((s) => s.removeByPhone);
   const fraudEnabled = useFraudSettingsStore((s) => s.enabled);
 
-  const [fraudBlocked, setFraudBlocked] = useState(isFraudBlocked());
+  const [fraudBlocked, setFraudBlocked] = useState(false);
   const [fraudBlockReason, setFraudBlockReason] = useState<'no_data' | 'low_ratio' | null>(null);
   const [fraudChecking, setFraudChecking] = useState(false);
   const [showFraudPopup, setShowFraudPopup] = useState(false);
@@ -241,18 +241,21 @@ const LandingPage = () => {
       return;
     }
 
-    if (isDeviceBlocked) {
-      await addIncomplete({
-        name, phone, address,
-        items: [{ title: product.title, quantity, price: currentPrice, image: product.images?.[0] || '' }],
-        totalPrice: subtotal, deliveryCharge,
-        deliveryZone: delivery === '70' ? 'ঢাকার মধ্যে' : delivery === '100' ? 'ঢাকার আশেপাশে' : 'ঢাকার বাইরে',
-        grandTotal: total, type: 'blocked',
-        blockReason: deviceBlockReason === 'no_data' ? 'কুরিয়ার হিস্টোরি পাওয়া যায়নি' : 'ডেলিভারি রেশিওর কারণে সাময়িক ব্লক',
-        customerIp: customerIp || undefined, customerFingerprint: customerFingerprint || undefined,
-      });
-      toast({ title: 'আপনার ডিভাইস ব্লক করা হয়েছে', variant: 'destructive' });
-      return;
+    // Check device blocked by order status (পেন্ডিং/হোল্ড/ক্যান্সেল/রিটার্ন)
+    if (customerFingerprint) {
+      const deviceBlocked = await checkDeviceBlocked(customerFingerprint);
+      if (deviceBlocked) {
+        await addIncomplete({
+          name, phone, address,
+          items: [{ title: product.title, quantity, price: currentPrice, image: product.images?.[0] || '' }],
+          totalPrice: subtotal, deliveryCharge,
+          deliveryZone: delivery === '70' ? 'ঢাকার মধ্যে' : delivery === '100' ? 'ঢাকার আশেপাশে' : 'ঢাকার বাইরে',
+          grandTotal: total, type: 'blocked', blockReason: 'আপনার আগের অর্ডার প্রসেসিং এ আছে',
+          customerIp: customerIp || undefined, customerFingerprint: customerFingerprint || undefined,
+        });
+        setValidationMsg('আপনি আগেও আমাদের ওয়েবসাইটে অর্ডার করেছেন যা এখনো প্রসেসিং এ আছে। পূর্বের অর্ডার সম্পন্ন না হওয়া পর্যন্ত নতুন অর্ডার করা যাবে না।');
+        return;
+      }
     }
 
     if (fraudEnabled) {
@@ -260,7 +263,7 @@ const LandingPage = () => {
       const fraudResult = await checkFraud(phone);
       setFraudChecking(false);
       if (!fraudResult.passed) {
-        setFraudBlock(); setFraudBlocked(true); setFraudBlockReason(fraudResult.reason || 'low_ratio');
+        setFraudBlocked(true); setFraudBlockReason(fraudResult.reason || 'low_ratio');
         setShowFraudPopup(true); markBlocked(fraudResult.reason || 'low_ratio');
         await addIncomplete({
           name, phone, address,
@@ -274,9 +277,6 @@ const LandingPage = () => {
         return;
       }
     }
-
-    const serverCooldown = await checkServerCooldown(phone, customerIp || undefined, customerFingerprint || undefined);
-    if (serverCooldown || isOrderCooldownActive()) { setValidationMsg(getCooldownMessage()); return; }
 
     const variations: Record<string, string> = {};
     if (selectedColor) variations['কালার'] = selectedColor;
@@ -297,7 +297,6 @@ const LandingPage = () => {
     });
 
     trackPurchase(id, [{ item_id: product.id, item_name: product.title, price: currentPrice, quantity, item_category: product.category }], total, deliveryCharge, discount);
-    setOrderCooldown();
     orderSubmitted.current = true;
     removeByPhone(phone);
 
