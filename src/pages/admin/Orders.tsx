@@ -588,6 +588,14 @@ const Orders = () => {
 
   const handleBulkDelete = () => {
     if (!isAdmin) { toast.error('শুধুমাত্র অ্যাডমিন অর্ডার ডিলিট করতে পারবে'); return; }
+    // Block devices of orders in blocking statuses before deleting
+    const blockingStatuses = ['পেন্ডিং', 'হোল্ড', 'ক্যান্সেল', 'রিটার্ন'];
+    selectedOrders.forEach((id) => {
+      const order = orders.find(o => o.id === id);
+      if (order && blockingStatuses.includes(order.status) && order.customerFingerprint) {
+        blockCustomerFull({ phone: order.phone, fingerprint: order.customerFingerprint, ip: order.customerIp, customerName: order.customer, reason: `অর্ডার ${order.id} (${order.status}) ডিলিট করায় ব্লক` });
+      }
+    });
     deleteOrdersInStore(selectedOrders);
     toast.success(`${selectedOrders.size}টি অর্ডার ডিলিট হয়েছে`);
     setSelectedOrders(new Set());
@@ -602,6 +610,11 @@ const Orders = () => {
     if (deleteConfirmStep === 1) {
       setDeleteConfirmStep(2);
     } else if (deleteConfirmStep === 2 && deleteConfirmOrder) {
+      // Block device if order was in blocking status
+      const blockingStatuses = ['পেন্ডিং', 'হোল্ড', 'ক্যান্সেল', 'রিটার্ন'];
+      if (blockingStatuses.includes(deleteConfirmOrder.status) && deleteConfirmOrder.customerFingerprint) {
+        blockCustomerFull({ phone: deleteConfirmOrder.phone, fingerprint: deleteConfirmOrder.customerFingerprint, ip: deleteConfirmOrder.customerIp, customerName: deleteConfirmOrder.customer, reason: `অর্ডার ${deleteConfirmOrder.id} (${deleteConfirmOrder.status}) ডিলিট করায় ব্লক` });
+      }
       deleteOrdersInStore(new Set([deleteConfirmOrder.id]));
       toast.success(`অর্ডার ${deleteConfirmOrder.id} ডিলিট হয়েছে`);
       setDeleteConfirmOrder(null);
