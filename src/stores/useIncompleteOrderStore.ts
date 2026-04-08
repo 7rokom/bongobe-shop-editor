@@ -30,8 +30,8 @@ interface IncompleteOrderStore {
   removeByPhone: (phone: string) => void;
 }
 
-const SUPABASE_URL = 'https://vdznwxispnuzfwotaxgd.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkem53eGlzcG51emZ3b3RheGdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MTIzMjIsImV4cCI6MjA4OTI4ODMyMn0.fuHClmDNJLsUfl5JT3sqr_1_EfsEIdXK1uw1Qcch5Ls';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://pkjppotigjlejqcimvak.supabase.co';
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBranBwb3RpZ2psZWpxY2ltdmFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyODc2ODIsImV4cCI6MjA5MDg2MzY4Mn0.IqiKImsnMYY1h1C6TmOHt2E-sGTh2gyYlM4m83gIQqs';
 
 function buildPayload(order: Omit<IncompleteOrder, 'id' | 'date'>) {
   const id = 'INC' + Date.now().toString().slice(-6);

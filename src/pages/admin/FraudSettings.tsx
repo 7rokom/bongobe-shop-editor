@@ -33,7 +33,8 @@ const FraudSettings = () => {
     setTesting(true);
     setTestResult(null);
     try {
-      const res = await fetch('https://vdznwxispnuzfwotaxgd.supabase.co/functions/v1/courier-check', {
+      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/courier-check`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: testPhone, ...(settings.bdcourierApiKey ? { apiKey: settings.bdcourierApiKey } : {}) }),
