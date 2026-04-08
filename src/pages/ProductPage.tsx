@@ -16,7 +16,6 @@ import SEOHead, { DOMAIN } from "@/components/SEOHead";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
 import { toast } from "@/hooks/use-toast";
-import { isOrderCooldownActive, getCooldownMessage } from "@/lib/order-cooldown";
 
 const getHashNumber = (id: string, min: number, max: number): number => {
   let hash = 0;
@@ -154,9 +153,6 @@ const ProductPage = () => {
   const toggleWishlist = useWishlistStore((s) => s.toggleItem);
   const isInWishlist = useWishlistStore((s) => product ? s.isInWishlist(product.id) : false);
   const isDeviceBlocked = useFraudBlockedStore((s) => s.isDeviceBlocked);
-
-  // Check global 2-hour cooldown
-  const isProductCooldown = useMemo(() => isOrderCooldownActive(), [product?.id]);
 
   // Track view_item event
   useEffect(() => {
@@ -528,8 +524,8 @@ const ProductPage = () => {
                 size="lg"
                 className="w-full rounded-[5px] text-[25px] font-bold gap-2 bg-[#feff00] text-foreground border border-foreground hover:bg-foreground hover:text-background shadow-[0_4px_15px_rgba(0,0,0,0.15)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.25)] transition-all active:scale-[0.98]"
                 onClick={() => {
-                  if (isDeviceBlocked || isProductCooldown) {
-                    toast({ title: getCooldownMessage(), variant: 'destructive' });
+                  if (isDeviceBlocked) {
+                    toast({ title: 'আপনার ডিভাইস ব্লক করা হয়েছে', variant: 'destructive' });
                     return;
                   }
                   if (!validateVariations()) return;
@@ -639,8 +635,8 @@ const ProductPage = () => {
         <Button
           className="w-full h-12 text-[27px] font-bold gap-2 rounded-[5px] animate-blink-order border border-foreground shadow-[0_4px_15px_rgba(0,0,0,0.15)]"
           onClick={() => {
-            if (isDeviceBlocked || isProductCooldown) {
-              toast({ title: getCooldownMessage(), variant: 'destructive' });
+            if (isDeviceBlocked) {
+              toast({ title: 'আপনার ডিভাইস ব্লক করা হয়েছে', variant: 'destructive' });
               return;
             }
             if (!validateVariations()) return;

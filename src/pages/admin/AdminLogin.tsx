@@ -12,12 +12,13 @@ const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login, loginEmployee } = useAdminStore();
+  const [loading, setLoading] = useState(true);
+  const { login, loginEmployee, fetchCredentials, credentialsLoaded } = useAdminStore();
   const { employees, fetchEmployees } = useEmployeeStore();
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchEmployees();
+    Promise.all([fetchCredentials(), fetchEmployees()]).then(() => setLoading(false));
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {

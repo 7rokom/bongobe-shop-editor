@@ -33,7 +33,8 @@ const FraudSettings = () => {
     setTesting(true);
     setTestResult(null);
     try {
-      const res = await fetch('https://vdznwxispnuzfwotaxgd.supabase.co/functions/v1/courier-check', {
+      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/courier-check`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: testPhone, ...(settings.bdcourierApiKey ? { apiKey: settings.bdcourierApiKey } : {}) }),
@@ -59,48 +60,18 @@ const FraudSettings = () => {
         </div>
       </div>
 
-      {/* Order Cooldown Settings */}
+      {/* Device Block Info */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2"><Clock className="h-5 w-5" /> অর্ডার কুলডাউন সেটিংস</CardTitle>
-          <CardDescription>সফল অর্ডারের পর কাস্টমারকে নির্দিষ্ট সময়ের জন্য পুনরায় অর্ডার করা থেকে বিরত রাখুন</CardDescription>
+          <CardTitle className="text-lg flex items-center gap-2"><Clock className="h-5 w-5" /> ডিভাইস ব্লকিং সিস্টেম</CardTitle>
+          <CardDescription>পেন্ডিং, হোল্ড, ক্যান্সেল বা রিটার্ন স্ট্যাটাসে অর্ডার থাকলে কাস্টমারের ডিভাইস অটো-ব্লক হবে। অন্য স্ট্যাটাসে গেলে আনব্লক হবে।</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <Label className="text-base font-medium">কুলডাউন সক্রিয় করুন</Label>
-              <p className="text-sm text-muted-foreground">অর্ডারের পর নির্দিষ্ট সময় অপেক্ষা করতে হবে</p>
-            </div>
-            <Switch checked={settings.cooldownEnabled} onCheckedChange={(v) => settings.updateSettings({ cooldownEnabled: v })} />
+        <CardContent>
+          <div className="bg-muted/50 rounded-lg p-4 text-sm text-muted-foreground space-y-1">
+            <p>✅ এই সিস্টেম স্বয়ংক্রিয়ভাবে কাজ করে — আলাদা কোনো সেটিংস প্রয়োজন নেই।</p>
+            <p>🔒 ব্লকিং স্ট্যাটাস: পেন্ডিং, হোল্ড, ক্যান্সেল, রিটার্ন</p>
+            <p>🗑️ অর্ডার ডিলিট করলে ডিভাইস স্থায়ীভাবে ব্লক থাকবে</p>
           </div>
-
-          {settings.cooldownEnabled && (
-            <>
-              <div className="space-y-2">
-                <Label className="text-base font-medium">কুলডাউন সময় (মিনিট)</Label>
-                <Input
-                  type="number"
-                  min={1}
-                  value={settings.cooldownMinutes}
-                  onChange={(e) => settings.updateSettings({ cooldownMinutes: Math.max(1, Number(e.target.value)) })}
-                  className="max-w-[200px]"
-                />
-                <p className="text-sm text-muted-foreground">
-                  বর্তমান: {settings.cooldownMinutes >= 60 ? `${Math.floor(settings.cooldownMinutes / 60)} ঘন্টা ${settings.cooldownMinutes % 60 > 0 ? `${settings.cooldownMinutes % 60} মিনিট` : ''}` : `${settings.cooldownMinutes} মিনিট`}
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-base font-medium">ব্লক মেসেজ</Label>
-                <Textarea
-                  value={settings.cooldownMessage}
-                  onChange={(e) => settings.updateSettings({ cooldownMessage: e.target.value })}
-                  rows={3}
-                  placeholder="কুলডাউন থাকলে কাস্টমারকে যে মেসেজ দেখানো হবে"
-                />
-              </div>
-            </>
-          )}
         </CardContent>
       </Card>
 
