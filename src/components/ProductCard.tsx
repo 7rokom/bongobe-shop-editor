@@ -1,4 +1,4 @@
-import { forwardRef, memo, useCallback, useMemo } from "react";
+import { forwardRef, memo, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Heart, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
