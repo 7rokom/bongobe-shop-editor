@@ -16,7 +16,7 @@ const AdminPasswordSettings = () => {
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (currentPass !== storedAdminPassword) {
       toast.error('বর্তমান পাসওয়ার্ড সঠিক নয়');
       return;
