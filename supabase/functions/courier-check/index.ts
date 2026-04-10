@@ -31,20 +31,18 @@ serve(async (req) => {
     });
 
     const data = await res.json();
-    console.log("bdcourier response:", JSON.stringify(data));
 
-    // bdcourier returns data in different possible structures
-    const courierData = data?.courier_data || data?.data?.courier_data || data;
-    const all = courierData?.all || courierData?.total || 0;
-    const delivered = courierData?.delivered || courierData?.success || 0;
-    const returned = courierData?.returned || courierData?.cancelled || 0;
+    // bdcourier API returns: { courierData: { summary: { total_parcel, success_parcel, cancelled_parcel, success_ratio } } }
+    const summary = data?.courierData?.summary || data?.courier_data?.summary || {};
+    const all = summary.total_parcel || 0;
+    const delivered = summary.success_parcel || 0;
+    const returned = summary.cancelled_parcel || 0;
 
     return new Response(
-      JSON.stringify({ all, delivered, returned, raw: data }),
+      JSON.stringify({ all, delivered, returned }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("courier-check error:", error);
     return new Response(
       JSON.stringify({ error: "Failed to check courier", all: 0, delivered: 0, returned: 0 }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

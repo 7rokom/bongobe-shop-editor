@@ -3,7 +3,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const STEADFAST_BASE = 'https://portal.steadfast.com.bd/api/v1'
+const STEADFAST_BASE = 'https://portal.packzy.com/api/v1'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
