@@ -3,7 +3,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const CARRYBEE_BASE = 'https://api.carrybee.com/api/v1'
+const CARRYBEE_BASE = 'https://merchant.carrybee.com/api/v1'
 
 async function getToken(clientId: string, clientSecret: string, clientContext: string): Promise<string | null> {
   const res = await fetch(`${CARRYBEE_BASE}/login`, {
