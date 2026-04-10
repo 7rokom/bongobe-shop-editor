@@ -494,12 +494,8 @@ const Orders = () => {
       if (exps.find(e => e.id === returnExpenseId)) delExp(returnExpenseId);
       if (exps.find(e => e.id === paidReturnExpenseId)) delExp(paidReturnExpenseId);
     }
-    if (newStatus === 'ক্যান্সেল') {
-      if (order && !isPhoneBlocked(order.phone)) {
-        blockWithAllIdentifiers(order.phone, order.customer, 'অর্ডার ক্যান্সেল করা হয়েছে');
-        toast.success(`${order.customer} অটো-ব্লক হয়েছে (অর্ডার ক্যান্সেল)`);
-      }
-    }
+    // Note: blocking for পেন্ডিং/হোল্ড/ক্যান্সেল/রিটার্ন is handled dynamically via orders table check
+    // No need to add to blocked_customers here — only on delete
   };
 
   const handlePaidReturnConfirm = () => {

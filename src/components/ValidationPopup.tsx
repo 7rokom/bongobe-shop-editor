@@ -11,8 +11,8 @@ const ValidationPopup = ({ open, message, onClose }: ValidationPopupProps) => {
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
       <DialogContent className="max-w-sm text-center" hideClose>
-        <p className="text-base text-foreground leading-relaxed py-4">{message}</p>
-        <Button onClick={onClose} className="w-full rounded-[5px]">ঠিক আছে</Button>
+        <p className="text-base text-foreground leading-relaxed py-4 whitespace-pre-line">{message}</p>
+        <Button onClick={onClose} className="w-full rounded-[5px] text-lg py-6 font-bold">ঠিক আছে</Button>
       </DialogContent>
     </Dialog>
   );

@@ -32,12 +32,14 @@ serve(async (req) => {
 
     const data = await res.json();
 
+    // bdcourier API returns: { courierData: { summary: { total_parcel, success_parcel, cancelled_parcel, success_ratio } } }
+    const summary = data?.courierData?.summary || data?.courier_data?.summary || {};
+    const all = summary.total_parcel || 0;
+    const delivered = summary.success_parcel || 0;
+    const returned = summary.cancelled_parcel || 0;
+
     return new Response(
-      JSON.stringify({
-        all: data?.courier_data?.all || 0,
-        delivered: data?.courier_data?.delivered || 0,
-        returned: data?.courier_data?.returned || 0,
-      }),
+      JSON.stringify({ all, delivered, returned }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
