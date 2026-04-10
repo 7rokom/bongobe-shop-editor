@@ -58,34 +58,20 @@ export interface DeviceBlockResult {
   status?: string;
 }
 
-// Check if a customer has any order in blocking statuses using phone, IP, or fingerprint
+// Check if a customer's device (fingerprint) has any order in blocking statuses
 export const checkDeviceBlocked = async (
   fingerprint?: string,
-  phone?: string,
-  ip?: string
 ): Promise<DeviceBlockResult> => {
   try {
+    if (!fingerprint) return { blocked: false };
     const { supabase } = await import('@/integrations/supabase/client');
-    const blockingStatuses = ['পেন্ডিং', 'হোল্ড', 'ক্যান্সেল', 'রিটার্ন'];
-    
-    // Build OR conditions for phone, fingerprint, and IP
-    const orParts: string[] = [];
-    if (phone) {
-      const normalized = normalizePhone(phone);
-      if (normalized.length >= 11) {
-        orParts.push(`phone.eq.${normalized}`);
-      }
-    }
-    if (fingerprint) orParts.push(`customer_fingerprint.eq.${fingerprint}`);
-    if (ip) orParts.push(`customer_ip.eq.${ip}`);
-    
-    if (orParts.length === 0) return { blocked: false };
+    const blockingStatuses = ['পেন্ডিং', 'হোল্ড', 'ক্যান্সেল', 'রিটার্ন', 'পেইড রিটার্ন', 'শিপমেন্ট', 'ফলোআপ'];
 
     const { data, error } = await (supabase as any)
       .from('orders')
       .select('id,status')
       .in('status', blockingStatuses)
-      .or(orParts.join(','))
+      .eq('customer_fingerprint', fingerprint)
       .limit(1);
 
     if (error) return { blocked: false };
