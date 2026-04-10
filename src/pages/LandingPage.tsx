@@ -242,18 +242,18 @@ const LandingPage = () => {
     }
 
     // Check device blocked by order status (পেন্ডিং/হোল্ড/ক্যান্সেল/রিটার্ন)
-    if (customerFingerprint) {
-      const deviceBlocked = await checkDeviceBlocked(customerFingerprint);
-      if (deviceBlocked) {
+    {
+      const deviceResult = await checkDeviceBlocked(customerFingerprint || undefined, phone, customerIp || undefined);
+      if (deviceResult.blocked) {
         await addIncomplete({
           name, phone, address,
           items: [{ title: product.title, quantity, price: currentPrice, image: product.images?.[0] || '' }],
           totalPrice: subtotal, deliveryCharge,
           deliveryZone: delivery === '70' ? 'ঢাকার মধ্যে' : delivery === '100' ? 'ঢাকার আশেপাশে' : 'ঢাকার বাইরে',
-          grandTotal: total, type: 'blocked', blockReason: 'আপনার আগের অর্ডার প্রসেসিং এ আছে',
+          grandTotal: total, type: 'blocked', blockReason: `আগের অর্ডার ${deviceResult.status} অবস্থায় আছে`,
           customerIp: customerIp || undefined, customerFingerprint: customerFingerprint || undefined,
         });
-        setValidationMsg('আপনি আগেও আমাদের ওয়েবসাইটে অর্ডার করেছেন যা এখনো প্রসেসিং এ আছে। পূর্বের অর্ডার সম্পন্ন না হওয়া পর্যন্ত নতুন অর্ডার করা যাবে না।');
+        setValidationMsg(`প্রিয় গ্রাহক ❤️\n\nআপনি এর আগেও আমাদের ওয়েবসাইটে অর্ডার করেছিলেন। কিন্তু আপনার অর্ডারটি এখন ${deviceResult.status} হয়ে আছে। তাই এখন আপনি আর নতুন অর্ডার করতে পারবেন না। দয়া করে ২৪ ঘন্টা অপেক্ষা করুন। আমাদের প্রতিনিধি আপনাকে কল করবে। ধন্যবাদ!`);
         return;
       }
     }
