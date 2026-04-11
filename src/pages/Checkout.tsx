@@ -105,7 +105,7 @@ const Checkout = () => {
       const st = d.items.reduce((s: number, i: any) => s + i.product.price * i.quantity, 0);
       return {
         name: d.name, phone: d.phone, address: d.address,
-        items: d.items.map((i: any) => ({ title: i.product.title, quantity: i.quantity, price: i.product.price, image: i.product.images[0] || "" })),
+        items: d.items.map((i: any) => ({ title: i.product.title, quantity: i.quantity, price: i.product.price, image: i.product.images[0] || "", variations: i.selectedVariations && Object.keys(i.selectedVariations).length > 0 ? i.selectedVariations : undefined })),
         totalPrice: st, deliveryCharge: dc,
         deliveryZone: d.delivery === "70" ? "ঢাকার মধ্যে" : d.delivery === "100" ? "ঢাকার আশেপাশে" : "ঢাকার বাইরে",
         grandTotal: st + dc - (d.discount || 0), type: "incomplete" as const,
