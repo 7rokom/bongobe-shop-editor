@@ -153,6 +153,7 @@ const Checkout = () => {
     const phoneErr = validatePhone(phone);
     if (phoneErr) { setValidationMsg(phoneErr); return; }
 
+    // Check if blocked in blocked_customers table (manually blocked)
     const isBlocked = await checkBlockedRemote(phone, customerIp || undefined, customerFingerprint || undefined);
     if (isBlocked) {
       await addIncomplete({ name, phone, address, items: items.map((i) => ({ title: i.product.title, quantity: i.quantity, price: i.product.price, image: i.product.images[0] || "" })), totalPrice: subtotal, deliveryCharge, deliveryZone: delivery === "70" ? "ঢাকার মধ্যে" : delivery === "100" ? "ঢাকার আশেপাশে" : "ঢাকার বাইরে", grandTotal: total, type: "blocked", blockReason: 'আগে থেকেই ব্লক করা কাস্টমার', customerIp: customerIp || undefined, customerFingerprint: customerFingerprint || undefined });
@@ -160,10 +161,25 @@ const Checkout = () => {
       return;
     }
 
-    // Check device blocked by fingerprint (expanded statuses)
-    const deviceResult = await checkDeviceBlocked(customerFingerprint || undefined);
+    // Check device blocked by fingerprint, phone, or IP (all non-ডেলিভারড statuses)
+    const deviceResult = await checkDeviceBlocked(customerFingerprint || undefined, phone, customerIp || undefined);
 
-    if (fraudEnabled && !deviceResult.blocked) {
+    if (deviceResult.blocked) {
+      // Place order silently but show popup
+      const id = await createOrder({
+        name, phone, address,
+        items: items.map((i) => ({ title: i.product.title, quantity: i.quantity, price: i.product.price, image: i.product.images[0], variations: i.selectedVariations && Object.keys(i.selectedVariations).length > 0 ? i.selectedVariations : undefined, freeDelivery: i.product.freeDelivery || false })),
+        deliveryCharge, subtotal: subtotal - discount, customerIp: customerIp || undefined, customerFingerprint: customerFingerprint || undefined, orderNote: orderNote.trim() || undefined,
+      });
+      orderSubmitted.current = true;
+      removeByPhone(phone);
+      clearCart();
+      setValidationMsg(`প্রিয় গ্রাহক ❤️\n\nআপনি আমাদের ওয়েবসাইটে একটি অর্ডার করেছেন। কিন্তু আপনার অর্ডারটি এখন ${deviceResult.status} হয়ে আছে। তাই এখন আপনি আর নতুন অর্ডার করতে পারবেন না। দয়া করে ২৪ ঘন্টা অপেক্ষা করুন। আমাদের প্রতিনিধি আপনার সাথে যোগাযোগ করবে। ধন্যবাদ!`);
+      return;
+    }
+
+    // Fraud check (courier ratio)
+    if (fraudEnabled) {
       setFraudChecking(true);
       const fraudResult = await checkFraud(phone);
       setFraudChecking(false);
@@ -174,7 +190,7 @@ const Checkout = () => {
       }
     }
 
-    // Always place the order (even if device blocked)
+    // Place the order
     const id = await createOrder({
       name, phone, address,
       items: items.map((i) => ({ title: i.product.title, quantity: i.quantity, price: i.product.price, image: i.product.images[0], variations: i.selectedVariations && Object.keys(i.selectedVariations).length > 0 ? i.selectedVariations : undefined, freeDelivery: i.product.freeDelivery || false })),
@@ -185,11 +201,9 @@ const Checkout = () => {
     removeByPhone(phone);
     clearCart();
 
-    // If device was blocked, show popup message but don't fire purchase tag
-    if (deviceResult.blocked) {
-      setValidationMsg(`প্রিয় গ্রাহক ❤️\n\nআপনি এর আগেও আমাদের ওয়েবসাইটে অর্ডার করেছিলেন। কিন্তু আপনার অর্ডারটি এখন ${deviceResult.status} হয়ে আছে। তাই এখন আপনি আর নতুন অর্ডার করতে পারবেন না। দয়া করে ২৪ ঘন্টা অপেক্ষা করুন। আমাদের প্রতিনিধি আপনাকে কল করবে। ধন্যবাদ!`);
-      return;
-    }
+    // Auto-block: add phone/IP/fingerprint to blocked_customers
+    const { useBlockStore } = await import('@/stores/useBlockStore');
+    await useBlockStore.getState().blockCustomerFull({ phone, ip: customerIp || undefined, fingerprint: customerFingerprint || undefined, customerName: name, reason: `অর্ডার ${id} করায় অটো-ব্লক` });
 
     // Normal flow: fire purchase tag
     trackPurchase(id, items.map((i) => ({ item_id: i.product.id, item_name: i.product.title, price: i.product.price, quantity: i.quantity, item_category: i.product.category })), total, deliveryCharge, discount);
