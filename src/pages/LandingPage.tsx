@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
-import { ShoppingCart, Truck, User, Phone, MapPin, Tag, ShieldCheck, CheckCircle, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import { ShoppingCart, Truck, User, Phone, MapPin, Tag, ShieldCheck, CheckCircle, Loader2, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { validatePhone, validateName } from '@/lib/order-validation';
 import ValidationPopup from '@/components/ValidationPopup';
 import { generateFingerprint } from '@/lib/fingerprint';
@@ -46,7 +46,6 @@ const deliveryOptions = [
   { value: '100', label: 'ঢাকার আশেপাশে', price: 100 },
   { value: '130', label: 'ঢাকার বাইরে', price: 130 },
 ];
-
 
 const LandingPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -96,7 +95,6 @@ const LandingPage = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
 
-  // Variation states
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedWeight, setSelectedWeight] = useState('');
@@ -157,13 +155,13 @@ const LandingPage = () => {
   if (!page || !product) {
     if (lpLoading || prodLoading || products.length === 0) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="min-h-screen flex items-center justify-center bg-background">
           <Loader2 className="h-10 w-10 animate-spin text-primary" />
         </div>
       );
     }
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <p className="text-xl font-bold text-foreground">পেজটি পাওয়া যায়নি</p>
       </div>
     );
@@ -227,7 +225,6 @@ const LandingPage = () => {
     const phoneErr = validatePhone(phone);
     if (phoneErr) { setValidationMsg(phoneErr); return; }
 
-    // Check manually blocked
     const isBlocked = await checkBlockedRemote(phone, customerIp || undefined, customerFingerprint || undefined);
     if (isBlocked) {
       await addIncomplete({
@@ -242,15 +239,12 @@ const LandingPage = () => {
       return;
     }
 
-    // Check device blocked by fingerprint, phone, or IP
     const deviceResult = await checkDeviceBlocked(customerFingerprint || undefined, phone, customerIp || undefined);
-
     if (deviceResult.blocked) {
       const variations: Record<string, string> = {};
       if (selectedColor) variations['কালার'] = selectedColor;
       if (selectedSize) variations['সাইজ'] = selectedSize;
       if (selectedWeight) variations['ওজন'] = selectedWeight;
-
       const id = await createOrder({
         name, phone, address,
         items: [{ title: product.title, quantity, price: currentPrice, image: product.images?.[0] || '',
@@ -265,7 +259,6 @@ const LandingPage = () => {
       return;
     }
 
-    // Fraud check
     if (fraudEnabled) {
       setFraudChecking(true);
       const fraudResult = await checkFraud(phone);
@@ -291,7 +284,6 @@ const LandingPage = () => {
     if (selectedSize) variations['সাইজ'] = selectedSize;
     if (selectedWeight) variations['ওজন'] = selectedWeight;
 
-    // Place the order
     const id = await createOrder({
       name, phone, address,
       items: [{
@@ -308,11 +300,9 @@ const LandingPage = () => {
     orderSubmitted.current = true;
     removeByPhone(phone);
 
-    // Auto-block: add phone/IP/fingerprint to blocked_customers
     const { useBlockStore } = await import('@/stores/useBlockStore');
     await useBlockStore.getState().blockCustomerFull({ phone, ip: customerIp || undefined, fingerprint: customerFingerprint || undefined, customerName: name, reason: `অর্ডার ${id} করায় অটো-ব্লক` });
 
-    // Normal flow: fire purchase tag
     trackPurchase(id, [{ item_id: product.id, item_name: product.title, price: currentPrice, quantity, item_category: product.category }], total, deliveryCharge, discount);
 
     const popupEnabled = useFraudSettingsStore.getState().postOrderPopupEnabled;
@@ -320,254 +310,299 @@ const LandingPage = () => {
     else { navigate('/thank-you', { state: { orderId: id } }); }
   };
 
-  return (
-    <div className="min-h-screen">
-      {/* Top section: white-to-yellow gradient background */}
-      <div style={{ background: 'linear-gradient(180deg, #ffffff 0%, #fffde6 40%, #fff9c4 100%)' }}>
-        <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
-          {/* Ad: Above heading */}
-          <AdSlot />
-          {/* Heading - RED */}
-          <h1 className="text-[25px] font-bold text-center text-destructive leading-tight">{page.title}</h1>
+  const nextImage = () => setSelectedImage((prev) => (prev + 1) % allImages.length);
+  const prevImage = () => setSelectedImage((prev) => (prev - 1 + allImages.length) % allImages.length);
 
-          {/* Image Gallery with bottom shadow */}
-          <div>
-            <div className="aspect-square rounded-[5px] overflow-hidden border border-primary/30 mb-3 relative">
+  return (
+    <div className="min-h-screen bg-background">
+      {/* ===== HERO HEADER — Yellow wave background ===== */}
+      <section className="relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #FFD54F 0%, #FFECB3 60%, #FFF8E1 100%)' }}>
+        {/* Wavy bottom SVG */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
+            <path d="M0,40 C360,80 720,0 1080,40 C1260,60 1380,50 1440,40 L1440,80 L0,80 Z" fill="white" />
+          </svg>
+        </div>
+        <div className="max-w-5xl mx-auto px-4 py-8 md:py-12 relative z-10">
+          <h1 className="text-[22px] md:text-[32px] font-extrabold text-center text-foreground leading-snug">
+            {page.title}
+          </h1>
+        </div>
+      </section>
+
+      {/* ===== PRODUCT INFO — Two column on desktop ===== */}
+      <section className="max-w-5xl mx-auto px-4 py-8 md:py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
+          {/* Left: Description & variations */}
+          <div className="space-y-5 order-2 md:order-1">
+            <h2 className="text-[22px] md:text-[26px] font-bold text-foreground leading-tight">{product.title}</h2>
+
+            {/* Short Description */}
+            <div className="text-[15px] md:text-base leading-relaxed prose prose-sm max-w-none [&_img]:max-w-full [&_img]:h-auto"
+              dangerouslySetInnerHTML={{ __html: product.shortDescription }} />
+
+            {/* Variations */}
+            {hasColors && (
+              <div className="flex flex-wrap items-center gap-2">
+                <label className="text-[15px] font-semibold">কালার:</label>
+                {product.colors!.map((color) => {
+                  const hp = product.variationPrices?.find((v) => v.variationType === 'color' && v.variationName === color);
+                  return (
+                    <Button key={color} variant={selectedColor === color ? 'default' : 'outline'} size="sm"
+                      className={`rounded-full text-xs ${selectedColor !== color ? 'border-foreground/40' : ''}`}
+                      onClick={() => setSelectedColor(selectedColor === color ? '' : color)}>
+                      {color} {hp?.price ? `(৳${hp.price})` : ''}
+                    </Button>
+                  );
+                })}
+              </div>
+            )}
+            {hasSizes && (
+              <div className="flex flex-wrap items-center gap-2">
+                <label className="text-[15px] font-semibold">সাইজ:</label>
+                {product.sizes!.map((size) => {
+                  const hp = product.variationPrices?.find((v) => v.variationType === 'size' && v.variationName === size);
+                  return (
+                    <Button key={size} variant={selectedSize === size ? 'default' : 'outline'} size="sm"
+                      className={`rounded-full text-xs ${selectedSize !== size ? 'border-foreground/40' : ''}`}
+                      onClick={() => setSelectedSize(selectedSize === size ? '' : size)}>
+                      {size} {hp?.price ? `(৳${hp.price})` : ''}
+                    </Button>
+                  );
+                })}
+              </div>
+            )}
+            {hasWeights && (
+              <div className="flex flex-wrap items-center gap-2">
+                <label className="text-[15px] font-semibold">ওজন:</label>
+                {product.weights!.map((weight) => {
+                  const hp = product.variationPrices?.find((v) => v.variationType === 'weight' && v.variationName === weight);
+                  return (
+                    <Button key={weight} variant={selectedWeight === weight ? 'default' : 'outline'} size="sm"
+                      className={`rounded-full text-xs ${selectedWeight !== weight ? 'border-foreground/40' : ''}`}
+                      onClick={() => setSelectedWeight(selectedWeight === weight ? '' : weight)}>
+                      {weight} {hp?.price ? `(৳${hp.price})` : ''}
+                    </Button>
+                  );
+                })}
+              </div>
+            )}
+
+            <AdSlot />
+          </div>
+
+          {/* Right: Image carousel */}
+          <div className="order-1 md:order-2">
+            <div className="relative aspect-square rounded-lg overflow-hidden border bg-muted/30">
               <img src={allImages[selectedImage]} alt={product.title} className="w-full h-full object-cover" />
-              {/* Bottom shadow overlay like reference */}
-              <div className="absolute bottom-0 left-0 right-0 h-16" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.35), transparent)' }} />
-            </div>
-            {allImages.length > 1 && (
-              <div className="grid grid-cols-4 gap-2">
-                {allImages.map((img, i) => (
-                  <button key={i} onClick={() => setSelectedImage(i)}
-                    className={`aspect-square rounded-[5px] overflow-hidden border-2 transition-all ${selectedImage === i ? 'border-primary' : 'border-border'}`}>
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+              {allImages.length > 1 && (
+                <>
+                  <button onClick={prevImage} className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background rounded-full p-1.5 shadow-md transition-colors">
+                    <ChevronLeft className="h-5 w-5 text-foreground" />
                   </button>
+                  <button onClick={nextImage} className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background rounded-full p-1.5 shadow-md transition-colors">
+                    <ChevronRight className="h-5 w-5 text-foreground" />
+                  </button>
+                </>
+              )}
+            </div>
+            {/* Dots */}
+            {allImages.length > 1 && (
+              <div className="flex justify-center gap-2 mt-3">
+                {allImages.map((_, i) => (
+                  <button key={i} onClick={() => setSelectedImage(i)}
+                    className={`w-2.5 h-2.5 rounded-full transition-all ${selectedImage === i ? 'bg-primary scale-125' : 'bg-border'}`} />
                 ))}
               </div>
             )}
           </div>
-
-          {/* Ad: Below image gallery */}
-          <AdSlot />
-          {/* Product Title */}
-          <h2 className="text-[25px] md:text-[27px] font-bold text-foreground leading-tight">{product.title}</h2>
-
-          {/* Short Description */}
-          <div className="text-base leading-relaxed prose prose-sm max-w-none [&_img]:max-w-full [&_img]:h-auto"
-            dangerouslySetInnerHTML={{ __html: product.shortDescription }} />
-
-          {/* Variations */}
-          {hasColors && (
-            <div className="flex flex-wrap items-center gap-2">
-              <label className="text-[16px] font-medium">কালার:</label>
-              {product.colors!.map((color) => {
-                const hp = product.variationPrices?.find((v) => v.variationType === 'color' && v.variationName === color);
-                return (
-                  <Button key={color} variant={selectedColor === color ? 'default' : 'outline'} size="sm"
-                    className={`rounded-[5px] ${selectedColor !== color ? 'border-foreground' : ''}`}
-                    onClick={() => setSelectedColor(selectedColor === color ? '' : color)}>
-                    {color} {hp?.price ? `(৳${hp.price})` : ''}
-                  </Button>
-                );
-              })}
-            </div>
-          )}
-          {hasSizes && (
-            <div className="flex flex-wrap items-center gap-2">
-              <label className="text-[16px] font-medium">সাইজ:</label>
-              {product.sizes!.map((size) => {
-                const hp = product.variationPrices?.find((v) => v.variationType === 'size' && v.variationName === size);
-                return (
-                  <Button key={size} variant={selectedSize === size ? 'default' : 'outline'} size="sm"
-                    className={`rounded-[5px] ${selectedSize !== size ? 'border-foreground' : ''}`}
-                    onClick={() => setSelectedSize(selectedSize === size ? '' : size)}>
-                    {size} {hp?.price ? `(৳${hp.price})` : ''}
-                  </Button>
-                );
-              })}
-            </div>
-          )}
-          {hasWeights && (
-            <div className="flex flex-wrap items-center gap-2">
-              <label className="text-[16px] font-medium">ওজন:</label>
-              {product.weights!.map((weight) => {
-                const hp = product.variationPrices?.find((v) => v.variationType === 'weight' && v.variationName === weight);
-                return (
-                  <Button key={weight} variant={selectedWeight === weight ? 'default' : 'outline'} size="sm"
-                    className={`rounded-[5px] ${selectedWeight !== weight ? 'border-foreground' : ''}`}
-                    onClick={() => setSelectedWeight(selectedWeight === weight ? '' : weight)}>
-                    {weight} {hp?.price ? `(৳${hp.price})` : ''}
-                  </Button>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Ad: Before order button */}
-          <AdSlot />
-
-          {/* Order Button */}
-          <Button size="lg" className="w-full animate-blink-order text-[23px] font-bold h-14 rounded-[5px] border border-foreground" onClick={scrollToCheckout}>
-            <ShoppingCart className="h-5 w-5 mr-2" /> অর্ডার করুন
-          </Button>
         </div>
-      </div>
+      </section>
 
-      {/* Collapsible Description - white bg */}
-      <div className="max-w-lg mx-auto px-4 py-4">
+      {/* ===== Collapsible Description ===== */}
+      <section className="max-w-5xl mx-auto px-4 pb-6">
         <button onClick={() => setShowDescription(!showDescription)}
-          className="w-full flex items-center justify-center gap-2 py-3 text-[16px] font-bold text-primary border border-primary rounded-[5px] hover:bg-primary/5 transition-colors">
+          className="w-full flex items-center justify-center gap-2 py-3 text-[15px] font-bold text-primary border border-primary rounded-lg hover:bg-primary/5 transition-colors">
           {showDescription ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
           প্রডাক্ট এর বিস্তারিত জানুন
         </button>
         {showDescription && (
-          <div className="prose prose-sm max-w-none text-[16px] leading-relaxed [&_img]:max-w-full [&_img]:h-auto [&_table]:w-full [&_table]:table-fixed [&_td]:break-words [&_th]:break-words [&_*]:max-w-full overflow-x-auto animate-fade-in mt-4"
+          <div className="prose prose-sm max-w-none text-[15px] leading-relaxed [&_img]:max-w-full [&_img]:h-auto [&_table]:w-full [&_table]:table-fixed [&_td]:break-words [&_th]:break-words [&_*]:max-w-full overflow-x-auto mt-4"
             style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
             dangerouslySetInnerHTML={{ __html: product.longDescription }} />
         )}
-      </div>
+      </section>
 
-      {/* Price Section - red background like reference */}
-      <div className="py-8" style={{ background: 'linear-gradient(135deg, #c62828 0%, #b71c1c 50%, #d32f2f 100%)' }}>
-        <div className="max-w-lg mx-auto px-4 space-y-5 text-center">
+      {/* ===== PRICE SECTION ===== */}
+      <section className="py-8 md:py-10 text-center">
+        <div className="max-w-5xl mx-auto px-4 space-y-3">
           {product.originalPrice && (
-            <div className="flex items-center justify-center gap-2">
-              <span className="text-[25px] font-bold text-white">বাজার মূল্য:</span>
-              <span className="text-[30px] font-bold text-white animate-strike-loop">৳{product.originalPrice}</span>
-            </div>
+            <p className="text-[22px] md:text-[28px] font-bold text-foreground">
+              রেগুলার প্রাইজ= <span className="line-through decoration-destructive decoration-[3px]">১৪৭০</span>{' '}
+              <span className="line-through decoration-destructive decoration-[3px]">৳{product.originalPrice}</span>
+              {' '}টাকা
+            </p>
           )}
-          <div className="flex items-center justify-center gap-2">
-            <span className="text-[25px] font-bold text-white">বর্তমান অফার মূল্য:</span>
-            <span className="text-[32px] font-extrabold text-white">৳{currentPrice}</span>
-          </div>
+          <p className="text-[24px] md:text-[32px] font-extrabold text-foreground">
+            বর্তমান প্রাইজ{' '}
+            <span className="inline-flex items-center justify-center w-[70px] h-[70px] md:w-[90px] md:h-[90px] rounded-full border-[3px] border-destructive text-destructive text-[22px] md:text-[28px] font-extrabold">
+              ৳{currentPrice}
+            </span>
+            {' '}টাকা
+          </p>
         </div>
-      </div>
+      </section>
 
-      {/* Checkout Section - light background */}
-      <div style={{ background: '#f5f5f5' }}>
-        <div ref={checkoutRef} className="max-w-lg mx-auto px-4 py-6 space-y-5">
-          <p className="text-[25px] font-bold text-destructive text-center leading-tight">
-            অর্ডার করতে সঠিক তথ্য দিয়ে নিচের ফর্ম পূরণ করে নিচের "অর্ডার কনফার্ম করুন" বাটনে ক্লিক করুন
+      {/* ===== CHECKOUT SECTION ===== */}
+      <section className="bg-muted/40 border-t">
+        <div ref={checkoutRef} className="max-w-5xl mx-auto px-4 py-8 md:py-12 space-y-6">
+          {/* CTA Text */}
+          <p className="text-[18px] md:text-[22px] font-bold text-destructive text-center leading-tight">
+            অর্ডার করতে নিচের ফর্মটি পূরন করে নিচের "অর্ডার করুন" বাটুনে চাপদিন।
           </p>
 
-          {/* Ad: Above form, below instruction text */}
           <AdSlot />
 
-          {/* Form */}
-          <div className="space-y-4">
-            <div>
-              <Label className="text-[16px] font-medium mb-1.5 block text-foreground">আপনার নাম *</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="সম্পূর্ণ নাম" className="pl-10 h-11 rounded-[5px] bg-white" />
-              </div>
+          {/* Product mini-card in checkout */}
+          <div className="flex items-center gap-3 border rounded-lg p-3 bg-background max-w-lg mx-auto md:max-w-none">
+            <img src={product.images?.[0] || '/placeholder.svg'} alt={product.title} className="w-14 h-14 object-cover rounded border" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold truncate">{product.title}</p>
             </div>
-            <div>
-              <Label className="text-[16px] font-medium mb-1.5 block text-foreground">মোবাইল নম্বর *</Label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center gap-1.5 border rounded px-1">
+              <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-7 h-7 flex items-center justify-center text-lg font-bold text-muted-foreground hover:text-foreground">-</button>
+              <span className="w-6 text-center text-sm font-medium">{quantity}</span>
+              <button onClick={() => setQuantity(quantity + 1)} className="w-7 h-7 flex items-center justify-center text-lg font-bold text-muted-foreground hover:text-foreground">+</button>
+            </div>
+            <span className="font-bold text-primary whitespace-nowrap">৳{subtotal}</span>
+          </div>
+
+          {/* Two column: Form + Order summary on desktop */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+            {/* LEFT: Billing details */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-bold text-foreground">Billing details</h3>
+              <div>
+                <Label className="text-sm font-medium mb-1.5 block text-foreground">আপনার নাম *</Label>
+                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="সম্পূর্ণ নাম" className="h-11 rounded-lg bg-background" />
+              </div>
+              <div>
+                <Label className="text-sm font-medium mb-1.5 block text-foreground">মোবাইল নাম্বার *</Label>
                 <Input value={phone} onChange={(e) => {
                   const val = e.target.value;
                   if (/[\u09E6-\u09EF]/.test(val)) toast({ title: 'আপনার ফোন নাম্বারটি ইংরেজিতে লিখুন প্লিজ!', duration: 4000 });
                   setPhone(val);
-                }} placeholder="01XXXXXXXXX" className="pl-10 h-11 rounded-[5px] bg-white" />
+                }} placeholder="01XXXXXXXXX" className="h-11 rounded-lg bg-background" />
               </div>
-            </div>
-            <div>
-              <Label className="text-[16px] font-medium mb-1.5 block text-foreground">সম্পূর্ণ ঠিকানা *</Label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="গ্রাম/এলাকার নাম, থানার নাম, জেলার নাম" className="pl-10 h-11 rounded-[5px] bg-white" />
+              <div>
+                <Label className="text-sm font-medium mb-1.5 block text-foreground">সম্পূর্ণ ঠিকানা *</Label>
+                <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="গ্রাম/এলাকার নাম, থানার নাম, জেলার নাম" className="h-11 rounded-lg bg-background" />
               </div>
-            </div>
-            <div>
-              <Label className="text-sm font-medium mb-1.5 block">অর্ডার নোট (অপশনাল)</Label>
-              <textarea value={orderNote} onChange={(e) => setOrderNote(e.target.value)} placeholder="" rows={2}
-                className="flex w-full rounded-[5px] border border-input bg-white px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
-            </div>
-          </div>
 
-          {/* Delivery */}
-          {hasFreeDelivery ? (
-            <div className="bg-primary/10 rounded-[5px] p-4 border border-primary/30">
-              <h3 className="font-bold text-base flex items-center gap-2 text-primary"><Truck className="h-4 w-4" /> 🎉 ফ্রি ডেলিভারি!</h3>
-              <p className="text-sm text-muted-foreground mt-1">এই প্রডাক্টে ডেলিভারি চার্জ ফ্রি</p>
+              {/* Shipping / Delivery */}
+              <div>
+                <h4 className="font-semibold text-sm mb-2">Shipping</h4>
+                {hasFreeDelivery ? (
+                  <div className="bg-primary/10 rounded-lg p-3 border border-primary/30">
+                    <p className="text-sm font-bold text-primary flex items-center gap-2"><Truck className="h-4 w-4" /> 🎉 সম্পূর্ণ ফ্রি ডেলিভারি</p>
+                  </div>
+                ) : (
+                  <RadioGroup value={delivery} onValueChange={setDelivery} className="space-y-1.5">
+                    {deliveryOptions.map((opt) => (
+                      <div key={opt.value}
+                        className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all bg-background ${delivery === opt.value ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/30'}`}
+                        onClick={() => setDelivery(opt.value)}>
+                        <RadioGroupItem value={opt.value} id={`lp-d-${opt.value}`} />
+                        <label htmlFor={`lp-d-${opt.value}`} className="flex-1 cursor-pointer text-sm">{opt.label}</label>
+                        <span className="font-bold text-sm text-primary">৳{opt.price}</span>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                )}
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium mb-1.5 block">অর্ডার নোট (অপশনাল)</Label>
+                <textarea value={orderNote} onChange={(e) => setOrderNote(e.target.value)} placeholder="" rows={2}
+                  className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+              </div>
             </div>
-          ) : (
-          <div>
-            <h3 className="font-bold text-base mb-3 flex items-center gap-2"><Truck className="h-4 w-4 text-primary" /> ডেলিভারি এরিয়া</h3>
-            <RadioGroup value={delivery} onValueChange={setDelivery} className="space-y-[3px]">
-              {deliveryOptions.map((opt) => (
-                <div key={opt.value}
-                  className={`flex items-center gap-3 p-3.5 border-2 rounded-[5px] cursor-pointer transition-all bg-white ${delivery === opt.value ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/30'}`}
-                  onClick={() => setDelivery(opt.value)}>
-                  <RadioGroupItem value={opt.value} id={`lp-d-${opt.value}`} />
-                  <label htmlFor={`lp-d-${opt.value}`} className="flex-1 cursor-pointer text-sm font-medium">{opt.label}</label>
-                  <span className="font-bold text-sm text-primary">৳{opt.price}</span>
+
+            {/* RIGHT: Your order */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-bold text-foreground">Your order</h3>
+              <div className="border rounded-lg overflow-hidden bg-background">
+                {/* Header row */}
+                <div className="flex justify-between px-4 py-2.5 bg-muted/60 border-b text-sm font-semibold text-muted-foreground">
+                  <span>Product</span>
+                  <span>Subtotal</span>
                 </div>
-              ))}
-            </RadioGroup>
-          </div>
-          )}
-
-          {/* Coupon */}
-          <div className="flex gap-2">
-            <Input value={couponCode} onChange={(e) => setCouponCode(e.target.value)} placeholder="কুপন কোড (অপশনাল)" className="flex-1 h-11 rounded-[5px] bg-white" />
-            <Button variant="outline" onClick={applyCoupon} className="rounded-[5px] h-11 px-5 font-semibold border-primary text-primary hover:bg-primary hover:text-primary-foreground">অ্যাপ্লাই</Button>
-          </div>
-          {appliedCoupon && (
-            <div className="flex items-center gap-2 text-sm text-primary bg-primary/5 rounded-[5px] px-3 py-2">
-              <CheckCircle className="h-4 w-4" /> কুপন "{appliedCoupon}" অ্যাপ্লাই হয়েছে (৳{discount} ছাড়)
-            </div>
-          )}
-
-          {/* Order Summary */}
-          <div className="border rounded-[5px] overflow-hidden bg-white">
-            <div className="bg-primary px-4 py-3">
-              <h3 className="font-bold text-primary-foreground flex items-center gap-2"><ShoppingCart className="h-5 w-5" /> অর্ডার সামারি</h3>
-            </div>
-            <div className="p-4 space-y-3">
-              <div className="flex gap-3 bg-muted/50 rounded-[5px] p-2.5">
-                <img src={product.images?.[0] || '/placeholder.svg'} alt={product.title} className="w-16 h-16 object-cover rounded-[5px] border" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate">{product.title}</p>
-                  {selectedColor && <p className="text-xs text-muted-foreground">কালার: {selectedColor}</p>}
-                  {selectedSize && <p className="text-xs text-muted-foreground">সাইজ: {selectedSize}</p>}
-                  {selectedWeight && <p className="text-xs text-muted-foreground">ওজন: {selectedWeight}</p>}
-                  <p className="text-xs text-muted-foreground">{quantity}টি x ৳{currentPrice}</p>
-                  <p className="font-bold text-sm text-primary">৳{subtotal}</p>
+                {/* Product row */}
+                <div className="flex items-center gap-3 px-4 py-3 border-b">
+                  <img src={product.images?.[0] || '/placeholder.svg'} alt="" className="w-10 h-10 object-cover rounded border" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm truncate">{product.title}</p>
+                    {selectedColor && <p className="text-xs text-muted-foreground">কালার: {selectedColor}</p>}
+                    {selectedSize && <p className="text-xs text-muted-foreground">সাইজ: {selectedSize}</p>}
+                    {selectedWeight && <p className="text-xs text-muted-foreground">ওজন: {selectedWeight}</p>}
+                  </div>
+                  <span className="text-sm whitespace-nowrap">×{quantity}</span>
+                  <span className="text-sm font-semibold whitespace-nowrap">৳{subtotal}</span>
+                </div>
+                {/* Subtotal */}
+                <div className="flex justify-between px-4 py-2.5 border-b text-sm">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="font-medium">৳{subtotal}</span>
+                </div>
+                {/* Delivery */}
+                <div className="flex justify-between px-4 py-2.5 border-b text-sm">
+                  <span className="text-muted-foreground">ডেলিভারি চার্জ</span>
+                  <span className={`font-medium ${hasFreeDelivery ? 'text-primary' : ''}`}>{hasFreeDelivery ? 'ফ্রি' : `৳${deliveryCharge}`}</span>
+                </div>
+                {discount > 0 && (
+                  <div className="flex justify-between px-4 py-2.5 border-b text-sm text-primary">
+                    <span>ডিসকাউন্ট</span>
+                    <span>-৳{discount}</span>
+                  </div>
+                )}
+                {/* Total */}
+                <div className="flex justify-between px-4 py-3 text-base font-bold">
+                  <span>Total</span>
+                  <span className="text-primary text-lg">৳{total}</span>
                 </div>
               </div>
-              <div className="border-t pt-3 space-y-2 text-sm">
-                <div className="flex justify-between"><span className="text-muted-foreground">সাবটোটাল</span><span className="font-medium">৳{subtotal}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">ডেলিভারি চার্জ</span><span className={`font-medium ${hasFreeDelivery ? 'text-primary' : ''}`}>{hasFreeDelivery ? 'ফ্রি' : `৳${deliveryCharge}`}</span></div>
-                {discount > 0 && <div className="flex justify-between text-primary"><span>ডিসকাউন্ট</span><span>-৳{discount}</span></div>}
+
+              {/* Coupon */}
+              <div className="flex gap-2">
+                <Input value={couponCode} onChange={(e) => setCouponCode(e.target.value)} placeholder="কুপন কোড (অপশনাল)" className="flex-1 h-10 rounded-lg bg-background" />
+                <Button variant="outline" onClick={applyCoupon} className="rounded-lg h-10 px-5 font-semibold border-primary text-primary hover:bg-primary hover:text-primary-foreground">অ্যাপ্লাই</Button>
               </div>
-              <div className="border-t pt-3 flex justify-between items-center">
-                <span className="font-bold text-lg">সর্বমোট</span>
-                <span className="font-bold text-2xl text-primary">৳{total}</span>
+              {appliedCoupon && (
+                <div className="flex items-center gap-2 text-sm text-primary bg-primary/5 rounded-lg px-3 py-2">
+                  <CheckCircle className="h-4 w-4" /> কুপন "{appliedCoupon}" অ্যাপ্লাই হয়েছে (৳{discount} ছাড়)
+                </div>
+              )}
+
+              {/* Cash on delivery box */}
+              <div className="border rounded-lg p-4 bg-background space-y-2">
+                <p className="font-semibold text-sm">Cash on delivery</p>
+                <p className="text-xs text-muted-foreground">Pay with cash upon delivery.</p>
               </div>
+
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our <span className="text-primary underline cursor-pointer">privacy policy</span>.
+              </p>
+
+              {/* Submit Button */}
+              <Button size="lg"
+                className="w-full rounded-lg text-[18px] md:text-[20px] font-bold h-14 bg-[#1a237e] hover:bg-[#283593] text-white shadow-md"
+                onClick={handleSubmit} disabled={fraudChecking || fraudBlocked}>
+                {fraudChecking ? <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> একটু অপেক্ষা করুন....</> : `অর্ডার করুন ৳${total}`}
+              </Button>
             </div>
-          </div>
-
-          {/* Submit Button */}
-          <div className="relative">
-            <div className="absolute inset-0 rounded-[5px] animate-[pulse-cta_2s_ease-in-out_infinite]" style={{ backgroundColor: '#feff00' }} />
-            <Button size="lg"
-              className="relative w-full rounded-[5px] text-[23px] font-bold h-14 text-foreground hover:opacity-90 shadow-md border border-foreground"
-              style={{ backgroundColor: '#feff00' }}
-              onClick={handleSubmit} disabled={fraudChecking || fraudBlocked}>
-              {fraudChecking ? <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> একটু অপেক্ষা করুন....</> : 'অর্ডার কনফার্ম করুন'}
-            </Button>
-          </div>
-
-          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <ShieldCheck className="h-4 w-4 text-primary" /> ক্যাশ অন ডেলিভারি (COD)
           </div>
         </div>
-      </div>
+      </section>
 
       <ValidationPopup open={!!validationMsg} message={validationMsg} onClose={() => setValidationMsg('')} />
       <PostOrderPopup orderId={pendingOrderId} isOpen={showPostOrderPopup} onComplete={() => { setShowPostOrderPopup(false); navigate('/thank-you', { state: { orderId: pendingOrderId } }); }} />
@@ -577,7 +612,7 @@ const LandingPage = () => {
             <p className="text-[17px] leading-relaxed text-foreground text-left px-2">
               {fraudBlockReason === 'no_data' ? useFraudSettingsStore.getState().noDataMessage : useFraudSettingsStore.getState().lowRatioMessage}
             </p>
-            <Button onClick={() => setShowFraudPopup(false)} className="w-full rounded-[5px]">ঠিক আছে</Button>
+            <Button onClick={() => setShowFraudPopup(false)} className="w-full rounded-lg">ঠিক আছে</Button>
           </div>
         </DialogContent>
       </Dialog>
