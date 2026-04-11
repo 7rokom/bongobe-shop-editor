@@ -39,21 +39,19 @@ const CallWhatsAppButtons = () => {
       <a href={`tel:${phone}`} className="flex-1 min-w-0">
         <Button
           size="lg"
-          className="w-full rounded-[5px] text-[12px] sm:text-[14px] font-bold gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 px-2 sm:px-4"
+          className="w-full rounded-[5px] text-[16px] font-bold gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 px-3"
         >
           <Phone className="h-4 w-4 shrink-0" />
-          <span className="hidden md:inline truncate">কলে অর্ডার করুন</span>
-          <span className="md:hidden truncate">জরুরি কল করুন</span>
+          <span className="truncate">কলে অর্ডার করুন</span>
         </Button>
       </a>
       <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-0">
         <Button
           size="lg"
-          className="w-full rounded-[5px] text-[12px] sm:text-[14px] font-bold gap-1.5 bg-[#25D366] text-white hover:bg-[#1da851] px-2 sm:px-4"
+          className="w-full rounded-[5px] text-[16px] font-bold gap-1.5 bg-[#25D366] text-white hover:bg-[#1da851] px-3"
         >
           <MessageCircle className="h-4 w-4 shrink-0" />
-          <span className="hidden md:inline truncate">হোয়াটস্যাপ-এ অর্ডার করুন</span>
-          <span className="md:hidden truncate">হোয়াটস্যাপ মেসেজ</span>
+          <span className="truncate">হোয়াটস্যাপ-এ অর্ডার করুন</span>
         </Button>
       </a>
     </div>
@@ -451,7 +449,7 @@ const ProductPage = () => {
             {/* Price Section */}
             <div className="bg-muted/50 rounded-[5px] p-3 border border-black/50 overflow-hidden">
               <div className="flex items-center gap-3">
-                <span className="text-lg font-bold text-foreground">একদামঃ</span>
+                <span className="text-[20px] font-bold text-foreground">দামঃ</span>
                 <span className="text-3xl font-extrabold text-primary">৳{currentPrice}</span>
                 {product.originalPrice && (
                   <span className="text-2xl text-muted-foreground/60 line-through font-bold">৳{product.originalPrice}</span>
@@ -461,11 +459,6 @@ const ProductPage = () => {
                     {discount}% ছাড়
                   </span>
                 )}
-              </div>
-              <div className="mt-2 overflow-hidden">
-                <p className="text-[14px] text-foreground font-medium whitespace-nowrap animate-marquee">
-                  প্রিয় গ্রাহক! এটা একদামের পণ্য, তাই যাদের দামাদামি করার অভ্যাস আছে। প্লিজ🙏তারা অর্ডার করিবেন না। আর যারা সত্যিকারে নিতে চান, শুধু মাত্র তারাই অর্ডার করবেন। অন্যের ক্ষতি করলে তার বিচার আল্লাহ করবেন।
-                </p>
               </div>
             </div>
 
