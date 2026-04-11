@@ -230,7 +230,7 @@ const PaymentDetailTables = ({
           </CollapsibleTrigger>
           <CollapsibleContent>
             <CardContent className="p-0">
-              {renderTable(courierDetails, false)}
+              {renderTable(courierDetails, true)}
             </CardContent>
           </CollapsibleContent>
         </Card>
