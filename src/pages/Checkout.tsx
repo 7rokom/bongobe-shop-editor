@@ -179,14 +179,13 @@ const Checkout = () => {
     }
 
     // Fraud check (courier ratio)
+    let fraudFailed = false;
     if (fraudEnabled) {
       setFraudChecking(true);
       const fraudResult = await checkFraud(phone);
       setFraudChecking(false);
       if (!fraudResult.passed) {
-        setFraudBlocked(true); setFraudBlockReason(fraudResult.reason || 'low_ratio'); setShowFraudPopup(true); markBlocked(fraudResult.reason || 'low_ratio');
-        await addIncomplete({ name, phone, address, items: items.map((i) => ({ title: i.product.title, quantity: i.quantity, price: i.product.price, image: i.product.images[0] || "" })), totalPrice: subtotal, deliveryCharge, deliveryZone: delivery === "70" ? "ঢাকার মধ্যে" : delivery === "100" ? "ঢাকার আশেপাশে" : "ঢাকার বাইরে", grandTotal: total, type: "blocked", blockReason: fraudResult.reason === 'no_data' ? 'কুরিয়ার হিস্টোরি পাওয়া যায়নি' : `ডেলিভারি রেশিও ${fraudResult.deliveryPercent}% (মিনিমাম প্রয়োজন)`, customerIp: customerIp || undefined, customerFingerprint: customerFingerprint || undefined });
-        return;
+        fraudFailed = true;
       }
     }
 
@@ -204,6 +203,12 @@ const Checkout = () => {
     // Auto-block: add phone/IP/fingerprint to blocked_customers
     const { useBlockStore } = await import('@/stores/useBlockStore');
     await useBlockStore.getState().blockCustomerFull({ phone, ip: customerIp || undefined, fingerprint: customerFingerprint || undefined, customerName: name, reason: `অর্ডার ${id} করায় অটো-ব্লক` });
+
+    if (fraudFailed) {
+      // Fraud failed: order created but NO purchase tag, redirect to fake thank you
+      navigate("/order-confirmed", { state: { orderId: id } });
+      return;
+    }
 
     // Normal flow: fire purchase tag
     trackPurchase(id, items.map((i) => ({ item_id: i.product.id, item_name: i.product.title, price: i.product.price, quantity: i.quantity, item_category: i.product.category })), total, deliveryCharge, discount);
