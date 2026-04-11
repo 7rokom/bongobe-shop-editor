@@ -7,7 +7,7 @@ export interface IncompleteOrder {
   name: string;
   phone: string;
   address: string;
-  items: { title: string; quantity: number; price: number; image?: string }[];
+  items: { title: string; quantity: number; price: number; image?: string; variations?: Record<string, string> }[];
   totalPrice: number;
   deliveryCharge: number;
   deliveryZone: string;
@@ -18,6 +18,7 @@ export interface IncompleteOrder {
   status?: 'pending' | 'cancelled';
   customerIp?: string;
   customerFingerprint?: string;
+  note?: string;
 }
 
 interface IncompleteOrderStore {
@@ -28,6 +29,7 @@ interface IncompleteOrderStore {
   removeOrders: (ids: Set<string>) => void;
   cancelOrder: (id: string) => void;
   removeByPhone: (phone: string) => void;
+  updateNote: (id: string, note: string) => Promise<void>;
 }
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://pkjppotigjlejqcimvak.supabase.co';
@@ -119,6 +121,7 @@ function mapRow(row: any): IncompleteOrder {
     status: row.status,
     customerIp: row.customer_ip,
     customerFingerprint: row.customer_fingerprint,
+    note: row.note || undefined,
   };
 }
 
@@ -213,6 +216,13 @@ export const useIncompleteOrderStore = create<IncompleteOrderStore>()(
         orders: state.orders.filter(
           (o) => !(o.type === 'incomplete' && normalizePhone(o.phone) === normalized)
         ),
+      }));
+    },
+
+    updateNote: async (id, note) => {
+      await db.from('incomplete_orders').update({ note }).eq('id', id);
+      set((state) => ({
+        orders: state.orders.map((o) => o.id === id ? { ...o, note } : o),
       }));
     },
   })

@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ShieldBan, AlertCircle, Trash2, Phone, MapPin, ShoppingBag, CheckCircle, XCircle, Truck, Globe, BarChart3, Loader2, Copy, MessageCircle } from 'lucide-react';
+import { ShieldBan, AlertCircle, Trash2, Phone, MapPin, ShoppingBag, CheckCircle, XCircle, Truck, Globe, BarChart3, Loader2, Copy, MessageCircle, StickyNote } from 'lucide-react';
 import { useIncompleteOrderStore, type IncompleteOrder } from '@/stores/useIncompleteOrderStore';
 import { useOrderStore } from '@/stores/useOrderStore';
 import { useEmployeeStore } from '@/stores/useEmployeeStore';
@@ -12,9 +12,11 @@ import { toast } from 'sonner';
 import { useFraudSettingsStore } from '@/stores/useFraudSettingsStore';
 import { useCourierRatioStore } from '@/stores/useCourierRatioStore';
 import { useEffect } from 'react';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const IncompleteOrders = () => {
-  const { orders, removeOrder, removeOrders, cancelOrder } = useIncompleteOrderStore();
+  const { orders, removeOrder, removeOrders, cancelOrder, updateNote } = useIncompleteOrderStore();
   const { createOrderFromCheckout } = useOrderStore();
   const { employees } = useEmployeeStore();
   const adminEmail = useAdminStore((s) => s.adminEmail);
@@ -27,6 +29,8 @@ const IncompleteOrders = () => {
   const fraudSettings = useFraudSettingsStore();
   useEffect(() => { loadCourierCache(); }, [loadCourierCache]);
   const [selectedCancelled, setSelectedCancelled] = useState<Set<string>>(new Set());
+  const [noteOrderId, setNoteOrderId] = useState<string | null>(null);
+  const [noteText, setNoteText] = useState('');
 
   const blockedOrders = orders.filter((o) => o.type === 'blocked' && o.status !== 'cancelled');
   const incompleteOrders = orders.filter((o) => o.type === 'incomplete' && o.status !== 'cancelled');
@@ -121,6 +125,9 @@ const IncompleteOrders = () => {
               {item.image && <img src={item.image} alt={item.title} className="w-10 h-10 rounded object-cover border" />}
               <div>
                 <p className="text-xs font-medium leading-tight">{item.title}</p>
+                {item.variations && Object.entries(item.variations).map(([key, val]) => (
+                  <p key={key} className="text-[10px] text-muted-foreground">{key}: {val}</p>
+                ))}
                 <p className="text-[10px] text-muted-foreground">× {item.quantity}</p>
               </div>
             </div>
@@ -140,12 +147,16 @@ const IncompleteOrders = () => {
             <Button variant="default" size="sm" className="h-7 w-full gap-1 text-xs" onClick={() => handleConfirm(order)}>
               <CheckCircle className="w-3 h-3" /> কনফার্ম
             </Button>
+            <Button variant="outline" size="sm" className="h-7 w-full gap-1 text-xs" onClick={() => { setNoteOrderId(order.id); setNoteText(order.note || ''); }}>
+              <StickyNote className="w-3 h-3" /> নোট
+            </Button>
             <Button variant="outline" size="sm" className="h-7 w-full gap-1 text-xs text-orange-600 hover:text-orange-700" onClick={() => handleCancel(order.id)}>
               <XCircle className="w-3 h-3" /> ক্যান্সেল
             </Button>
             <Button variant="outline" size="sm" className="h-7 w-full gap-1 text-xs text-destructive hover:text-destructive" onClick={() => handleDelete(order.id)}>
               <Trash2 className="w-3 h-3" /> মুছুন
             </Button>
+            {order.note && <p className="text-[10px] text-muted-foreground bg-muted/50 rounded px-2 py-1 mt-1">📝 {order.note}</p>}
           </div>
         ) : (
           <span className="inline-flex items-center gap-1 text-xs text-orange-600 font-medium"><XCircle className="w-3 h-3" /> ক্যান্সেলড</span>
@@ -189,7 +200,13 @@ const IncompleteOrders = () => {
           {order.items.map((item, i) => (
             <div key={i} className="flex items-center gap-2">
               {item.image && <img src={item.image} alt={item.title} className="w-8 h-8 rounded object-cover border" />}
-              <div className="flex-1 min-w-0"><p className="text-xs font-medium truncate">{item.title}</p><p className="text-[10px] text-muted-foreground">× {item.quantity}</p></div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium truncate">{item.title}</p>
+                {item.variations && Object.entries(item.variations).map(([key, val]) => (
+                  <p key={key} className="text-[10px] text-muted-foreground">{key}: {val}</p>
+                ))}
+                <p className="text-[10px] text-muted-foreground">× {item.quantity}</p>
+              </div>
               <span className="text-xs font-medium shrink-0">৳ {(item.price * item.quantity).toLocaleString()}</span>
             </div>
           ))}
@@ -200,11 +217,15 @@ const IncompleteOrders = () => {
         </div>
         {/* Actions */}
         {showActions ? (
-          <div className="border-t pt-2 flex items-center gap-2 flex-wrap">
-            <Button variant="default" size="sm" className="h-6 gap-1 text-[10px]" onClick={() => handleConfirm(order)}><CheckCircle className="w-2.5 h-2.5" /> কনফার্ম</Button>
-            <Button variant="outline" size="sm" className="h-6 gap-1 text-[10px] text-orange-600" onClick={() => handleCancel(order.id)}><XCircle className="w-2.5 h-2.5" /> ক্যান্সেল</Button>
-            <Button variant="outline" size="sm" className="h-6 gap-1 text-[10px] text-destructive" onClick={() => handleDelete(order.id)}><Trash2 className="w-2.5 h-2.5" /> মুছুন</Button>
-          </div>
+          <>
+            <div className="border-t pt-2 flex items-center gap-2 flex-wrap">
+              <Button variant="default" size="sm" className="h-6 gap-1 text-[10px]" onClick={() => handleConfirm(order)}><CheckCircle className="w-2.5 h-2.5" /> কনফার্ম</Button>
+              <Button variant="outline" size="sm" className="h-6 gap-1 text-[10px]" onClick={() => { setNoteOrderId(order.id); setNoteText(order.note || ''); }}><StickyNote className="w-2.5 h-2.5" /> নোট</Button>
+              <Button variant="outline" size="sm" className="h-6 gap-1 text-[10px] text-orange-600" onClick={() => handleCancel(order.id)}><XCircle className="w-2.5 h-2.5" /> ক্যান্সেল</Button>
+              <Button variant="outline" size="sm" className="h-6 gap-1 text-[10px] text-destructive" onClick={() => handleDelete(order.id)}><Trash2 className="w-2.5 h-2.5" /> মুছুন</Button>
+            </div>
+            {order.note && <p className="text-[10px] text-muted-foreground bg-muted/50 rounded px-2 py-1 mt-1">📝 {order.note}</p>}
+          </>
         ) : (
           <div className="border-t pt-2"><span className="text-xs text-orange-600 font-medium"><XCircle className="w-3 h-3 inline" /> ক্যান্সেলড</span></div>
         )}
@@ -345,6 +366,26 @@ const IncompleteOrders = () => {
           {cancelledOrders.length === 0 ? <EmptyState icon={XCircle} text="কোনো ক্যান্সেলড অর্ডার নেই" /> : renderCancelledTable()}
         </TabsContent>
       </Tabs>
+
+      {/* Note Dialog */}
+      <Dialog open={!!noteOrderId} onOpenChange={(v) => { if (!v) setNoteOrderId(null); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>নোট — {noteOrderId}</DialogTitle>
+          </DialogHeader>
+          <Textarea value={noteText} onChange={(e) => setNoteText(e.target.value)} placeholder="নোট লিখুন..." rows={4} />
+          <div className="flex gap-2 justify-end">
+            <Button variant="outline" onClick={() => setNoteOrderId(null)}>বাতিল</Button>
+            <Button onClick={() => {
+              if (noteOrderId) {
+                updateNote(noteOrderId, noteText.trim());
+                toast.success('নোট সেভ হয়েছে');
+                setNoteOrderId(null);
+              }
+            }}>সেভ করুন</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

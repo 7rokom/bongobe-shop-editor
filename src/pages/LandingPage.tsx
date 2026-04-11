@@ -119,7 +119,7 @@ const LandingPage = () => {
   const beaconDataRef = useRef<any>(null);
   useEffect(() => {
     if (product) {
-      beaconDataRef.current = { name, phone, address, product, delivery, customerIp, customerFingerprint, discount, quantity };
+      beaconDataRef.current = { name, phone, address, product, delivery, customerIp, customerFingerprint, discount, quantity, selectedColor, selectedSize, selectedWeight };
     }
   });
 
@@ -133,7 +133,7 @@ const LandingPage = () => {
       const st = getCurrentPrice() * d.quantity;
       return {
         name: d.name, phone: d.phone, address: d.address,
-        items: [{ title: d.product.title, quantity: d.quantity, price: getCurrentPrice(), image: d.product.images?.[0] || '' }],
+        items: [{ title: d.product.title, quantity: d.quantity, price: getCurrentPrice(), image: d.product.images?.[0] || '', variations: (() => { const v: Record<string,string> = {}; if (d.selectedColor) v['কালার'] = d.selectedColor; if (d.selectedSize) v['সাইজ'] = d.selectedSize; if (d.selectedWeight) v['ওজন'] = d.selectedWeight; return Object.keys(v).length > 0 ? v : undefined; })() }],
         totalPrice: st, deliveryCharge: dc,
         deliveryZone: d.delivery === '70' ? 'ঢাকার মধ্যে' : d.delivery === '100' ? 'ঢাকার আশেপাশে' : 'ঢাকার বাইরে',
         grandTotal: st + dc - (d.discount || 0), type: 'incomplete' as const,
@@ -227,6 +227,7 @@ const LandingPage = () => {
     const phoneErr = validatePhone(phone);
     if (phoneErr) { setValidationMsg(phoneErr); return; }
 
+    // Check manually blocked
     const isBlocked = await checkBlockedRemote(phone, customerIp || undefined, customerFingerprint || undefined);
     if (isBlocked) {
       await addIncomplete({
@@ -241,10 +242,31 @@ const LandingPage = () => {
       return;
     }
 
-    // Check device blocked by fingerprint (expanded statuses)
-    const deviceResult = await checkDeviceBlocked(customerFingerprint || undefined);
+    // Check device blocked by fingerprint, phone, or IP
+    const deviceResult = await checkDeviceBlocked(customerFingerprint || undefined, phone, customerIp || undefined);
 
-    if (fraudEnabled && !deviceResult.blocked) {
+    if (deviceResult.blocked) {
+      const variations: Record<string, string> = {};
+      if (selectedColor) variations['কালার'] = selectedColor;
+      if (selectedSize) variations['সাইজ'] = selectedSize;
+      if (selectedWeight) variations['ওজন'] = selectedWeight;
+
+      const id = await createOrder({
+        name, phone, address,
+        items: [{ title: product.title, quantity, price: currentPrice, image: product.images?.[0] || '',
+          variations: Object.keys(variations).length > 0 ? variations : undefined, freeDelivery: hasFreeDelivery }],
+        deliveryCharge, subtotal: subtotal - discount,
+        customerIp: customerIp || undefined, customerFingerprint: customerFingerprint || undefined,
+        orderNote: orderNote.trim() || undefined,
+      });
+      orderSubmitted.current = true;
+      removeByPhone(phone);
+      setValidationMsg(`প্রিয় গ্রাহক ❤️\n\nআপনি আমাদের ওয়েবসাইটে একটি অর্ডার করেছেন। কিন্তু আপনার অর্ডারটি এখন ${deviceResult.status} হয়ে আছে। তাই এখন আপনি আর নতুন অর্ডার করতে পারবেন না। দয়া করে ২৪ ঘন্টা অপেক্ষা করুন। আমাদের প্রতিনিধি আপনার সাথে যোগাযোগ করবে। ধন্যবাদ!`);
+      return;
+    }
+
+    // Fraud check
+    if (fraudEnabled) {
       setFraudChecking(true);
       const fraudResult = await checkFraud(phone);
       setFraudChecking(false);
@@ -269,7 +291,7 @@ const LandingPage = () => {
     if (selectedSize) variations['সাইজ'] = selectedSize;
     if (selectedWeight) variations['ওজন'] = selectedWeight;
 
-    // Always place the order (even if device blocked)
+    // Place the order
     const id = await createOrder({
       name, phone, address,
       items: [{
@@ -286,11 +308,9 @@ const LandingPage = () => {
     orderSubmitted.current = true;
     removeByPhone(phone);
 
-    // If device was blocked, show popup but don't fire purchase tag
-    if (deviceResult.blocked) {
-      setValidationMsg(`প্রিয় গ্রাহক ❤️\n\nআপনি এর আগেও আমাদের ওয়েবসাইটে অর্ডার করেছিলেন। কিন্তু আপনার অর্ডারটি এখন ${deviceResult.status} হয়ে আছে। তাই এখন আপনি আর নতুন অর্ডার করতে পারবেন না। দয়া করে ২৪ ঘন্টা অপেক্ষা করুন। আমাদের প্রতিনিধি আপনাকে কল করবে। ধন্যবাদ!`);
-      return;
-    }
+    // Auto-block: add phone/IP/fingerprint to blocked_customers
+    const { useBlockStore } = await import('@/stores/useBlockStore');
+    await useBlockStore.getState().blockCustomerFull({ phone, ip: customerIp || undefined, fingerprint: customerFingerprint || undefined, customerName: name, reason: `অর্ডার ${id} করায় অটো-ব্লক` });
 
     // Normal flow: fire purchase tag
     trackPurchase(id, [{ item_id: product.id, item_name: product.title, price: currentPrice, quantity, item_category: product.category }], total, deliveryCharge, discount);

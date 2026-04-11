@@ -402,6 +402,7 @@ export type Database = {
           id: string
           items: Json
           name: string
+          note: string | null
           phone: string
           status: string | null
           total_price: number
@@ -419,6 +420,7 @@ export type Database = {
           id: string
           items?: Json
           name?: string
+          note?: string | null
           phone?: string
           status?: string | null
           total_price?: number
@@ -436,6 +438,7 @@ export type Database = {
           id?: string
           items?: Json
           name?: string
+          note?: string | null
           phone?: string
           status?: string | null
           total_price?: number
