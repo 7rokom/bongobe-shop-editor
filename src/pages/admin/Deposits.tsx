@@ -337,6 +337,20 @@ const Deposits = () => {
         </Card>
       )}
 
+      {/* Payment Detail Tables */}
+      <PaymentDetailTables
+        orders={orders}
+        resellerOrders={resellerOrders}
+        buyPriceMap={buyPriceMap}
+        stockTypes={stockTypes}
+        vendorBuyPrices={vendorBuyPrices}
+        allProducts={allProducts}
+        inDateRange={inDateRange}
+        getMainOrderStockType={getMainOrderStockType}
+        getResellerOrderStockType={getResellerOrderStockType}
+        getMainItemBuyPrice={getMainItemBuyPrice}
+      />
+
       {/* Table */}
       <Card className="border-0 shadow-sm">
         <CardContent className="p-0">
