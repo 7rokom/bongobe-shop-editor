@@ -29,6 +29,8 @@ const IncompleteOrders = () => {
   const fraudSettings = useFraudSettingsStore();
   useEffect(() => { loadCourierCache(); }, [loadCourierCache]);
   const [selectedCancelled, setSelectedCancelled] = useState<Set<string>>(new Set());
+  const [noteOrderId, setNoteOrderId] = useState<string | null>(null);
+  const [noteText, setNoteText] = useState('');
 
   const blockedOrders = orders.filter((o) => o.type === 'blocked' && o.status !== 'cancelled');
   const incompleteOrders = orders.filter((o) => o.type === 'incomplete' && o.status !== 'cancelled');
