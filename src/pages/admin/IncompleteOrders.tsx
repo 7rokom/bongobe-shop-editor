@@ -366,6 +366,26 @@ const IncompleteOrders = () => {
           {cancelledOrders.length === 0 ? <EmptyState icon={XCircle} text="কোনো ক্যান্সেলড অর্ডার নেই" /> : renderCancelledTable()}
         </TabsContent>
       </Tabs>
+
+      {/* Note Dialog */}
+      <Dialog open={!!noteOrderId} onOpenChange={(v) => { if (!v) setNoteOrderId(null); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>নোট — {noteOrderId}</DialogTitle>
+          </DialogHeader>
+          <Textarea value={noteText} onChange={(e) => setNoteText(e.target.value)} placeholder="নোট লিখুন..." rows={4} />
+          <div className="flex gap-2 justify-end">
+            <Button variant="outline" onClick={() => setNoteOrderId(null)}>বাতিল</Button>
+            <Button onClick={() => {
+              if (noteOrderId) {
+                updateNote(noteOrderId, noteText.trim());
+                toast.success('নোট সেভ হয়েছে');
+                setNoteOrderId(null);
+              }
+            }}>সেভ করুন</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
