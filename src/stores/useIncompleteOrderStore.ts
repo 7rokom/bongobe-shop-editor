@@ -18,6 +18,7 @@ export interface IncompleteOrder {
   status?: 'pending' | 'cancelled';
   customerIp?: string;
   customerFingerprint?: string;
+  note?: string;
 }
 
 interface IncompleteOrderStore {
@@ -28,6 +29,7 @@ interface IncompleteOrderStore {
   removeOrders: (ids: Set<string>) => void;
   cancelOrder: (id: string) => void;
   removeByPhone: (phone: string) => void;
+  updateNote: (id: string, note: string) => Promise<void>;
 }
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://pkjppotigjlejqcimvak.supabase.co';
