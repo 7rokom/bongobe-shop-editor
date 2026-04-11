@@ -217,13 +217,15 @@ const IncompleteOrders = () => {
         </div>
         {/* Actions */}
         {showActions ? (
-          <div className="border-t pt-2 flex items-center gap-2 flex-wrap">
-            <Button variant="default" size="sm" className="h-6 gap-1 text-[10px]" onClick={() => handleConfirm(order)}><CheckCircle className="w-2.5 h-2.5" /> কনফার্ম</Button>
-            <Button variant="outline" size="sm" className="h-6 gap-1 text-[10px]" onClick={() => { setNoteOrderId(order.id); setNoteText(order.note || ''); }}><StickyNote className="w-2.5 h-2.5" /> নোট</Button>
-            <Button variant="outline" size="sm" className="h-6 gap-1 text-[10px] text-orange-600" onClick={() => handleCancel(order.id)}><XCircle className="w-2.5 h-2.5" /> ক্যান্সেল</Button>
-            <Button variant="outline" size="sm" className="h-6 gap-1 text-[10px] text-destructive" onClick={() => handleDelete(order.id)}><Trash2 className="w-2.5 h-2.5" /> মুছুন</Button>
-          </div>
-          {order.note && <p className="text-[10px] text-muted-foreground bg-muted/50 rounded px-2 py-1 mt-1">📝 {order.note}</p>}
+          <>
+            <div className="border-t pt-2 flex items-center gap-2 flex-wrap">
+              <Button variant="default" size="sm" className="h-6 gap-1 text-[10px]" onClick={() => handleConfirm(order)}><CheckCircle className="w-2.5 h-2.5" /> কনফার্ম</Button>
+              <Button variant="outline" size="sm" className="h-6 gap-1 text-[10px]" onClick={() => { setNoteOrderId(order.id); setNoteText(order.note || ''); }}><StickyNote className="w-2.5 h-2.5" /> নোট</Button>
+              <Button variant="outline" size="sm" className="h-6 gap-1 text-[10px] text-orange-600" onClick={() => handleCancel(order.id)}><XCircle className="w-2.5 h-2.5" /> ক্যান্সেল</Button>
+              <Button variant="outline" size="sm" className="h-6 gap-1 text-[10px] text-destructive" onClick={() => handleDelete(order.id)}><Trash2 className="w-2.5 h-2.5" /> মুছুন</Button>
+            </div>
+            {order.note && <p className="text-[10px] text-muted-foreground bg-muted/50 rounded px-2 py-1 mt-1">📝 {order.note}</p>}
+          </>
         ) : (
           <div className="border-t pt-2"><span className="text-xs text-orange-600 font-medium"><XCircle className="w-3 h-3 inline" /> ক্যান্সেলড</span></div>
         )}
