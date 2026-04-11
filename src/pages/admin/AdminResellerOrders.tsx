@@ -432,17 +432,30 @@ const AdminResellerOrders = () => {
       let storeId = cbSettings.defaultStoreId;
       if (!storeId) {
         const storesData = await callCarrybee({ action: 'get_stores' });
-        if (!storesData.error && storesData.data?.length > 0) {
-          storeId = storesData.data[0].id;
+        if (!storesData.error && storesData.data?.stores?.length > 0) {
+          const activeStore = storesData.data.stores.find((s: any) => s.is_active && s.is_approved) || storesData.data.stores[0];
+          storeId = activeStore.id;
           useCarrybeeStore.getState().updateSettings({ defaultStoreId: String(storeId) });
         } else { toast.error('CarryBee স্টোর পাওয়া যায়নি'); return; }
       }
+      let cityId = cbSettings.defaultCityId || 0;
+      let zoneId = cbSettings.defaultZoneId || 0;
+      if (order.customerAddress && order.customerAddress.length >= 10) {
+        try {
+          const addrData = await callCarrybee({ action: 'address_details', query: order.customerAddress });
+          if (!addrData.error && addrData.data?.city_id && addrData.data?.zone_id) {
+            cityId = addrData.data.city_id;
+            zoneId = addrData.data.zone_id;
+          }
+        } catch { /* fallback */ }
+      }
+      if (!cityId || !zoneId) { cityId = cityId || 14; zoneId = zoneId || 5; }
       const itemDesc = order.items.map(i => `${i.productTitle} x${i.qty}`).join(', ');
       const data = await callCarrybee({
-        action: 'create_order', store_id: parseInt(String(storeId)),
+        action: 'create_order', store_id: storeId,
         merchant_order_id: order.id.replace('#', ''), recipient_name: order.customerName,
         recipient_phone: order.customerPhone, recipient_address: order.customerAddress,
-        city_id: cbSettings.defaultCityId || 14, zone_id: cbSettings.defaultZoneId || 5,
+        city_id: cityId, zone_id: zoneId,
         collectable_amount: order.totalSellingPrice, product_description: itemDesc,
         item_quantity: order.items.reduce((s, i) => s + i.qty, 0), item_weight: 500,
       });
@@ -450,6 +463,7 @@ const AdminResellerOrders = () => {
         setStockType(key, 'self');
         setCbOrderData(key, {
           consignment_id: data.data.order.consignment_id, transfer_status: 'Order Created', sent_at: new Date().toISOString(),
+          store_id: storeId,
         });
         useFollowUpStore.getState().setTrackingUrl(key, `https://merchant.carrybee.com/order-track/${data.data.order.consignment_id}`);
         useFollowUpStore.getState().setCourierName(key, 'CarryBee');
