@@ -72,7 +72,7 @@ const ResellerLayout = () => {
   const fetchPaymentRequests = useResellerStore((s) => s.fetchPaymentRequests);
 
   useEffect(() => {
-    if (initialized.current || !isSupabaseConfigured()) return;
+    if (initialized.current || !isSupabaseConfigured) return;
     initialized.current = true;
     fetchResellerOrders();
     fetchPaymentRequests();

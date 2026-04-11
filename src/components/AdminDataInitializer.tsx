@@ -40,7 +40,7 @@ const AdminDataInitializer = () => {
   const fetchCarrybeeData = useCarrybeeStore((s) => s.fetchDispatchData);
   const fetchCarrybeeSettings = useCarrybeeStore((s) => s.fetchSettings);
   useEffect(() => {
-    if (initialized.current || !isSupabaseConfigured()) return;
+    if (initialized.current || !isSupabaseConfigured) return;
     initialized.current = true;
 
     // Fetch all admin data in parallel
