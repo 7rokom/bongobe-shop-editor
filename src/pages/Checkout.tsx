@@ -468,16 +468,6 @@ const Checkout = () => {
 
       <ValidationPopup open={!!validationMsg} message={validationMsg} onClose={() => setValidationMsg("")} />
       <PostOrderPopup orderId={pendingOrderId} isOpen={showPostOrderPopup} onComplete={() => { setShowPostOrderPopup(false); navigate("/thank-you", { state: { orderId: pendingOrderId } }); }} />
-      <Dialog open={showFraudPopup} onOpenChange={(v) => { if (!v) setShowFraudPopup(false); }}>
-        <DialogContent className="sm:max-w-md text-center" hideClose>
-          <div className="py-4 space-y-4">
-            <p className="text-[17px] leading-relaxed text-foreground text-left px-2">
-              {fraudBlockReason === 'no_data' ? useFraudSettingsStore.getState().noDataMessage : useFraudSettingsStore.getState().lowRatioMessage}
-            </p>
-            <Button onClick={() => setShowFraudPopup(false)} className="w-full">ঠিক আছে</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
