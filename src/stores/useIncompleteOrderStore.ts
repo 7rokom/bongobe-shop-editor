@@ -7,7 +7,7 @@ export interface IncompleteOrder {
   name: string;
   phone: string;
   address: string;
-  items: { title: string; quantity: number; price: number; image?: string }[];
+  items: { title: string; quantity: number; price: number; image?: string; variations?: Record<string, string> }[];
   totalPrice: number;
   deliveryCharge: number;
   deliveryZone: string;
