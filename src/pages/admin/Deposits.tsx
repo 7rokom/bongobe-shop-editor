@@ -11,6 +11,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Plus, Pencil, Trash2, CalendarIcon, TrendingUp, Wallet, Layers, Truck, Package } from 'lucide-react';
 import ImportExportButtons from '@/components/admin/ImportExportButtons';
+import PaymentDetailTables from '@/components/admin/PaymentDetailTables';
 import { useDepositStore, depositSources, Deposit } from '@/stores/useDepositStore';
 import { useOrderStore } from '@/stores/useOrderStore';
 import { useStockStore } from '@/stores/useStockStore';
