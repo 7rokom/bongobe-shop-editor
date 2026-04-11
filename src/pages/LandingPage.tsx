@@ -119,7 +119,7 @@ const LandingPage = () => {
   const beaconDataRef = useRef<any>(null);
   useEffect(() => {
     if (product) {
-      beaconDataRef.current = { name, phone, address, product, delivery, customerIp, customerFingerprint, discount, quantity };
+      beaconDataRef.current = { name, phone, address, product, delivery, customerIp, customerFingerprint, discount, quantity, selectedColor, selectedSize, selectedWeight };
     }
   });
 
@@ -133,7 +133,7 @@ const LandingPage = () => {
       const st = getCurrentPrice() * d.quantity;
       return {
         name: d.name, phone: d.phone, address: d.address,
-        items: [{ title: d.product.title, quantity: d.quantity, price: getCurrentPrice(), image: d.product.images?.[0] || '' }],
+        items: [{ title: d.product.title, quantity: d.quantity, price: getCurrentPrice(), image: d.product.images?.[0] || '', variations: (() => { const v: Record<string,string> = {}; if (d.selectedColor) v['কালার'] = d.selectedColor; if (d.selectedSize) v['সাইজ'] = d.selectedSize; if (d.selectedWeight) v['ওজন'] = d.selectedWeight; return Object.keys(v).length > 0 ? v : undefined; })() }],
         totalPrice: st, deliveryCharge: dc,
         deliveryZone: d.delivery === '70' ? 'ঢাকার মধ্যে' : d.delivery === '100' ? 'ঢাকার আশেপাশে' : 'ঢাকার বাইরে',
         grandTotal: st + dc - (d.discount || 0), type: 'incomplete' as const,
