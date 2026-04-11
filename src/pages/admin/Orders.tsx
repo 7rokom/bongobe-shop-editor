@@ -473,7 +473,7 @@ const Orders = () => {
     applyStatusChange(orderId, order, newStatus);
   };
 
-  const applyStatusChange = (orderId: string, order: Order, newStatus: string) => {
+  const applyStatusChange = async (orderId: string, order: Order, newStatus: string) => {
     if (newStatus === 'কনফার্মড') {
       const confirmerName = currentEmployee?.name || 'অ্যাডমিন';
       updateOrderInStore({ ...order, status: newStatus, confirmedBy: confirmerName });
@@ -494,8 +494,24 @@ const Orders = () => {
       if (exps.find(e => e.id === returnExpenseId)) delExp(returnExpenseId);
       if (exps.find(e => e.id === paidReturnExpenseId)) delExp(paidReturnExpenseId);
     }
-    // Note: blocking for পেন্ডিং/হোল্ড/ক্যান্সেল/রিটার্ন is handled dynamically via orders table check
-    // No need to add to blocked_customers here — only on delete
+
+    // Auto-unblock when status changes to ডেলিভারড
+    if (newStatus === 'ডেলিভারড') {
+      const { useBlockStore } = await import('@/stores/useBlockStore');
+      const blockStore = useBlockStore.getState();
+      const phone = order.phone;
+      const fp = order.customerFingerprint;
+      const ip = order.customerIp;
+      // Remove all blocked entries matching this customer's identifiers
+      const toUnblock = blockStore.blockedList.filter(b => 
+        (b.type === 'phone' && b.value === phone) ||
+        (b.type === 'fingerprint' && fp && b.value === fp) ||
+        (b.type === 'ip' && ip && b.value === ip)
+      );
+      for (const entry of toUnblock) {
+        await blockStore.unblockCustomer(entry.id);
+      }
+    }
   };
 
   const handlePaidReturnConfirm = () => {
