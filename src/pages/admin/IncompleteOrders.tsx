@@ -125,6 +125,9 @@ const IncompleteOrders = () => {
               {item.image && <img src={item.image} alt={item.title} className="w-10 h-10 rounded object-cover border" />}
               <div>
                 <p className="text-xs font-medium leading-tight">{item.title}</p>
+                {item.variations && Object.entries(item.variations).map(([key, val]) => (
+                  <p key={key} className="text-[10px] text-muted-foreground">{key}: {val}</p>
+                ))}
                 <p className="text-[10px] text-muted-foreground">× {item.quantity}</p>
               </div>
             </div>
@@ -144,12 +147,16 @@ const IncompleteOrders = () => {
             <Button variant="default" size="sm" className="h-7 w-full gap-1 text-xs" onClick={() => handleConfirm(order)}>
               <CheckCircle className="w-3 h-3" /> কনফার্ম
             </Button>
+            <Button variant="outline" size="sm" className="h-7 w-full gap-1 text-xs" onClick={() => { setNoteOrderId(order.id); setNoteText(order.note || ''); }}>
+              <StickyNote className="w-3 h-3" /> নোট
+            </Button>
             <Button variant="outline" size="sm" className="h-7 w-full gap-1 text-xs text-orange-600 hover:text-orange-700" onClick={() => handleCancel(order.id)}>
               <XCircle className="w-3 h-3" /> ক্যান্সেল
             </Button>
             <Button variant="outline" size="sm" className="h-7 w-full gap-1 text-xs text-destructive hover:text-destructive" onClick={() => handleDelete(order.id)}>
               <Trash2 className="w-3 h-3" /> মুছুন
             </Button>
+            {order.note && <p className="text-[10px] text-muted-foreground bg-muted/50 rounded px-2 py-1 mt-1">📝 {order.note}</p>}
           </div>
         ) : (
           <span className="inline-flex items-center gap-1 text-xs text-orange-600 font-medium"><XCircle className="w-3 h-3" /> ক্যান্সেলড</span>
