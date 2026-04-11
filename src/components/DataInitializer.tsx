@@ -21,7 +21,7 @@ const DataInitializer = () => {
     fetchSiteSettings();
     fetchFraudSettings();
 
-    if (!isSupabaseConfigured()) {
+    if (!isSupabaseConfigured) {
       console.log('Supabase not configured — skipping data fetch');
       return;
     }
