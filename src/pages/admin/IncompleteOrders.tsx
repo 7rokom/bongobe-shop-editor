@@ -42,10 +42,14 @@ const IncompleteOrders = () => {
 
   const handleDelete = (id: string) => { removeOrder(id); toast.success('মুছে ফেলা হয়েছে'); };
   const handleCancel = (id: string) => { cancelOrder(id); toast.info('অর্ডার ক্যান্সেল করা হয়েছে'); };
-  const handleConfirm = (order: IncompleteOrder) => {
-    createOrderFromCheckout({ name: order.name, phone: order.phone, address: order.address, items: order.items.map((i) => ({ title: i.title, quantity: i.quantity, price: i.price, image: i.image })), deliveryCharge: order.deliveryCharge || 70, subtotal: order.totalPrice, confirmedBy: confirmerName });
-    removeOrder(order.id);
-    toast.success(`অর্ডার কনফার্ম হয়েছে (${confirmerName})`);
+  const handleConfirm = async (order: IncompleteOrder) => {
+    try {
+      const invoiceId = await createOrderFromCheckout({ name: order.name, phone: order.phone, address: order.address, items: order.items.map((i) => ({ title: i.title, quantity: i.quantity, price: i.price, image: i.image })), deliveryCharge: order.deliveryCharge || 70, subtotal: order.totalPrice, confirmedBy: confirmerName, customerIp: order.customerIp, customerFingerprint: order.customerFingerprint, orderNote: order.note });
+      await removeOrder(order.id);
+      toast.success(`অর্ডার কনফার্ম হয়েছে ${invoiceId} (${confirmerName})`);
+    } catch (err) {
+      toast.error('অর্ডার কনফার্ম করতে সমস্যা হয়েছে');
+    }
   };
 
   const toggleCancelledSelect = (id: string) => {
