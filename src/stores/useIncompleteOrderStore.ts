@@ -218,5 +218,12 @@ export const useIncompleteOrderStore = create<IncompleteOrderStore>()(
         ),
       }));
     },
+
+    updateNote: async (id, note) => {
+      await db.from('incomplete_orders').update({ note }).eq('id', id);
+      set((state) => ({
+        orders: state.orders.map((o) => o.id === id ? { ...o, note } : o),
+      }));
+    },
   })
 );
