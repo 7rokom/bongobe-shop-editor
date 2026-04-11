@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ShieldBan, AlertCircle, Trash2, Phone, MapPin, ShoppingBag, CheckCircle, XCircle, Truck, Globe, BarChart3, Loader2, Copy, MessageCircle } from 'lucide-react';
+import { ShieldBan, AlertCircle, Trash2, Phone, MapPin, ShoppingBag, CheckCircle, XCircle, Truck, Globe, BarChart3, Loader2, Copy, MessageCircle, StickyNote } from 'lucide-react';
 import { useIncompleteOrderStore, type IncompleteOrder } from '@/stores/useIncompleteOrderStore';
 import { useOrderStore } from '@/stores/useOrderStore';
 import { useEmployeeStore } from '@/stores/useEmployeeStore';
@@ -12,9 +12,11 @@ import { toast } from 'sonner';
 import { useFraudSettingsStore } from '@/stores/useFraudSettingsStore';
 import { useCourierRatioStore } from '@/stores/useCourierRatioStore';
 import { useEffect } from 'react';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const IncompleteOrders = () => {
-  const { orders, removeOrder, removeOrders, cancelOrder } = useIncompleteOrderStore();
+  const { orders, removeOrder, removeOrders, cancelOrder, updateNote } = useIncompleteOrderStore();
   const { createOrderFromCheckout } = useOrderStore();
   const { employees } = useEmployeeStore();
   const adminEmail = useAdminStore((s) => s.adminEmail);
