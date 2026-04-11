@@ -19,6 +19,7 @@ import BlogPost from "./pages/BlogPost";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import ThankYou from "./pages/ThankYou";
+import FakeThankYou from "./pages/FakeThankYou";
 import OrderTracking from "./pages/OrderTracking";
 import NotFound from "./pages/NotFound";
 import PageView from "./pages/PageView";
@@ -152,6 +153,7 @@ const App = () => (
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/thank-you" element={<ThankYou />} />
+            <Route path="/order-confirmed" element={<FakeThankYou />} />
             <Route path="/order-tracking" element={<OrderTracking />} />
             <Route path="/page/:slug" element={<PageView />} />
             <Route path="/lp/:slug" element={<LandingPage />} />
