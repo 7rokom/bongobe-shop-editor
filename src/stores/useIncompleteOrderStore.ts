@@ -121,6 +121,7 @@ function mapRow(row: any): IncompleteOrder {
     status: row.status,
     customerIp: row.customer_ip,
     customerFingerprint: row.customer_fingerprint,
+    note: row.note || undefined,
   };
 }
 
