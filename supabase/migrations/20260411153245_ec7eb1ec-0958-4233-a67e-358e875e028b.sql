@@ -1,0 +1,1 @@
+ALTER TABLE public.incomplete_orders ADD COLUMN IF NOT EXISTS note text DEFAULT NULL;
