@@ -26,7 +26,8 @@ const LandingPages = () => {
   const [slug, setSlug] = useState('');
   const [status, setStatus] = useState<'published' | 'draft'>('published');
   const [productSearch, setProductSearch] = useState('');
-
+  const [customPrice, setCustomPrice] = useState('');
+  const [customOriginalPrice, setCustomOriginalPrice] = useState('');
   useEffect(() => { fetchPages(); }, []);
 
   const filteredProducts = useMemo(() => {
@@ -43,6 +44,8 @@ const LandingPages = () => {
     setSlug('');
     setStatus('published');
     setProductSearch('');
+    setCustomPrice('');
+    setCustomOriginalPrice('');
     setShowEditor(true);
   };
 
@@ -53,6 +56,8 @@ const LandingPages = () => {
     setSlug(page.slug);
     setStatus(page.status);
     setProductSearch('');
+    setCustomPrice(page.customPrice ? String(page.customPrice) : '');
+    setCustomOriginalPrice(page.customOriginalPrice ? String(page.customOriginalPrice) : '');
     setShowEditor(true);
   };
 
@@ -62,11 +67,15 @@ const LandingPages = () => {
       return;
     }
     const finalSlug = slug.trim() || generateSlug(title);
+    const priceData = {
+      customPrice: customPrice ? Number(customPrice) : null,
+      customOriginalPrice: customOriginalPrice ? Number(customOriginalPrice) : null,
+    };
     if (editing) {
-      await updatePage(editing.id, { title, productId, slug: finalSlug, status });
+      await updatePage(editing.id, { title, productId, slug: finalSlug, status, ...priceData });
       toast({ title: 'ল্যান্ডিং পেজ আপডেট হয়েছে' });
     } else {
-      await addPage({ id: crypto.randomUUID(), title, productId, slug: finalSlug, status });
+      await addPage({ id: crypto.randomUUID(), title, productId, slug: finalSlug, status, ...priceData });
       toast({ title: 'ল্যান্ডিং পেজ তৈরি হয়েছে' });
     }
     setShowEditor(false);
