@@ -4,7 +4,7 @@ import { useCategoryStore } from '@/stores/useCategoryStore';
 import { useSiteSettingsStore } from '@/stores/useSiteSettingsStore';
 import { useFraudSettingsStore } from '@/stores/useFraudSettingsStore';
 import { useBlogStore } from '@/stores/useBlogStore';
-
+import { isSupabaseConfigured } from '@/integrations/supabase/client';
 
 /**
  * Public-only data initializer — loads products, categories, settings.
