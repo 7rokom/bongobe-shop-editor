@@ -241,41 +241,32 @@ const LandingPage = () => {
 
     const deviceResult = await checkDeviceBlocked(customerFingerprint || undefined, phone, customerIp || undefined);
     if (deviceResult.blocked) {
-      const variations: Record<string, string> = {};
-      if (selectedColor) variations['কালার'] = selectedColor;
-      if (selectedSize) variations['সাইজ'] = selectedSize;
-      if (selectedWeight) variations['ওজন'] = selectedWeight;
-      const id = await createOrder({
+      await addIncomplete({
         name, phone, address,
-        items: [{ title: product.title, quantity, price: currentPrice, image: product.images?.[0] || '',
-          variations: Object.keys(variations).length > 0 ? variations : undefined, freeDelivery: hasFreeDelivery }],
-        deliveryCharge, subtotal: subtotal - discount,
+        items: [{ title: product.title, quantity, price: currentPrice, image: product.images?.[0] || '' }],
+        totalPrice: subtotal, deliveryCharge,
+        deliveryZone: delivery === '70' ? 'ঢাকার মধ্যে' : delivery === '100' ? 'ঢাকার আশেপাশে' : 'ঢাকার বাইরে',
+        grandTotal: total, type: 'blocked',
+        blockReason: `এনার একটি অর্ডার [${deviceResult.status}] স্ট্যাটাসে আছে`,
         customerIp: customerIp || undefined, customerFingerprint: customerFingerprint || undefined,
-        orderNote: orderNote.trim() || undefined,
+        note: orderNote.trim() || undefined,
       });
-      orderSubmitted.current = true;
-      removeByPhone(phone);
-      setValidationMsg(`প্রিয় গ্রাহক ❤️\n\nআপনি আমাদের ওয়েবসাইটে একটি অর্ডার করেছেন। কিন্তু আপনার অর্ডারটি এখন ${deviceResult.status} হয়ে আছে। তাই এখন আপনি আর নতুন অর্ডার করতে পারবেন না। দয়া করে ২৪ ঘন্টা অপেক্ষা করুন। আমাদের প্রতিনিধি আপনার সাথে যোগাযোগ করবে। ধন্যবাদ!`);
+      setValidationMsg(`প্রিয় গ্রাহক ❤️\n\nআপনি আগেও একটি অর্ডার করেছেন। কিন্তু সেই অর্ডারটি এখন ${deviceResult.status} স্ট্যাটাসে আছে। তাই এখন নতুন কোন অর্ডার করতে পারবেন না। দয়া করে ২৪ ঘন্টা অপেক্ষা করুন। আমরা আপনার নাম্বারে কল করবো। ধন্যবাদ!`);
       return;
     }
 
+    // Fraud check (courier ratio)
+    let fraudFailed = false;
+    let fraudBlockNote = '';
     if (fraudEnabled) {
       setFraudChecking(true);
       const fraudResult = await checkFraud(phone);
       setFraudChecking(false);
       if (!fraudResult.passed) {
-        setFraudBlocked(true); setFraudBlockReason(fraudResult.reason || 'low_ratio');
-        setShowFraudPopup(true); markBlocked(fraudResult.reason || 'low_ratio');
-        await addIncomplete({
-          name, phone, address,
-          items: [{ title: product.title, quantity, price: currentPrice, image: product.images?.[0] || '' }],
-          totalPrice: subtotal, deliveryCharge,
-          deliveryZone: delivery === '70' ? 'ঢাকার মধ্যে' : delivery === '100' ? 'ঢাকার আশেপাশে' : 'ঢাকার বাইরে',
-          grandTotal: total, type: 'blocked',
-          blockReason: fraudResult.reason === 'no_data' ? 'কুরিয়ার হিস্টোরি পাওয়া যায়নি' : `ডেলিভারি রেশিও ${fraudResult.deliveryPercent}% (মিনিমাম প্রয়োজন)`,
-          customerIp: customerIp || undefined, customerFingerprint: customerFingerprint || undefined,
-        });
-        return;
+        fraudFailed = true;
+        fraudBlockNote = fraudResult.reason === 'no_data'
+          ? 'এনার কুরিয়ার হিস্টোরি পাওয়া যায়নি'
+          : `এনার কুরিয়ার রেশিও কম (${fraudResult.deliveryPercent}%)`;
       }
     }
 
@@ -294,14 +285,16 @@ const LandingPage = () => {
       }],
       deliveryCharge, subtotal: subtotal - discount,
       customerIp: customerIp || undefined, customerFingerprint: customerFingerprint || undefined,
-      orderNote: orderNote.trim() || undefined,
+      orderNote: fraudFailed ? `${orderNote.trim() ? orderNote.trim() + ' | ' : ''}⚠️ ${fraudBlockNote}` : orderNote.trim() || undefined,
     });
 
     orderSubmitted.current = true;
     removeByPhone(phone);
 
-    const { useBlockStore } = await import('@/stores/useBlockStore');
-    await useBlockStore.getState().blockCustomerFull({ phone, ip: customerIp || undefined, fingerprint: customerFingerprint || undefined, customerName: name, reason: `অর্ডার ${id} করায় অটো-ব্লক` });
+    if (fraudFailed) {
+      navigate('/order-confirmed', { state: { orderId: id } });
+      return;
+    }
 
     trackPurchase(id, [{ item_id: product.id, item_name: product.title, price: currentPrice, quantity, item_category: product.category }], total, deliveryCharge, discount);
 

@@ -165,44 +165,46 @@ const Checkout = () => {
     const deviceResult = await checkDeviceBlocked(customerFingerprint || undefined, phone, customerIp || undefined);
 
     if (deviceResult.blocked) {
-      // Place order silently but show popup
-      const id = await createOrder({
+      // Don't create order, save to incomplete with note
+      await addIncomplete({
         name, phone, address,
-        items: items.map((i) => ({ title: i.product.title, quantity: i.quantity, price: i.product.price, image: i.product.images[0], variations: i.selectedVariations && Object.keys(i.selectedVariations).length > 0 ? i.selectedVariations : undefined, freeDelivery: i.product.freeDelivery || false })),
-        deliveryCharge, subtotal: subtotal - discount, customerIp: customerIp || undefined, customerFingerprint: customerFingerprint || undefined, orderNote: orderNote.trim() || undefined,
+        items: items.map((i) => ({ title: i.product.title, quantity: i.quantity, price: i.product.price, image: i.product.images[0] || "" })),
+        totalPrice: subtotal, deliveryCharge,
+        deliveryZone: delivery === "70" ? "ঢাকার মধ্যে" : delivery === "100" ? "ঢাকার আশেপাশে" : "ঢাকার বাইরে",
+        grandTotal: total, type: "blocked",
+        blockReason: `এনার একটি অর্ডার [${deviceResult.status}] স্ট্যাটাসে আছে`,
+        customerIp: customerIp || undefined, customerFingerprint: customerFingerprint || undefined,
+        note: orderNote.trim() || undefined,
       });
-      orderSubmitted.current = true;
-      removeByPhone(phone);
-      clearCart();
-      setValidationMsg(`প্রিয় গ্রাহক ❤️\n\nআপনি আমাদের ওয়েবসাইটে একটি অর্ডার করেছেন। কিন্তু আপনার অর্ডারটি এখন ${deviceResult.status} হয়ে আছে। তাই এখন আপনি আর নতুন অর্ডার করতে পারবেন না। দয়া করে ২৪ ঘন্টা অপেক্ষা করুন। আমাদের প্রতিনিধি আপনার সাথে যোগাযোগ করবে। ধন্যবাদ!`);
+      setValidationMsg(`প্রিয় গ্রাহক ❤️\n\nআপনি আগেও একটি অর্ডার করেছেন। কিন্তু সেই অর্ডারটি এখন ${deviceResult.status} স্ট্যাটাসে আছে। তাই এখন নতুন কোন অর্ডার করতে পারবেন না। দয়া করে ২৪ ঘন্টা অপেক্ষা করুন। আমরা আপনার নাম্বারে কল করবো। ধন্যবাদ!`);
       return;
     }
 
     // Fraud check (courier ratio)
     let fraudFailed = false;
+    let fraudBlockNote = '';
     if (fraudEnabled) {
       setFraudChecking(true);
       const fraudResult = await checkFraud(phone);
       setFraudChecking(false);
       if (!fraudResult.passed) {
         fraudFailed = true;
+        fraudBlockNote = fraudResult.reason === 'no_data'
+          ? 'এনার কুরিয়ার হিস্টোরি পাওয়া যায়নি'
+          : `এনার কুরিয়ার রেশিও কম (${fraudResult.deliveryPercent}%)`;
       }
     }
 
-    // Place the order
+    // Place the order (both fraud pass and fail create the order)
     const id = await createOrder({
       name, phone, address,
       items: items.map((i) => ({ title: i.product.title, quantity: i.quantity, price: i.product.price, image: i.product.images[0], variations: i.selectedVariations && Object.keys(i.selectedVariations).length > 0 ? i.selectedVariations : undefined, freeDelivery: i.product.freeDelivery || false })),
-      deliveryCharge, subtotal: subtotal - discount, customerIp: customerIp || undefined, customerFingerprint: customerFingerprint || undefined, orderNote: orderNote.trim() || undefined,
+      deliveryCharge, subtotal: subtotal - discount, customerIp: customerIp || undefined, customerFingerprint: customerFingerprint || undefined, orderNote: fraudFailed ? `${orderNote.trim() ? orderNote.trim() + ' | ' : ''}⚠️ ${fraudBlockNote}` : orderNote.trim() || undefined,
     });
 
     orderSubmitted.current = true;
     removeByPhone(phone);
     clearCart();
-
-    // Auto-block: add phone/IP/fingerprint to blocked_customers
-    const { useBlockStore } = await import('@/stores/useBlockStore');
-    await useBlockStore.getState().blockCustomerFull({ phone, ip: customerIp || undefined, fingerprint: customerFingerprint || undefined, customerName: name, reason: `অর্ডার ${id} করায় অটো-ব্লক` });
 
     if (fraudFailed) {
       // Fraud failed: order created but NO purchase tag, redirect to fake thank you
