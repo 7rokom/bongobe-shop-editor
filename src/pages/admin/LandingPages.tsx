@@ -26,7 +26,8 @@ const LandingPages = () => {
   const [slug, setSlug] = useState('');
   const [status, setStatus] = useState<'published' | 'draft'>('published');
   const [productSearch, setProductSearch] = useState('');
-
+  const [customPrice, setCustomPrice] = useState('');
+  const [customOriginalPrice, setCustomOriginalPrice] = useState('');
   useEffect(() => { fetchPages(); }, []);
 
   const filteredProducts = useMemo(() => {
@@ -43,6 +44,8 @@ const LandingPages = () => {
     setSlug('');
     setStatus('published');
     setProductSearch('');
+    setCustomPrice('');
+    setCustomOriginalPrice('');
     setShowEditor(true);
   };
 
@@ -53,6 +56,8 @@ const LandingPages = () => {
     setSlug(page.slug);
     setStatus(page.status);
     setProductSearch('');
+    setCustomPrice(page.customPrice ? String(page.customPrice) : '');
+    setCustomOriginalPrice(page.customOriginalPrice ? String(page.customOriginalPrice) : '');
     setShowEditor(true);
   };
 
@@ -62,11 +67,15 @@ const LandingPages = () => {
       return;
     }
     const finalSlug = slug.trim() || generateSlug(title);
+    const priceData = {
+      customPrice: customPrice ? Number(customPrice) : null,
+      customOriginalPrice: customOriginalPrice ? Number(customOriginalPrice) : null,
+    };
     if (editing) {
-      await updatePage(editing.id, { title, productId, slug: finalSlug, status });
+      await updatePage(editing.id, { title, productId, slug: finalSlug, status, ...priceData });
       toast({ title: 'ল্যান্ডিং পেজ আপডেট হয়েছে' });
     } else {
-      await addPage({ id: crypto.randomUUID(), title, productId, slug: finalSlug, status });
+      await addPage({ id: crypto.randomUUID(), title, productId, slug: finalSlug, status, ...priceData });
       toast({ title: 'ল্যান্ডিং পেজ তৈরি হয়েছে' });
     }
     setShowEditor(false);
@@ -183,6 +192,16 @@ const LandingPages = () => {
               <Label className="mb-1.5 block">স্লাগ (URL)</Label>
               <Input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto-generated" />
               <p className="text-xs text-muted-foreground mt-1">URL: /lp/{slug || '...'}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="mb-1.5 block">কাস্টম বর্তমান প্রাইজ (৳)</Label>
+                <Input type="number" value={customPrice} onChange={(e) => setCustomPrice(e.target.value)} placeholder="প্রডাক্টের প্রাইজ ব্যবহার হবে" />
+              </div>
+              <div>
+                <Label className="mb-1.5 block">কাস্টম রেগুলার প্রাইজ (৳)</Label>
+                <Input type="number" value={customOriginalPrice} onChange={(e) => setCustomOriginalPrice(e.target.value)} placeholder="প্রডাক্টের প্রাইজ ব্যবহার হবে" />
+              </div>
             </div>
             <div>
               <Label className="mb-1.5 block">স্ট্যাটাস</Label>

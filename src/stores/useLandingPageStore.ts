@@ -8,6 +8,8 @@ export interface LandingPage {
   productId: string;
   status: 'published' | 'draft';
   createdAt: string;
+  customPrice?: number | null;
+  customOriginalPrice?: number | null;
 }
 
 interface LandingPageStore {
@@ -36,6 +38,8 @@ export const useLandingPageStore = create<LandingPageStore>((set, get) => ({
           productId: r.product_id,
           status: r.status || 'published',
           createdAt: r.created_at,
+          customPrice: r.custom_price ?? null,
+          customOriginalPrice: r.custom_original_price ?? null,
         })),
       });
     }
@@ -49,6 +53,8 @@ export const useLandingPageStore = create<LandingPageStore>((set, get) => ({
       slug: page.slug,
       product_id: page.productId,
       status: page.status,
+      custom_price: page.customPrice ?? null,
+      custom_original_price: page.customOriginalPrice ?? null,
     });
     if (!error) {
       set((s) => ({ pages: [{ ...page, createdAt: new Date().toISOString() }, ...s.pages] }));
@@ -61,6 +67,8 @@ export const useLandingPageStore = create<LandingPageStore>((set, get) => ({
     if (data.slug !== undefined) dbData.slug = data.slug;
     if (data.productId !== undefined) dbData.product_id = data.productId;
     if (data.status !== undefined) dbData.status = data.status;
+    if (data.customPrice !== undefined) dbData.custom_price = data.customPrice;
+    if (data.customOriginalPrice !== undefined) dbData.custom_original_price = data.customOriginalPrice;
     const { error } = await db.from('landing_pages').update(dbData).eq('id', id);
     if (!error) {
       set((s) => ({
