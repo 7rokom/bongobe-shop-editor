@@ -39,9 +39,10 @@ const SiteSettings = () => {
   const [googleVerificationCode, setGoogleVerificationCode] = useState(settings.googleVerificationCode || '');
   const [adsenseCode, setAdsenseCode] = useState(settings.adsenseCode || '');
   const [adsTxtCode, setAdsTxtCode] = useState(settings.adsTxtCode || '');
+  const [footerCredit, setFooterCredit] = useState(settings.footerCredit || '');
 
   const handleSaveBranding = () => {
-    settings.updateSettings({ siteName, tagline, primaryColor, logoUrl, faviconUrl });
+    settings.updateSettings({ siteName, tagline, primaryColor, logoUrl, faviconUrl, footerCredit });
     // Apply color dynamically
     document.documentElement.style.setProperty('--primary', primaryColor);
     document.documentElement.style.setProperty('--ring', primaryColor);
@@ -198,6 +199,10 @@ const SiteSettings = () => {
               <Input value={faviconUrl} onChange={(e) => setFaviconUrl(e.target.value)} className="mt-1" />
               {faviconUrl && <img src={faviconUrl} alt="Favicon Preview" className="h-8 mt-2 object-contain" />}
             </div>
+          </div>
+          <div>
+            <Label>ফুটার ক্রেডিট টেক্সট</Label>
+            <Input value={footerCredit} onChange={(e) => setFooterCredit(e.target.value)} placeholder="© 2026 BongoBee All Rights Reserved." className="mt-1" />
           </div>
           <Button onClick={handleSaveBranding} className="gap-2"><Save className="h-4 w-4" /> সেভ করুন</Button>
         </CardContent>
