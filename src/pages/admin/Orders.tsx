@@ -77,6 +77,22 @@ const carrybeeStatusMap: Record<string, { label: string; color: string }> = {
   'hold': { label: 'হোল্ড', color: 'bg-amber-100 text-amber-800' },
 };
 
+// WhatsApp message helper
+const buildWhatsAppMessage = (order: Order, storeProducts: Product[]) => {
+  const productNames = order.items.map(i => i.name).join(', ');
+  const productPrice = order.items.reduce((sum, i) => sum + i.price * i.qty, 0);
+  const deliveryCharge = order.deliveryCharge;
+  const deliveryText = deliveryCharge === 0 ? 'ফ্রি ডেলিভারি' : `৳${deliveryCharge}`;
+  
+  // Find product link from first item
+  const firstProduct = storeProducts.find(p => p.title === order.items[0]?.name);
+  const productLink = firstProduct ? `${window.location.origin}/product/${firstProduct.slug}` : '';
+
+  let msg = `প্রিয় গ্রাহক!\n- আপনি একটি *${productNames}* অর্ডার করেছেন।\n- অর্ডার কনফার্মের জন্য আপনাকে কল করা হয়েছিলো। আপনি কোন কারণে কলটি রিসিভ করতে পারেন নি।\n- অর্ডারটি কনফার্ম করতে এখানে মেসেজ করে জানিয়ে দিন প্লিজ\n\nপ্রডাক্ট প্রাইজঃ ৳${productPrice}\nডেলিভারি চার্জঃ ${deliveryText}`;
+  if (productLink) msg += `\nপ্রডাক্ট ডিটাইলসঃ ${productLink}`;
+  return msg;
+};
+
 // Relative time helper
 const getRelativeTime = (dateStr: string) => {
   try {
