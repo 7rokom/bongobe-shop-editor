@@ -4,12 +4,13 @@ import { useCategoryStore } from "@/stores/useCategoryStore";
 import { useProductStore } from "@/stores/useProductStore";
 import { useSiteSettingsStore } from "@/stores/useSiteSettingsStore";
 import { Link } from "react-router-dom";
-import { Store, Truck, RotateCcw, Star } from "lucide-react";
+import { Store } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { useMemo, memo, useEffect, useState } from "react";
 import SEOHead, { DOMAIN } from "@/components/SEOHead";
 import { db } from "@/lib/supabase-db";
+import { Button } from "@/components/ui/button";
 
 const ProductCarousel = memo(({ products }: { products: any[] }) => {
   const plugin = useMemo(() => Autoplay({ delay: 2000, stopOnInteraction: false, stopOnMouseEnter: true }), []);
@@ -22,7 +23,7 @@ const ProductCarousel = memo(({ products }: { products: any[] }) => {
     >
       <CarouselContent className="-ml-[10px] pt-[5px]">
         {products.map((product) => (
-          <CarouselItem key={product.id} className="pl-[10px] basis-1/2 sm:basis-1/3 lg:basis-1/5">
+          <CarouselItem key={product.id} className="pl-[10px] basis-1/2 sm:basis-1/4 lg:basis-1/6">
             <ProductCard product={product} />
           </CarouselItem>
         ))}
@@ -32,17 +33,7 @@ const ProductCarousel = memo(({ products }: { products: any[] }) => {
 });
 ProductCarousel.displayName = "ProductCarousel";
 
-// Category color palette for visual cards
-const categoryColors = [
-  "from-orange-400 to-amber-500",
-  "from-blue-400 to-indigo-500",
-  "from-pink-400 to-rose-500",
-  "from-yellow-400 to-orange-500",
-  "from-teal-400 to-emerald-500",
-  "from-purple-400 to-fuchsia-500",
-  "from-cyan-400 to-blue-500",
-  "from-red-400 to-pink-500",
-];
+const PRODUCTS_PER_PAGE = 18;
 
 const Index = () => {
   const { products } = useProductStore();
@@ -50,7 +41,9 @@ const Index = () => {
   const { siteName, siteMetaDescription } = useSiteSettingsStore();
   const publishedProducts = useMemo(() => products.filter(p => (p.status || 'published') === 'published'), [products]);
 
-  // Fetch top selling products based on actual order data
+  const [visibleCount, setVisibleCount] = useState(PRODUCTS_PER_PAGE);
+
+  // Fetch top selling products
   const [topSellingIds, setTopSellingIds] = useState<string[]>([]);
   useEffect(() => {
     const fetchTopSelling = async () => {
@@ -63,12 +56,10 @@ const Index = () => {
           if (!Array.isArray(items)) continue;
           for (const item of items) {
             const name = item.name || '';
-            if (name) {
-              salesCount[name] = (salesCount[name] || 0) + (item.qty || 1);
-            }
+            if (name) salesCount[name] = (salesCount[name] || 0) + (item.qty || 1);
           }
         }
-        const sorted = Object.entries(salesCount).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([name]) => name);
+        const sorted = Object.entries(salesCount).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([name]) => name);
         setTopSellingIds(sorted);
       } catch (e) { /* ignore */ }
     };
@@ -76,20 +67,23 @@ const Index = () => {
   }, []);
 
   const topSelling = useMemo(() => {
-    if (topSellingIds.length === 0) return publishedProducts.slice(0, 10);
+    if (topSellingIds.length === 0) return publishedProducts.slice(0, 6);
     const result: typeof publishedProducts = [];
     for (const name of topSellingIds) {
       const p = publishedProducts.find(prod => prod.title === name);
       if (p) result.push(p);
     }
-    if (result.length < 10) {
+    if (result.length < 6) {
       for (const p of publishedProducts) {
-        if (result.length >= 10) break;
+        if (result.length >= 6) break;
         if (!result.find(r => r.id === p.id)) result.push(p);
       }
     }
     return result;
   }, [topSellingIds, publishedProducts]);
+
+  const visibleProducts = useMemo(() => publishedProducts.slice(0, visibleCount), [publishedProducts, visibleCount]);
+  const hasMore = visibleCount < publishedProducts.length;
 
   const seoJsonLd = useMemo(() => ({
     '@context': 'https://schema.org',
@@ -100,7 +94,7 @@ const Index = () => {
   }), [siteName]);
 
   return (
-    <div className="bg-background">
+    <div>
       <SEOHead
         title={`${siteName || 'BongoBe'} — বাংলাদেশের সেরা অনলাইন শপিং`}
         description={siteMetaDescription || 'বাংলাদেশের বিশ্বস্ত অনলাইন শপিং প্ল্যাটফর্ম। সেরা মানের পণ্য, দ্রুত ডেলিভারি এবং ক্যাশ অন ডেলিভারি সুবিধা।'}
@@ -110,37 +104,24 @@ const Index = () => {
       />
       <HeroSection />
 
-      {/* Categories Section */}
+      {/* Categories */}
       {categories.length > 0 && (
-        <section className="py-8 bg-background">
+        <section className="py-8 bg-white">
           <div className="container-box">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl md:text-3xl font-bold">
-                <span className="text-foreground">{categories.length} </span>
-                <span className="text-primary">Categories</span>
-                <span className="text-foreground"> of </span>
-                <span className="text-primary">{siteName || '7Rokom'}</span>
-              </h2>
-              <p className="text-muted-foreground text-sm mt-1">সাত প্রকারের নানান ক্যাটেগরি!</p>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-              {categories.map((cat, idx) => (
+            <h2 className="text-2xl font-bold mb-6 text-center">ক্যাটাগরি</h2>
+            <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-5 gap-[5px] sm:gap-4">
+              {categories.map((cat) => (
                 <Link
                   key={cat.id}
                   to={`/shop?category=${cat.slug}`}
-                  className={`relative overflow-hidden rounded-xl h-[120px] sm:h-[150px] bg-gradient-to-br ${categoryColors[idx % categoryColors.length]} group transition-transform hover:scale-[1.02] shadow-md`}
+                  className="bg-card rounded-[5px] p-3 sm:p-5 text-center border border-primary shadow-sm hover:shadow-[0_8px_20px_rgba(0,141,14,0.3)] hover:-translate-y-[5px] transition-all duration-300 group"
                 >
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
-                  <div className="relative z-10 p-4 h-full flex items-start">
-                    <div className="flex items-center gap-2">
-                      {cat.icon && cat.icon.startsWith('fa') ? (
-                        <i className={`${cat.icon} text-xl text-white`} />
-                      ) : (
-                        <span className="text-xl">{cat.icon || '📦'}</span>
-                      )}
-                      <h3 className="text-white font-bold text-base sm:text-lg drop-shadow">{cat.name}</h3>
-                    </div>
-                  </div>
+                  {cat.icon && cat.icon.startsWith('fa') ? (
+                    <i className={`${cat.icon} text-2xl sm:text-3xl text-primary mb-2 inline-block group-hover:scale-110 transition-transform`} />
+                  ) : (
+                    <span className="text-2xl sm:text-3xl mb-2 inline-block">{cat.icon || '📦'}</span>
+                  )}
+                  <h3 className="text-sm sm:text-[18px] font-medium">{cat.name}</h3>
                 </Link>
               ))}
             </div>
@@ -148,35 +129,51 @@ const Index = () => {
         </section>
       )}
 
-      {/* Best Selling Products */}
+      {/* Top Selling */}
       {topSelling.length > 0 && (
-        <section className="py-6 bg-background">
+        <section className="pt-[10px] pb-[10px] mt-0 mb-0 bg-white">
           <div className="container-box">
-            <div className="text-center mb-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground">Best Selling Products</h2>
-              <div className="w-24 h-1 bg-primary mx-auto mt-2 rounded-full" />
+            <div className="flex items-end justify-between mb-1">
+              <h2 className="text-xl font-bold text-primary">টপ সেলিং প্রোডাক্ট</h2>
+              <Link to="/shop" className="text-sm font-medium text-primary hover:underline flex items-center gap-1">
+                সব দেখুন →
+              </Link>
             </div>
-            <ProductCarousel products={topSelling} />
+            <div className="border-t border-primary pt-4">
+              <ProductCarousel products={topSelling} />
+            </div>
           </div>
         </section>
       )}
 
       {/* All Products */}
       {publishedProducts.length > 0 && (
-        <section className="py-6 bg-background">
+        <section className="py-6 bg-white">
           <div className="container-box">
-            <div className="flex items-end justify-between mb-4">
-              <h2 className="text-xl md:text-2xl font-bold text-primary">সকল প্রোডাক্ট</h2>
+            <div className="flex items-end justify-between mb-1">
+              <h2 className="text-[20px] font-bold text-primary">সকল প্রোডাক্ট</h2>
               <Link to="/shop" className="text-sm font-medium text-primary hover:underline flex items-center gap-1">
                 সব দেখুন →
               </Link>
             </div>
             <div className="border-t border-primary pt-4">
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-[10px]">
-                {publishedProducts.map((product) => (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-[10px]">
+                {visibleProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
+              {hasMore && (
+                <div className="text-center mt-6">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="px-10 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                    onClick={() => setVisibleCount((c) => c + PRODUCTS_PER_PAGE)}
+                  >
+                    আরো দেখুন
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -184,33 +181,13 @@ const Index = () => {
 
       {/* Empty state */}
       {publishedProducts.length === 0 && categories.length === 0 && (
-        <section className="py-16 bg-background">
+        <section className="py-16 bg-white">
           <div className="container-box text-center text-muted-foreground">
             <Store className="h-16 w-16 mx-auto mb-4 opacity-40" />
             <p className="text-lg">এখনো কোনো পণ্য বা ক্যাটাগরি যোগ করা হয়নি।</p>
           </div>
         </section>
       )}
-
-      {/* Trust bar */}
-      <section className="py-6 bg-muted/50 border-t">
-        <div className="container-box">
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="flex flex-col items-center gap-1.5">
-              <Truck className="h-7 w-7 text-primary" />
-              <span className="text-xs sm:text-sm font-medium text-foreground">Cash on Delivery</span>
-            </div>
-            <div className="flex flex-col items-center gap-1.5">
-              <RotateCcw className="h-7 w-7 text-primary" />
-              <span className="text-xs sm:text-sm font-medium text-foreground">Easy Returns</span>
-            </div>
-            <div className="flex flex-col items-center gap-1.5">
-              <Star className="h-7 w-7 text-primary" />
-              <span className="text-xs sm:text-sm font-medium text-foreground">Customer Satisfaction</span>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   );
 };
