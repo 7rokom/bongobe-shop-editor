@@ -21,6 +21,7 @@ export interface SiteSettings {
   mobileMenuCategories: string[];
   headerCode: string; bodyCode: string; footerCode: string;
   adsenseCode: string; adsTxtCode: string;
+  footerCredit: string;
 }
 
 interface SiteSettingsStore extends SiteSettings {
@@ -58,6 +59,7 @@ const defaultSettings: SiteSettings = {
   mobileMenuCategories: ['button-phone', 'gadget-accessories', 'kitchen-accessories', 'mens-fashion', 'womens-fashion'],
   headerCode: '', bodyCode: '', footerCode: '',
   adsenseCode: '', adsTxtCode: '',
+  footerCredit: '© 2026 BongoBee All Rights Reserved.',
 };
 
 export const useSiteSettingsStore = create<SiteSettingsStore>()((set, get) => ({
@@ -88,6 +90,7 @@ export const useSiteSettingsStore = create<SiteSettingsStore>()((set, get) => ({
       desktopMenuCategories: state.desktopMenuCategories, mobileMenuCategories: state.mobileMenuCategories,
       headerCode: state.headerCode, bodyCode: state.bodyCode, footerCode: state.footerCode,
       adsenseCode: state.adsenseCode, adsTxtCode: state.adsTxtCode,
+      footerCredit: state.footerCredit,
     };
     await db.from('site_settings').upsert({ id: 'default', data: allSettings, updated_at: new Date().toISOString() });
   },

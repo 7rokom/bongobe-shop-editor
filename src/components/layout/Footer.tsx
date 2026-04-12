@@ -7,7 +7,7 @@ const iconMap: Record<string, React.ElementType> = {
 };
 
 const Footer = () => {
-  const { logoUrl, address, phone, email, facebookUrl, youtubeUrl, twitterUrl, linkedinUrl, pinterestUrl, legalPages } = useSiteSettingsStore();
+  const { logoUrl, address, phone, email, facebookUrl, youtubeUrl, twitterUrl, linkedinUrl, pinterestUrl, legalPages, footerCredit } = useSiteSettingsStore();
 
   return (
     <footer>
@@ -112,7 +112,7 @@ const Footer = () => {
       {/* Copyright */}
       <div className="bg-[hsl(220,15%,13%)]">
         <div className="container-box py-4 text-center text-[15px] text-white/60">
-          © 2026 BongoBe All Rights Reserved.
+          {footerCredit || '© 2026 BongoBee All Rights Reserved.'}
         </div>
       </div>
     </footer>
