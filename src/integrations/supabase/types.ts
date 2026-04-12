@@ -449,6 +449,8 @@ export type Database = {
       landing_pages: {
         Row: {
           created_at: string | null
+          custom_original_price: number | null
+          custom_price: number | null
           id: string
           product_id: string
           slug: string
@@ -457,6 +459,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          custom_original_price?: number | null
+          custom_price?: number | null
           id?: string
           product_id: string
           slug: string
@@ -465,6 +469,8 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          custom_original_price?: number | null
+          custom_price?: number | null
           id?: string
           product_id?: string
           slug?: string
