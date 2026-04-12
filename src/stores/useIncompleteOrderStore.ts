@@ -53,6 +53,7 @@ function buildPayload(order: Omit<IncompleteOrder, 'id' | 'date'>) {
     status: order.status || 'pending',
     customer_ip: order.customerIp || null,
     customer_fingerprint: order.customerFingerprint || null,
+    note: order.note || null,
   };
 }
 
