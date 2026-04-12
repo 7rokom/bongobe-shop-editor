@@ -153,6 +153,19 @@ const LandingPage = () => {
     };
   }, []);
 
+  // Auto-slide every 2 seconds
+  useEffect(() => {
+    if (!product || !product.images) return;
+    const imgs: string[] = [];
+    if (product.featuredImage) imgs.push(product.featuredImage);
+    product.images.forEach((img: string) => { if (!imgs.includes(img)) imgs.push(img); });
+    if (imgs.length <= 1) return;
+    autoSlideRef.current = setInterval(() => {
+      setSelectedImage((prev) => (prev + 1) % imgs.length);
+    }, 2000);
+    return () => { if (autoSlideRef.current) clearInterval(autoSlideRef.current); };
+  }, [product]);
+
   if (!page || !product) {
     if (lpLoading || prodLoading || products.length === 0) {
       return (
@@ -174,15 +187,6 @@ const LandingPage = () => {
     product.images.forEach((img) => { if (!imgs.includes(img)) imgs.push(img); });
     return imgs.length > 0 ? imgs : ['/placeholder.svg'];
   })();
-
-  // Auto-slide every 2 seconds
-  useEffect(() => {
-    if (allImages.length <= 1) return;
-    autoSlideRef.current = setInterval(() => {
-      setSelectedImage((prev) => (prev + 1) % allImages.length);
-    }, 2000);
-    return () => { if (autoSlideRef.current) clearInterval(autoSlideRef.current); };
-  }, [allImages.length]);
 
   const hasColors = product.colors && product.colors.length > 0;
   const hasSizes = product.sizes && product.sizes.length > 0;
