@@ -605,22 +605,6 @@ const ProductPage = () => {
         </Tabs>
 
         <div className="h-[25px]" />
-
-        {/* Related Products */}
-        {related.length > 0 && (
-          <section className="py-6 bg-white -mx-4 px-4 rounded-[5px]">
-            <div className="flex items-end justify-between mb-1">
-              <h2 className="text-xl font-bold text-primary">সম্পর্কিত পণ্য</h2>
-            </div>
-            <div className="border-t border-primary pt-4">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-[10px]">
-              {related.map((p) => (
-                <ProductCard key={p.id} product={p} />
-              ))}
-            </div>
-            </div>
-          </section>
-        )}
       </div>
 
       {/* Mobile Sticky Order Button */}
