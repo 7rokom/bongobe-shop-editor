@@ -93,6 +93,7 @@ const LandingPage = () => {
   const [orderId, setOrderId] = useState('');
   const [showDescription, setShowDescription] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
+  const autoSlideRef = useRef<NodeJS.Timeout | null>(null);
   const [quantity, setQuantity] = useState(1);
 
   const [selectedColor, setSelectedColor] = useState('');
