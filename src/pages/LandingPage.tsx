@@ -462,6 +462,53 @@ const LandingPage = () => {
                 <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="গ্রাম/এলাকার নাম, থানার নাম, জেলার নাম" className="h-11 rounded-lg bg-background" />
               </div>
 
+              {/* Variations - above shipping */}
+              {hasColors && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <label className="text-[15px] font-semibold">কালার:</label>
+                  {product.colors!.map((color) => {
+                    const hp = product.variationPrices?.find((v) => v.variationType === 'color' && v.variationName === color);
+                    return (
+                      <Button key={color} variant={selectedColor === color ? 'default' : 'outline'} size="sm"
+                        className={`rounded-full text-xs ${selectedColor !== color ? 'border-foreground/40' : ''}`}
+                        onClick={() => setSelectedColor(selectedColor === color ? '' : color)}>
+                        {color} {hp?.price ? `(৳${hp.price})` : ''}
+                      </Button>
+                    );
+                  })}
+                </div>
+              )}
+              {hasSizes && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <label className="text-[15px] font-semibold">সাইজ:</label>
+                  {product.sizes!.map((size) => {
+                    const hp = product.variationPrices?.find((v) => v.variationType === 'size' && v.variationName === size);
+                    return (
+                      <Button key={size} variant={selectedSize === size ? 'default' : 'outline'} size="sm"
+                        className={`rounded-full text-xs ${selectedSize !== size ? 'border-foreground/40' : ''}`}
+                        onClick={() => setSelectedSize(selectedSize === size ? '' : size)}>
+                        {size} {hp?.price ? `(৳${hp.price})` : ''}
+                      </Button>
+                    );
+                  })}
+                </div>
+              )}
+              {hasWeights && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <label className="text-[15px] font-semibold">ওজন:</label>
+                  {product.weights!.map((weight) => {
+                    const hp = product.variationPrices?.find((v) => v.variationType === 'weight' && v.variationName === weight);
+                    return (
+                      <Button key={weight} variant={selectedWeight === weight ? 'default' : 'outline'} size="sm"
+                        className={`rounded-full text-xs ${selectedWeight !== weight ? 'border-foreground/40' : ''}`}
+                        onClick={() => setSelectedWeight(selectedWeight === weight ? '' : weight)}>
+                        {weight} {hp?.price ? `(৳${hp.price})` : ''}
+                      </Button>
+                    );
+                  })}
+                </div>
+              )}
+
               {/* Shipping / Delivery */}
               <div>
                 <h4 className="font-semibold text-sm mb-2">Shipping</h4>
