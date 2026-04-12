@@ -193,8 +193,6 @@ const LandingPage = () => {
   const hasWeights = product.weights && product.weights.length > 0;
 
   const getCurrentPrice = () => {
-    // Use custom price from landing page if set
-    if (page.customPrice) return page.customPrice;
     let currentPrice = product.price;
     const vp = product.variationPrices;
     if (vp && vp.length > 0) {
@@ -206,7 +204,7 @@ const LandingPage = () => {
   };
 
   const currentPrice = getCurrentPrice();
-  const displayOriginalPrice = page.customOriginalPrice ?? product.originalPrice;
+  const displayOriginalPrice = product.originalPrice;
   const hasFreeDelivery = product.freeDelivery || false;
   const deliveryCharge = hasFreeDelivery ? 0 : Number(delivery);
   const subtotal = currentPrice * quantity;

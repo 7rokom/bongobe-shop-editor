@@ -193,16 +193,6 @@ const LandingPages = () => {
               <Input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto-generated" />
               <p className="text-xs text-muted-foreground mt-1">URL: /lp/{slug || '...'}</p>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label className="mb-1.5 block">কাস্টম বর্তমান প্রাইজ (৳)</Label>
-                <Input type="number" value={customPrice} onChange={(e) => setCustomPrice(e.target.value)} placeholder="প্রডাক্টের প্রাইজ ব্যবহার হবে" />
-              </div>
-              <div>
-                <Label className="mb-1.5 block">কাস্টম রেগুলার প্রাইজ (৳)</Label>
-                <Input type="number" value={customOriginalPrice} onChange={(e) => setCustomOriginalPrice(e.target.value)} placeholder="প্রডাক্টের প্রাইজ ব্যবহার হবে" />
-              </div>
-            </div>
             <div>
               <Label className="mb-1.5 block">স্ট্যাটাস</Label>
               <Select value={status} onValueChange={(v: any) => setStatus(v)}>
