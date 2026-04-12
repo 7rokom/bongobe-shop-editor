@@ -77,6 +77,22 @@ const carrybeeStatusMap: Record<string, { label: string; color: string }> = {
   'hold': { label: 'হোল্ড', color: 'bg-amber-100 text-amber-800' },
 };
 
+// WhatsApp message helper
+const buildWhatsAppMessage = (order: Order, storeProducts: Product[]) => {
+  const productNames = order.items.map(i => i.name).join(', ');
+  const productPrice = order.items.reduce((sum, i) => sum + i.price * i.qty, 0);
+  const deliveryCharge = order.deliveryCharge;
+  const deliveryText = deliveryCharge === 0 ? 'ফ্রি ডেলিভারি' : `৳${deliveryCharge}`;
+  
+  // Find product link from first item
+  const firstProduct = storeProducts.find(p => p.title === order.items[0]?.name);
+  const productLink = firstProduct ? `${window.location.origin}/product/${firstProduct.slug}` : '';
+
+  let msg = `প্রিয় গ্রাহক!\n- আপনি একটি *${productNames}* অর্ডার করেছেন।\n- অর্ডার কনফার্মের জন্য আপনাকে কল করা হয়েছিলো। আপনি কোন কারণে কলটি রিসিভ করতে পারেন নি।\n- অর্ডারটি কনফার্ম করতে এখানে মেসেজ করে জানিয়ে দিন প্লিজ\n\nপ্রডাক্ট প্রাইজঃ ৳${productPrice}\nডেলিভারি চার্জঃ ${deliveryText}`;
+  if (productLink) msg += `\nপ্রডাক্ট ডিটাইলসঃ ${productLink}`;
+  return msg;
+};
+
 // Relative time helper
 const getRelativeTime = (dateStr: string) => {
   try {
@@ -965,7 +981,7 @@ const Orders = () => {
                       <div className="flex gap-1 mt-1.5">
                         <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-green-300 hover:bg-green-50" onClick={() => window.open(`tel:${order.phone}`)}><Phone className="w-3 h-3 text-green-600" /></Button>
                         <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-blue-300 hover:bg-blue-50" onClick={() => { navigator.clipboard.writeText(order.phone); toast.success('নাম্বার কপি হয়েছে'); }}><Copy className="w-3 h-3 text-blue-600" /></Button>
-                        <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-emerald-300 hover:bg-emerald-50" onClick={() => window.open(`https://wa.me/88${order.phone}`, '_blank')}><MessageCircle className="w-3 h-3 text-emerald-600" /></Button>
+                        <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-emerald-300 hover:bg-emerald-50" onClick={() => { const msg = buildWhatsAppMessage(order, storeProducts); window.open(`https://wa.me/88${order.phone}?text=${encodeURIComponent(msg)}`, '_blank'); }}><MessageCircle className="w-3 h-3 text-emerald-600" /></Button>
                         <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-purple-300 hover:bg-purple-50" onClick={() => setDetailOrderId(order.id)}><Eye className="w-3 h-3 text-purple-600" /></Button>
                       </div>
                     </td>
@@ -1141,7 +1157,7 @@ const Orders = () => {
                       <div className="flex gap-1 mt-1 justify-end">
                         <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-green-300 hover:bg-green-50" onClick={() => window.open(`tel:${order.phone}`)}><Phone className="w-3 h-3 text-green-600" /></Button>
                         <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-blue-300 hover:bg-blue-50" onClick={() => { navigator.clipboard.writeText(order.phone); toast.success('নাম্বার কপি হয়েছে'); }}><Copy className="w-3 h-3 text-blue-600" /></Button>
-                        <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-emerald-300 hover:bg-emerald-50" onClick={() => window.open(`https://wa.me/88${order.phone}`, '_blank')}><MessageCircle className="w-3 h-3 text-emerald-600" /></Button>
+                        <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-emerald-300 hover:bg-emerald-50" onClick={() => { const msg = buildWhatsAppMessage(order, storeProducts); window.open(`https://wa.me/88${order.phone}?text=${encodeURIComponent(msg)}`, '_blank'); }}><MessageCircle className="w-3 h-3 text-emerald-600" /></Button>
                         <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-purple-300 hover:bg-purple-50" onClick={() => setDetailOrderId(order.id)}><Eye className="w-3 h-3 text-purple-600" /></Button>
                       </div>
                     </div>
