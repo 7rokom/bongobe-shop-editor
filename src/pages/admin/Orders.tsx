@@ -88,8 +88,9 @@ const buildWhatsAppMessage = (order: Order, storeProducts: Product[]) => {
   const firstProduct = storeProducts.find(p => p.title === order.items[0]?.name);
   const productLink = firstProduct ? `${window.location.origin}/product/${firstProduct.slug}` : '';
 
-  let msg = `প্রিয় গ্রাহক!\n- আপনি একটি *${productNames}* অর্ডার করেছেন।\n- অর্ডার কনফার্মের জন্য আপনাকে কল করা হয়েছিলো। আপনি কোন কারণে কলটি রিসিভ করতে পারেন নি।\n- অর্ডারটি কনফার্ম করতে এখানে মেসেজ করে জানিয়ে দিন প্লিজ\n\nপ্রডাক্ট প্রাইজঃ ৳${productPrice}\nডেলিভারি চার্জঃ ${deliveryText}`;
-  if (productLink) msg += `\nপ্রডাক্ট ডিটাইলসঃ ${productLink}`;
+  const totalPrice = productPrice + (deliveryCharge || 0);
+  let msg = `প্রিয় গ্রাহক!\n- আপনি একটি *${productNames}* অর্ডার করেছেন।\n- অর্ডার কনফার্মের জন্য আপনাকে কল করা হয়েছিলো। আপনি কোন কারণে কলটি রিসিভ করতে পারেন নি।\n- অর্ডারটি কনফার্ম করতে এখানে মেসেজ করে জানিয়ে দিন প্লিজ\n\nপ্রডাক্ট প্রাইজঃ ৳${productPrice}\nডেলিভারি চার্জঃ ${deliveryText}\nটোটাল প্রাইজঃ ৳${totalPrice}`;
+  if (productLink) msg += `\nপ্রডাক্ট ডিটেইলসঃ ${productLink}`;
   return msg;
 };
 
