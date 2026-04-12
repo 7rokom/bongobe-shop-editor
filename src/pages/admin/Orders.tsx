@@ -981,7 +981,7 @@ const Orders = () => {
                       <div className="flex gap-1 mt-1.5">
                         <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-green-300 hover:bg-green-50" onClick={() => window.open(`tel:${order.phone}`)}><Phone className="w-3 h-3 text-green-600" /></Button>
                         <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-blue-300 hover:bg-blue-50" onClick={() => { navigator.clipboard.writeText(order.phone); toast.success('নাম্বার কপি হয়েছে'); }}><Copy className="w-3 h-3 text-blue-600" /></Button>
-                        <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-emerald-300 hover:bg-emerald-50" onClick={() => window.open(`https://wa.me/88${order.phone}`, '_blank')}><MessageCircle className="w-3 h-3 text-emerald-600" /></Button>
+                        <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-emerald-300 hover:bg-emerald-50" onClick={() => { const msg = buildWhatsAppMessage(order, storeProducts); window.open(`https://wa.me/88${order.phone}?text=${encodeURIComponent(msg)}`, '_blank'); }}><MessageCircle className="w-3 h-3 text-emerald-600" /></Button>
                         <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-purple-300 hover:bg-purple-50" onClick={() => setDetailOrderId(order.id)}><Eye className="w-3 h-3 text-purple-600" /></Button>
                       </div>
                     </td>
@@ -1157,7 +1157,7 @@ const Orders = () => {
                       <div className="flex gap-1 mt-1 justify-end">
                         <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-green-300 hover:bg-green-50" onClick={() => window.open(`tel:${order.phone}`)}><Phone className="w-3 h-3 text-green-600" /></Button>
                         <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-blue-300 hover:bg-blue-50" onClick={() => { navigator.clipboard.writeText(order.phone); toast.success('নাম্বার কপি হয়েছে'); }}><Copy className="w-3 h-3 text-blue-600" /></Button>
-                        <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-emerald-300 hover:bg-emerald-50" onClick={() => window.open(`https://wa.me/88${order.phone}`, '_blank')}><MessageCircle className="w-3 h-3 text-emerald-600" /></Button>
+                        <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-emerald-300 hover:bg-emerald-50" onClick={() => { const msg = buildWhatsAppMessage(order, storeProducts); window.open(`https://wa.me/88${order.phone}?text=${encodeURIComponent(msg)}`, '_blank'); }}><MessageCircle className="w-3 h-3 text-emerald-600" /></Button>
                         <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-purple-300 hover:bg-purple-50" onClick={() => setDetailOrderId(order.id)}><Eye className="w-3 h-3 text-purple-600" /></Button>
                       </div>
                     </div>
