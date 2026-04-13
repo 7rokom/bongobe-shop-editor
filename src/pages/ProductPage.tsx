@@ -531,7 +531,7 @@ const ProductPage = () => {
                   if (selectedWeight) allVariations['ওজন'] = selectedWeight;
                   addToCart(product, quantity, allVariations);
                   trackAddToCart([{ item_id: product.id, item_name: product.title, price: currentPrice, quantity, item_category: product.category }]);
-                  navigate('/checkout');
+                  navigate(checkoutPath);
                 }}
               >
                 <ShoppingCart className="h-5 w-5" />
@@ -626,7 +626,7 @@ const ProductPage = () => {
             if (selectedWeight) allVariations['ওজন'] = selectedWeight;
             addToCart(product, quantity, allVariations);
             trackAddToCart([{ item_id: product.id, item_name: product.title, price: currentPrice, quantity, item_category: product.category }]);
-            navigate('/checkout');
+            navigate(checkoutPath);
           }}
         >
           <ShoppingCart className="h-5 w-5" />
