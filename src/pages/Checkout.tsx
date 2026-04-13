@@ -202,17 +202,7 @@ const Checkout = () => {
       }
     }
 
-    // Place the order (both fraud pass and fail create the order)
-    const id = await createOrder({
-      name, phone, address,
-      items: items.map((i) => ({ title: i.product.title, quantity: i.quantity, price: i.product.price, image: i.product.images[0], variations: i.selectedVariations && Object.keys(i.selectedVariations).length > 0 ? i.selectedVariations : undefined, freeDelivery: i.product.freeDelivery || false })),
-      deliveryCharge, subtotal: subtotal - discount, customerIp: customerIp || undefined, customerFingerprint: customerFingerprint || undefined, orderNote: fraudFailed ? `${orderNote.trim() ? orderNote.trim() + ' | ' : ''}⚠️ ${fraudBlockNote}` : orderNote.trim() || undefined,
-    });
-
-    orderSubmitted.current = true;
-    removeByPhone(phone);
-
-    // If this is a reseller referral order, also create a reseller order
+    // If reseller referral: only create reseller order, NOT main order
     if (resellerRef) {
       try {
         const resellers = useResellerStore.getState().resellers;
@@ -222,9 +212,17 @@ const Checkout = () => {
           reseller = useResellerStore.getState().resellers.find((r) => r.id === resellerRef);
         }
         if (reseller) {
+          // Fetch custom prices for this reseller
+          const { data: customPricesData } = await (await import('@/lib/supabase-db')).db
+            .from('reseller_product_prices').select('*').eq('reseller_id', reseller.id);
+          const customPriceMap: Record<string, number> = {};
+          if (customPricesData) {
+            customPricesData.forEach((d: any) => { customPriceMap[d.product_id] = Number(d.custom_price); });
+          }
+
           const resellerOrderItems = items.map((i) => {
             const resellerPrice = i.product.resellerPrice || i.product.price;
-            const sellingPrice = i.product.price;
+            const sellingPrice = customPriceMap[i.product.id] || i.product.price;
             return {
               productId: i.product.id,
               productTitle: i.product.title,
@@ -239,8 +237,9 @@ const Checkout = () => {
           const totalResellerCost = resellerOrderItems.reduce((s, i) => s + i.resellerPrice * i.qty, 0);
           const totalProfit = resellerOrderItems.reduce((s, i) => s + i.profit, 0);
 
+          const roId = 'RO-' + Date.now();
           await addResellerOrder({
-            id: 'RO-' + id,
+            id: roId,
             resellerId: reseller.id,
             resellerName: reseller.name,
             customerName: name,
@@ -249,16 +248,39 @@ const Checkout = () => {
             items: resellerOrderItems,
             deliveryCharge,
             totalSellingPrice: totalSellingPrice + deliveryCharge - discount,
-            totalResellerCost: totalResellerCost,
+            totalResellerCost,
             totalProfit,
             status: 'পেন্ডিং',
             date: new Date().toISOString(),
+            notes: fraudFailed ? [`⚠️ ${fraudBlockNote}`] : undefined,
           });
+
+          orderSubmitted.current = true;
+          removeByPhone(phone);
+          clearCart();
+
+          if (fraudFailed) {
+            navigate(fakeThankYouPath, { state: { orderId: roId } });
+            return;
+          }
+          trackPurchase(roId, items.map((i) => ({ item_id: i.product.id, item_name: i.product.title, price: i.product.price, quantity: i.quantity, item_category: i.product.category })), total, deliveryCharge, discount);
+          navigate(thankYouPath, { state: { orderId: roId } });
+          return;
         }
       } catch (e) {
         console.error('Failed to create reseller order:', e);
       }
     }
+
+    // Normal (non-reseller) order: create main order
+    const id = await createOrder({
+      name, phone, address,
+      items: items.map((i) => ({ title: i.product.title, quantity: i.quantity, price: i.product.price, image: i.product.images[0], variations: i.selectedVariations && Object.keys(i.selectedVariations).length > 0 ? i.selectedVariations : undefined, freeDelivery: i.product.freeDelivery || false })),
+      deliveryCharge, subtotal: subtotal - discount, customerIp: customerIp || undefined, customerFingerprint: customerFingerprint || undefined, orderNote: fraudFailed ? `${orderNote.trim() ? orderNote.trim() + ' | ' : ''}⚠️ ${fraudBlockNote}` : orderNote.trim() || undefined,
+    });
+
+    orderSubmitted.current = true;
+    removeByPhone(phone);
 
     clearCart();
 
