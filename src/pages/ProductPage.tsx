@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import React, { useState, useEffect, useMemo, useRef, useContext } from "react";
 import { useResellerRef } from "@/contexts/ResellerRefContext";
 import { useProductStore } from "@/stores/useProductStore";
+import { db } from "@/lib/supabase-db";
 import { trackViewContent, trackAddToCart } from "@/lib/dataLayer";
 import { useCartStore, useWishlistStore } from "@/stores/useStore";
 import { useSiteSettingsStore } from "@/stores/useSiteSettingsStore";
@@ -131,6 +132,7 @@ const ProductPage = () => {
   const initialized = useProductStore((s) => s.initialized);
   const product = getProductBySlug(slug || "");
   const [slugFetchDone, setSlugFetchDone] = useState(false);
+  const [resellerCustomPrice, setResellerCustomPrice] = useState<number | null>(null);
 
   // Direct slug fetch for deep links / refresh
   useEffect(() => {
@@ -138,6 +140,16 @@ const ProductPage = () => {
     if (product) { setSlugFetchDone(true); return; }
     fetchProductBySlug(slug).then(() => setSlugFetchDone(true));
   }, [slug]);
+
+  // Fetch reseller custom price
+  useEffect(() => {
+    if (!resellerRef || !product) return;
+    db.from('reseller_product_prices').select('custom_price')
+      .eq('reseller_id', resellerRef).eq('product_id', product.id).maybeSingle()
+      .then(({ data }: any) => {
+        if (data) setResellerCustomPrice(Number(data.custom_price));
+      });
+  }, [resellerRef, product?.id]);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedVariations, setSelectedVariations] = useState<Record<string, string>>({});
@@ -182,6 +194,8 @@ const ProductPage = () => {
 
   const currentPrice = useMemo(() => {
     if (!product) return 0;
+    // If reseller has set a custom price, use it
+    if (resellerRef && resellerCustomPrice !== null) return resellerCustomPrice;
     let price = product.price;
     const vp = product.variationPrices;
     if (vp && vp.length > 0) {
@@ -199,7 +213,7 @@ const ProductPage = () => {
       }
     }
     return price;
-  }, [product, selectedColor, selectedSize, selectedWeight]);
+  }, [product, selectedColor, selectedSize, selectedWeight, resellerRef, resellerCustomPrice]);
 
   const productJsonLd = useMemo(() => {
     if (!product) return null;
@@ -227,6 +241,15 @@ const ProductPage = () => {
       } : {}),
     };
   }, [product, currentPrice, allImages]);
+
+  // Product with overridden price for cart (reseller custom price)
+  const cartProduct = useMemo(() => {
+    if (!product) return null;
+    if (resellerRef && resellerCustomPrice !== null) {
+      return { ...product, price: resellerCustomPrice };
+    }
+    return product;
+  }, [product, resellerRef, resellerCustomPrice]);
 
   if (!product) {
     if (!slugFetchDone || loading) {
@@ -497,7 +520,7 @@ const ProductPage = () => {
                     if (selectedColor) allVariations['কালার'] = selectedColor;
                     if (selectedSize) allVariations['সাইজ'] = selectedSize;
                     if (selectedWeight) allVariations['ওজন'] = selectedWeight;
-                    addToCart(product, quantity, allVariations);
+                    addToCart(cartProduct!, quantity, allVariations);
                     trackAddToCart([{ item_id: product.id, item_name: product.title, price: currentPrice, quantity, item_category: product.category }]);
                     openCart();
                   }}
@@ -529,7 +552,7 @@ const ProductPage = () => {
                   if (selectedColor) allVariations['কালার'] = selectedColor;
                   if (selectedSize) allVariations['সাইজ'] = selectedSize;
                   if (selectedWeight) allVariations['ওজন'] = selectedWeight;
-                  addToCart(product, quantity, allVariations);
+                  addToCart(cartProduct!, quantity, allVariations);
                   trackAddToCart([{ item_id: product.id, item_name: product.title, price: currentPrice, quantity, item_category: product.category }]);
                   navigate(checkoutPath);
                 }}
@@ -624,7 +647,7 @@ const ProductPage = () => {
             if (selectedColor) allVariations['কালার'] = selectedColor;
             if (selectedSize) allVariations['সাইজ'] = selectedSize;
             if (selectedWeight) allVariations['ওজন'] = selectedWeight;
-            addToCart(product, quantity, allVariations);
+            addToCart(cartProduct!, quantity, allVariations);
             trackAddToCart([{ item_id: product.id, item_name: product.title, price: currentPrice, quantity, item_category: product.category }]);
             navigate(checkoutPath);
           }}
