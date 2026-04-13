@@ -520,7 +520,7 @@ const ProductPage = () => {
                     if (selectedColor) allVariations['কালার'] = selectedColor;
                     if (selectedSize) allVariations['সাইজ'] = selectedSize;
                     if (selectedWeight) allVariations['ওজন'] = selectedWeight;
-                    addToCart(product, quantity, allVariations);
+                    addToCart(cartProduct!, quantity, allVariations);
                     trackAddToCart([{ item_id: product.id, item_name: product.title, price: currentPrice, quantity, item_category: product.category }]);
                     openCart();
                   }}
