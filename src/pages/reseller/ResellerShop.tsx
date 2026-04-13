@@ -12,7 +12,7 @@ import { db } from '@/lib/supabase-db';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 export interface ResellerCartItem {
   product: any;
@@ -22,7 +22,7 @@ export interface ResellerCartItem {
 
 const ResellerShop = () => {
   const products = useProductStore((s) => s.products);
-  const { products: mohasagorProducts, loading: mohasagorLoading, fetchProducts: fetchMohasagor } = useMohasagorStore();
+  const { products: mohasagorProducts, categories: mohasagorCategories, loading: mohasagorLoading, fetchProducts: fetchMohasagor } = useMohasagorStore();
   const resellers = useResellerStore((s) => s.resellers);
   const fetchResellers = useResellerStore((s) => s.fetchResellers);
   const [search, setSearch] = useState('');
@@ -30,6 +30,7 @@ const ResellerShop = () => {
   const [customPrices, setCustomPrices] = useState<Record<string, number>>({});
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [editPrice, setEditPrice] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const navigate = useNavigate();
 
   const auth = localStorage.getItem('reseller-auth');
@@ -64,7 +65,7 @@ const ResellerShop = () => {
 
   const handleCopyLink = (product: any) => {
     const ref = serialNumber || resellerId;
-    const slug = product.slug.startsWith('mohasagor-') ? product.slug : product.slug;
+    const slug = product.slug;
     const link = `${window.location.origin}/r/${ref}/product/${slug}`;
     navigator.clipboard.writeText(link).then(() => {
       setCopiedId(product.id);
@@ -92,7 +93,7 @@ const ResellerShop = () => {
     setEditingProduct(null);
   };
 
-  const renderProductCard = (product: any, isMohasagor = false) => {
+  const renderProductCard = (product: any) => {
     const resellerPrice = product.resellerPrice || product.price;
     const sellingPrice = customPrices[product.id] || product.price;
     return (
@@ -103,9 +104,6 @@ const ResellerShop = () => {
             alt={product.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform"
           />
-          {isMohasagor && (
-            <Badge className="absolute top-1 left-1 text-[10px] bg-blue-600">Mohasagor</Badge>
-          )}
         </div>
         <CardContent className="p-3 space-y-2">
           <p className="text-sm font-medium text-foreground line-clamp-2">{product.title}</p>
@@ -145,7 +143,13 @@ const ResellerShop = () => {
   };
 
   const filteredOwn = filterProducts(products);
-  const filteredMohasagor = filterProducts(mohasagorProducts);
+  
+  // Filter mohasagor by category
+  const filteredMohasagor = filterProducts(
+    selectedCategory === 'all' 
+      ? mohasagorProducts 
+      : mohasagorProducts.filter(p => p.category === selectedCategory)
+  );
 
   return (
     <div className="space-y-6">
@@ -162,28 +166,59 @@ const ResellerShop = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="own">
+      <Tabs defaultValue="all">
         <TabsList>
-          <TabsTrigger value="own">আমাদের প্রোডাক্ট ({filteredOwn.length})</TabsTrigger>
-          <TabsTrigger value="mohasagor">সব প্রোডাক্ট ({filteredMohasagor.length})</TabsTrigger>
+          <TabsTrigger value="all">সব প্রোডাক্ট ({mohasagorProducts.length})</TabsTrigger>
+          <TabsTrigger value="trending">ট্রেন্ডিং প্রোডাক্ট ({filteredOwn.length})</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="own">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {filteredOwn.map((p) => renderProductCard(p))}
-          </div>
-          {filteredOwn.length === 0 && <p className="text-center text-muted-foreground py-8">কোন প্রোডাক্ট পাওয়া যায়নি</p>}
-        </TabsContent>
+        <TabsContent value="all">
+          {/* Category filter tabs */}
+          {mohasagorCategories.length > 0 && (
+            <ScrollArea className="w-full mb-4">
+              <div className="flex gap-2 pb-2">
+                <Button
+                  size="sm"
+                  variant={selectedCategory === 'all' ? 'default' : 'outline'}
+                  onClick={() => setSelectedCategory('all')}
+                  className="whitespace-nowrap"
+                >
+                  সব ({mohasagorProducts.length})
+                </Button>
+                {mohasagorCategories.map((cat) => {
+                  const count = mohasagorProducts.filter(p => p.category === cat).length;
+                  return (
+                    <Button
+                      key={cat}
+                      size="sm"
+                      variant={selectedCategory === cat ? 'default' : 'outline'}
+                      onClick={() => setSelectedCategory(cat)}
+                      className="whitespace-nowrap"
+                    >
+                      {cat} ({count})
+                    </Button>
+                  );
+                })}
+              </div>
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
+          )}
 
-        <TabsContent value="mohasagor">
           {mohasagorLoading ? (
             <p className="text-center text-muted-foreground py-8">লোড হচ্ছে...</p>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {filteredMohasagor.map((p) => renderProductCard(p, true))}
+              {filteredMohasagor.map((p) => renderProductCard(p))}
             </div>
           )}
           {!mohasagorLoading && filteredMohasagor.length === 0 && <p className="text-center text-muted-foreground py-8">কোন প্রোডাক্ট পাওয়া যায়নি</p>}
+        </TabsContent>
+
+        <TabsContent value="trending">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {filteredOwn.map((p) => renderProductCard(p))}
+          </div>
+          {filteredOwn.length === 0 && <p className="text-center text-muted-foreground py-8">কোন প্রোডাক্ট পাওয়া যায়নি</p>}
         </TabsContent>
       </Tabs>
 

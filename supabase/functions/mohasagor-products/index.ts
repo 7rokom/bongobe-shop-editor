@@ -19,28 +19,49 @@ Deno.serve(async (req) => {
       })
     }
 
-    const url = new URL(req.url)
-    const page = url.searchParams.get('page') || '1'
+    // Fetch all pages
+    const allProducts: any[] = []
+    let page = 1
+    let hasMore = true
 
-    const response = await fetch(`https://mohasagor.com.bd/api/reseller/product?page=${page}`, {
-      method: 'GET',
-      headers: {
-        'api-key': apiKey,
-        'secret-key': secretKey,
-      },
-    })
-
-    if (!response.ok) {
-      const text = await response.text()
-      return new Response(JSON.stringify({ error: `Mohasagor API error [${response.status}]: ${text}` }), {
-        status: response.status,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    while (hasMore) {
+      const response = await fetch(`https://mohasagor.com.bd/api/reseller/product?page=${page}`, {
+        method: 'GET',
+        headers: {
+          'api-key': apiKey,
+          'secret-key': secretKey,
+        },
       })
+
+      if (!response.ok) {
+        const text = await response.text()
+        return new Response(JSON.stringify({ error: `Mohasagor API error [${response.status}]: ${text}` }), {
+          status: response.status,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      const data = await response.json()
+      const items = data?.data || data?.products || (Array.isArray(data) ? data : [])
+      
+      if (items.length === 0) {
+        hasMore = false
+      } else {
+        allProducts.push(...items)
+        // Check if there are more pages
+        const lastPage = data?.last_page || data?.meta?.last_page
+        if (lastPage && page >= lastPage) {
+          hasMore = false
+        } else if (items.length < 20) {
+          // If fewer items than typical page size, likely last page
+          hasMore = false
+        } else {
+          page++
+        }
+      }
     }
 
-    const data = await response.json()
-
-    return new Response(JSON.stringify(data), {
+    return new Response(JSON.stringify({ products: allProducts }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (error) {
