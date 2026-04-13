@@ -242,6 +242,15 @@ const ProductPage = () => {
     };
   }, [product, currentPrice, allImages]);
 
+  // Product with overridden price for cart (reseller custom price)
+  const cartProduct = useMemo(() => {
+    if (!product) return null;
+    if (resellerRef && resellerCustomPrice !== null) {
+      return { ...product, price: resellerCustomPrice };
+    }
+    return product;
+  }, [product, resellerRef, resellerCustomPrice]);
+
   if (!product) {
     if (!slugFetchDone || loading) {
       return (
@@ -257,14 +266,6 @@ const ProductPage = () => {
       </div>
     );
   }
-
-  // Product with overridden price for cart (reseller custom price)
-  const cartProduct = useMemo(() => {
-    if (resellerRef && resellerCustomPrice !== null) {
-      return { ...product, price: resellerCustomPrice };
-    }
-    return product;
-  }, [product, resellerRef, resellerCustomPrice]);
 
   const related = getRelatedProducts(product.id, product.category);
   const discount = product.originalPrice
