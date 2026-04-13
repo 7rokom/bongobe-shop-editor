@@ -35,11 +35,10 @@ const ResellerLogin = () => {
       toast({ title: 'সব ফিল্ড পূরণ করুন', variant: 'destructive' });
       return;
     }
-    // If resellers not loaded yet, fetch first
-    if (resellers.length === 0) {
-      await fetchResellers();
-    }
-    const reseller = useResellerStore.getState().resellers.find(
+    // Always fetch fresh reseller data to avoid stale cache issues
+    await fetchResellers();
+    const latestResellers = useResellerStore.getState().resellers;
+    const reseller = latestResellers.find(
       (r) => r.email === loginForm.email && r.password === loginForm.password && r.isActive && r.approvalStatus === 'approved'
     );
     if (reseller) {
