@@ -5,17 +5,16 @@ import type { Product } from '@/data/store-data';
 
 interface MohasagorStore {
   products: Product[];
+  categories: string[];
   loading: boolean;
   fetched: boolean;
   fetchProducts: () => Promise<void>;
 }
 
 const mapProduct = (item: any): Product => {
-  // sale_price = reseller/wholesale price, price = retail/original price
   const resellingPrice = Number(item.sale_price) || 0;
   const originalPrice = Number(item.price) || 0;
 
-  // Build images from product_images array
   const images: string[] = [];
   if (Array.isArray(item.product_images)) {
     item.product_images.forEach((img: any) => {
@@ -45,6 +44,7 @@ const mapProduct = (item: any): Product => {
 
 export const useMohasagorStore = create<MohasagorStore>()((set, get) => ({
   products: [],
+  categories: [],
   loading: false,
   fetched: false,
 
@@ -57,7 +57,20 @@ export const useMohasagorStore = create<MohasagorStore>()((set, get) => ({
 
       const items = data?.products || (Array.isArray(data) ? data : []);
       const products = items.map(mapProduct);
-      set({ products, fetched: true });
+      
+      // Extract unique categories
+      const categorySet = new Set<string>();
+      products.forEach((p: Product) => {
+        if (p.category && p.category !== 'Mohasagor') {
+          categorySet.add(p.category);
+        }
+      });
+      const categories = Array.from(categorySet).sort();
+      
+      // Reverse so newest items come first
+      products.reverse();
+      
+      set({ products, categories, fetched: true });
     } catch (err) {
       console.error('Failed to fetch Mohasagor products:', err);
     } finally {
