@@ -30,6 +30,9 @@ const deliveryOptions = [
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const resellerRef = useResellerRef();
+  const thankYouPath = resellerRef ? `/r/${resellerRef}/thank-you` : '/thank-you';
+  const fakeThankYouPath = resellerRef ? `/r/${resellerRef}/order-confirmed` : '/order-confirmed';
   const { items, totalPrice, clearCart } = useCartStore();
   const createOrder = useOrderStore((s) => s.createOrderFromCheckout);
   const { coupons, applyCoupon: storeApplyCoupon } = useCouponStore();
@@ -40,6 +43,8 @@ const Checkout = () => {
   const addIncomplete = useIncompleteOrderStore((s) => s.addOrder);
   const removeByPhone = useIncompleteOrderStore((s) => s.removeByPhone);
   const fraudEnabled = useFraudSettingsStore((s) => s.enabled);
+  const addResellerOrder = useResellerStore((s) => s.addResellerOrder);
+  const fetchResellers = useResellerStore((s) => s.fetchResellers);
 
   const [fraudBlocked, setFraudBlocked] = useState(false);
   const [fraudBlockReason, setFraudBlockReason] = useState<'no_data' | 'low_ratio' | null>(null);
