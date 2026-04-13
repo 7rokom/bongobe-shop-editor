@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useContext } from "react";
+import { useResellerRef } from "@/contexts/ResellerRefContext";
 import { useProductStore } from "@/stores/useProductStore";
 import { trackViewContent, trackAddToCart } from "@/lib/dataLayer";
 import { useCartStore, useWishlistStore } from "@/stores/useStore";
@@ -123,6 +124,8 @@ const FakeReviewForm = () => {
 const ProductPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const resellerRef = useResellerRef();
+  const checkoutPath = resellerRef ? `/r/${resellerRef}/checkout` : '/checkout';
   const { getProductBySlug, getRelatedProducts, fetchProductBySlug } = useProductStore();
   const storeLoading = useProductStore((s) => s.loading);
   const initialized = useProductStore((s) => s.initialized);
