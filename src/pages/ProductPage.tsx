@@ -479,6 +479,13 @@ const ProductPage = () => {
               </div>
             </div>
 
+  // Product with overridden price for cart (reseller custom price)
+  const cartProduct = useMemo(() => {
+    if (resellerRef && resellerCustomPrice !== null) {
+      return { ...product, price: resellerCustomPrice };
+    }
+    return product;
+  }, [product, resellerRef, resellerCustomPrice]);
 
             {/* Buttons Section */}
             <div className="flex flex-col gap-[10px] pt-1">
