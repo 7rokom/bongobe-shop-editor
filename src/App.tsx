@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import PublicLayout from "@/components/layout/PublicLayout";
+import ResellerPublicLayout from "@/components/layout/ResellerPublicLayout";
 import ScrollToTop from "@/components/ScrollToTop";
 import SiteSettingsInitializer from "@/components/SiteSettingsInitializer";
 import DataLayerPageTracker from "@/components/DataLayerPageTracker";
@@ -141,6 +142,15 @@ const App = () => (
             <Route path="payment-methods" element={<ResellerPaymentMethods />} />
             <Route path="payments" element={<ResellerPayments />} />
             
+          </Route>
+
+          {/* Reseller Public Routes (shareable links) */}
+          <Route path="/r/:resellerId" element={<ResellerPublicLayout />}>
+            <Route path="product/:slug" element={<ProductPage />} />
+            <Route path="cart" element={<Cart />} />
+            <Route path="checkout" element={<Checkout />} />
+            <Route path="thank-you" element={<ThankYou />} />
+            <Route path="order-confirmed" element={<FakeThankYou />} />
           </Route>
 
           {/* Public Routes */}
