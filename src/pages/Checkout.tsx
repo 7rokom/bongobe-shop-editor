@@ -211,11 +211,59 @@ const Checkout = () => {
 
     orderSubmitted.current = true;
     removeByPhone(phone);
+
+    // If this is a reseller referral order, also create a reseller order
+    if (resellerRef) {
+      try {
+        const resellers = useResellerStore.getState().resellers;
+        let reseller = resellers.find((r) => r.id === resellerRef);
+        if (!reseller) {
+          await fetchResellers();
+          reseller = useResellerStore.getState().resellers.find((r) => r.id === resellerRef);
+        }
+        if (reseller) {
+          const resellerOrderItems = items.map((i) => {
+            const resellerPrice = i.product.resellerPrice || i.product.price;
+            const sellingPrice = i.product.price;
+            return {
+              productId: i.product.id,
+              productTitle: i.product.title,
+              image: i.product.featuredImage || i.product.images[0] || '',
+              qty: i.quantity,
+              resellerPrice,
+              sellingPrice,
+              profit: (sellingPrice - resellerPrice) * i.quantity,
+            };
+          });
+          const totalSellingPrice = resellerOrderItems.reduce((s, i) => s + i.sellingPrice * i.qty, 0);
+          const totalResellerCost = resellerOrderItems.reduce((s, i) => s + i.resellerPrice * i.qty, 0);
+          const totalProfit = resellerOrderItems.reduce((s, i) => s + i.profit, 0);
+
+          await addResellerOrder({
+            id: 'RO-' + id,
+            resellerId: reseller.id,
+            resellerName: reseller.name,
+            customerName: name,
+            customerPhone: phone,
+            customerAddress: address,
+            items: resellerOrderItems,
+            deliveryCharge,
+            totalSellingPrice: totalSellingPrice + deliveryCharge - discount,
+            totalResellerCost: totalResellerCost,
+            totalProfit,
+            status: 'পেন্ডিং',
+            date: new Date().toISOString(),
+          });
+        }
+      } catch (e) {
+        console.error('Failed to create reseller order:', e);
+      }
+    }
+
     clearCart();
 
     if (fraudFailed) {
-      // Fraud failed: order created but NO purchase tag, redirect to fake thank you
-      navigate("/order-confirmed", { state: { orderId: id } });
+      navigate(fakeThankYouPath, { state: { orderId: id } });
       return;
     }
 
@@ -224,7 +272,7 @@ const Checkout = () => {
 
     const popupEnabled = useFraudSettingsStore.getState().postOrderPopupEnabled;
     if (popupEnabled) { setPendingOrderId(id); setShowPostOrderPopup(true); }
-    else { navigate("/thank-you", { state: { orderId: id } }); }
+    else { navigate(thankYouPath, { state: { orderId: id } }); }
   };
 
   if (orderComplete) {
