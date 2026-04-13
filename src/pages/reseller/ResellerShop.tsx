@@ -3,8 +3,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useProductStore } from '@/stores/useProductStore';
-import { ShoppingCart, Search } from 'lucide-react';
+import { ShoppingCart, Search, Link2, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 
 export interface ResellerCartItem {
   product: any;
@@ -15,7 +16,12 @@ export interface ResellerCartItem {
 const ResellerShop = () => {
   const products = useProductStore((s) => s.products);
   const [search, setSearch] = useState('');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  // Get reseller ID from localStorage
+  const auth = localStorage.getItem('reseller-auth');
+  const resellerId = auth ? JSON.parse(auth).id : '';
 
   const filtered = products.filter((p) =>
     p.title.toLowerCase().includes(search.toLowerCase())
@@ -23,6 +29,15 @@ const ResellerShop = () => {
 
   const handleOrder = (product: any) => {
     navigate('/reseller/place-order', { state: { products: [{ product, qty: 1, sellingPrice: product.price }] } });
+  };
+
+  const handleCopyLink = (product: any) => {
+    const link = `${window.location.origin}/r/${resellerId}/product/${product.slug}`;
+    navigator.clipboard.writeText(link).then(() => {
+      setCopiedId(product.id);
+      toast({ title: 'লিংক কপি হয়েছে!' });
+      setTimeout(() => setCopiedId(null), 2000);
+    });
   };
 
   return (
@@ -55,9 +70,24 @@ const ResellerShop = () => {
               <CardContent className="p-3 space-y-2">
                 <p className="text-sm font-medium text-foreground line-clamp-2">{product.title}</p>
                 <p className="text-lg font-bold text-primary">৳{resellerPrice}</p>
-                <Button size="sm" className="w-full gap-1.5" onClick={() => handleOrder(product)}>
-                  <ShoppingCart className="h-3.5 w-3.5" /> অর্ডার করুন
-                </Button>
+                <div className="flex gap-1.5">
+                  <Button size="sm" className="flex-1 gap-1.5" onClick={() => handleOrder(product)}>
+                    <ShoppingCart className="h-3.5 w-3.5" /> অর্ডার
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1 px-2"
+                    onClick={() => handleCopyLink(product)}
+                  >
+                    {copiedId === product.id ? (
+                      <Check className="h-3.5 w-3.5 text-green-600" />
+                    ) : (
+                      <Link2 className="h-3.5 w-3.5" />
+                    )}
+                    <span className="hidden sm:inline">লিংক</span>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           );

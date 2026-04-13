@@ -7,6 +7,8 @@ import { useBlockStore } from "@/stores/useBlockStore";
 import { useFraudBlockedStore } from "@/stores/useFraudBlockedStore";
 import { useIncompleteOrderStore, sendBeaconIncompleteOrder, sendIncompleteOrderFetch } from "@/stores/useIncompleteOrderStore";
 import { useFraudSettingsStore } from "@/stores/useFraudSettingsStore";
+import { useResellerStore } from "@/stores/useResellerStore";
+import { useResellerRef } from "@/contexts/ResellerRefContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -28,6 +30,9 @@ const deliveryOptions = [
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const resellerRef = useResellerRef();
+  const thankYouPath = resellerRef ? `/r/${resellerRef}/thank-you` : '/thank-you';
+  const fakeThankYouPath = resellerRef ? `/r/${resellerRef}/order-confirmed` : '/order-confirmed';
   const { items, totalPrice, clearCart } = useCartStore();
   const createOrder = useOrderStore((s) => s.createOrderFromCheckout);
   const { coupons, applyCoupon: storeApplyCoupon } = useCouponStore();
@@ -38,6 +43,8 @@ const Checkout = () => {
   const addIncomplete = useIncompleteOrderStore((s) => s.addOrder);
   const removeByPhone = useIncompleteOrderStore((s) => s.removeByPhone);
   const fraudEnabled = useFraudSettingsStore((s) => s.enabled);
+  const addResellerOrder = useResellerStore((s) => s.addResellerOrder);
+  const fetchResellers = useResellerStore((s) => s.fetchResellers);
 
   const [fraudBlocked, setFraudBlocked] = useState(false);
   const [fraudBlockReason, setFraudBlockReason] = useState<'no_data' | 'low_ratio' | null>(null);
@@ -204,11 +211,59 @@ const Checkout = () => {
 
     orderSubmitted.current = true;
     removeByPhone(phone);
+
+    // If this is a reseller referral order, also create a reseller order
+    if (resellerRef) {
+      try {
+        const resellers = useResellerStore.getState().resellers;
+        let reseller = resellers.find((r) => r.id === resellerRef);
+        if (!reseller) {
+          await fetchResellers();
+          reseller = useResellerStore.getState().resellers.find((r) => r.id === resellerRef);
+        }
+        if (reseller) {
+          const resellerOrderItems = items.map((i) => {
+            const resellerPrice = i.product.resellerPrice || i.product.price;
+            const sellingPrice = i.product.price;
+            return {
+              productId: i.product.id,
+              productTitle: i.product.title,
+              image: i.product.featuredImage || i.product.images[0] || '',
+              qty: i.quantity,
+              resellerPrice,
+              sellingPrice,
+              profit: (sellingPrice - resellerPrice) * i.quantity,
+            };
+          });
+          const totalSellingPrice = resellerOrderItems.reduce((s, i) => s + i.sellingPrice * i.qty, 0);
+          const totalResellerCost = resellerOrderItems.reduce((s, i) => s + i.resellerPrice * i.qty, 0);
+          const totalProfit = resellerOrderItems.reduce((s, i) => s + i.profit, 0);
+
+          await addResellerOrder({
+            id: 'RO-' + id,
+            resellerId: reseller.id,
+            resellerName: reseller.name,
+            customerName: name,
+            customerPhone: phone,
+            customerAddress: address,
+            items: resellerOrderItems,
+            deliveryCharge,
+            totalSellingPrice: totalSellingPrice + deliveryCharge - discount,
+            totalResellerCost: totalResellerCost,
+            totalProfit,
+            status: 'পেন্ডিং',
+            date: new Date().toISOString(),
+          });
+        }
+      } catch (e) {
+        console.error('Failed to create reseller order:', e);
+      }
+    }
+
     clearCart();
 
     if (fraudFailed) {
-      // Fraud failed: order created but NO purchase tag, redirect to fake thank you
-      navigate("/order-confirmed", { state: { orderId: id } });
+      navigate(fakeThankYouPath, { state: { orderId: id } });
       return;
     }
 
@@ -217,7 +272,7 @@ const Checkout = () => {
 
     const popupEnabled = useFraudSettingsStore.getState().postOrderPopupEnabled;
     if (popupEnabled) { setPendingOrderId(id); setShowPostOrderPopup(true); }
-    else { navigate("/thank-you", { state: { orderId: id } }); }
+    else { navigate(thankYouPath, { state: { orderId: id } }); }
   };
 
   if (orderComplete) {
@@ -469,7 +524,7 @@ const Checkout = () => {
       </div>
 
       <ValidationPopup open={!!validationMsg} message={validationMsg} onClose={() => setValidationMsg("")} />
-      <PostOrderPopup orderId={pendingOrderId} isOpen={showPostOrderPopup} onComplete={() => { setShowPostOrderPopup(false); navigate("/thank-you", { state: { orderId: pendingOrderId } }); }} />
+      <PostOrderPopup orderId={pendingOrderId} isOpen={showPostOrderPopup} onComplete={() => { setShowPostOrderPopup(false); navigate(thankYouPath, { state: { orderId: pendingOrderId } }); }} />
     </div>
   );
 };
