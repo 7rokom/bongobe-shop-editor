@@ -2,10 +2,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Trash2, Plus, Minus } from "lucide-react";
 import { useCartStore } from "@/stores/useStore";
+import { useResellerRef } from "@/contexts/ResellerRefContext";
 
 const Cart = () => {
   const { items, removeItem, updateQuantity, totalPrice } = useCartStore();
   const navigate = useNavigate();
+  const resellerRef = useResellerRef();
+  const checkoutPath = resellerRef ? `/r/${resellerRef}/checkout` : '/checkout';
 
   if (items.length === 0) {
     return (
@@ -71,7 +74,7 @@ const Cart = () => {
               <span>মোট:</span>
               <span className="text-primary">৳{totalPrice()}</span>
             </div>
-            <Button size="lg" className="w-full rounded-full text-base" onClick={() => navigate("/checkout")}>
+            <Button size="lg" className="w-full rounded-full text-base" onClick={() => navigate(checkoutPath)}>
               চেকআউট করুন
             </Button>
           </div>
