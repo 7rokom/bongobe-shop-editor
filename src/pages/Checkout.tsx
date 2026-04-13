@@ -524,7 +524,7 @@ const Checkout = () => {
       </div>
 
       <ValidationPopup open={!!validationMsg} message={validationMsg} onClose={() => setValidationMsg("")} />
-      <PostOrderPopup orderId={pendingOrderId} isOpen={showPostOrderPopup} onComplete={() => { setShowPostOrderPopup(false); navigate("/thank-you", { state: { orderId: pendingOrderId } }); }} />
+      <PostOrderPopup orderId={pendingOrderId} isOpen={showPostOrderPopup} onComplete={() => { setShowPostOrderPopup(false); navigate(thankYouPath, { state: { orderId: pendingOrderId } }); }} />
     </div>
   );
 };
