@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import React, { useState, useEffect, useMemo, useRef, useContext } from "react";
 import { useResellerRef } from "@/contexts/ResellerRefContext";
 import { useProductStore } from "@/stores/useProductStore";
+import { db } from "@/lib/supabase-db";
 import { trackViewContent, trackAddToCart } from "@/lib/dataLayer";
 import { useCartStore, useWishlistStore } from "@/stores/useStore";
 import { useSiteSettingsStore } from "@/stores/useSiteSettingsStore";
