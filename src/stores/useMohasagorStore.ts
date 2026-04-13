@@ -11,37 +11,34 @@ interface MohasagorStore {
 }
 
 const mapProduct = (item: any): Product => {
-  const resellingPrice = Number(item.reselling_price) || 0;
-  const salePrice = Number(item.sale_price) || Number(item.price) || 0;
+  // sale_price = reseller/wholesale price, price = retail/original price
+  const resellingPrice = Number(item.sale_price) || 0;
   const originalPrice = Number(item.price) || 0;
 
-  // Build images array
+  // Build images from product_images array
   const images: string[] = [];
-  if (item.product_image) {
-    if (Array.isArray(item.product_image)) {
-      item.product_image.forEach((img: any) => {
-        if (typeof img === 'string') images.push(img);
-        else if (img?.image) images.push(img.image);
-      });
-    }
+  if (Array.isArray(item.product_images)) {
+    item.product_images.forEach((img: any) => {
+      if (img?.product_image) images.push(img.product_image);
+    });
   }
   const featuredImage = item.thumbnail_img || images[0] || '';
 
   return {
-    id: `mohasagor-${item.id || item.slug}`,
+    id: `mohasagor-${item.id}`,
     title: item.name || '',
     slug: `mohasagor-${item.slug || item.id}`,
-    shortDescription: item.short_description || item.description || '',
-    longDescription: item.description || '',
-    price: salePrice,
-    originalPrice: originalPrice > salePrice ? originalPrice : undefined,
+    shortDescription: item.details?.substring(0, 150) || '',
+    longDescription: item.details || '',
+    price: originalPrice,
+    originalPrice: originalPrice,
     resellerPrice: getMarkedUpResellerPrice(resellingPrice),
     images: images.length ? images : [featuredImage],
     featuredImage,
-    category: item.category?.name || 'Mohasagor',
-    inStock: item.in_stock !== false && item.stock !== 0,
-    rating: Number(item.rating) || 4.5,
-    reviewCount: Number(item.review_count) || 0,
+    category: item.category || 'Mohasagor',
+    inStock: item.status === 'active',
+    rating: 4.5,
+    reviewCount: 0,
     status: 'published',
   };
 };
@@ -57,9 +54,8 @@ export const useMohasagorStore = create<MohasagorStore>()((set, get) => ({
     try {
       const { data, error } = await supabase.functions.invoke('mohasagor-products');
       if (error) throw error;
-      
-      // Handle different response structures
-      const items = Array.isArray(data) ? data : (data?.data || data?.products || []);
+
+      const items = data?.products || (Array.isArray(data) ? data : []);
       const products = items.map(mapProduct);
       set({ products, fetched: true });
     } catch (err) {
