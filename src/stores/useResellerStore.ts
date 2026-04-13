@@ -4,7 +4,7 @@ import { db } from '@/lib/supabase-db';
 export interface Reseller {
   id: string; name: string; email: string; phone: string;
   password: string; isActive: boolean; createdAt: string; balance: number;
-  approvalStatus?: string; deactivationNote?: string;
+  approvalStatus?: string; deactivationNote?: string; serialNumber?: number;
 }
 
 export interface ResellerOrder {
@@ -47,6 +47,7 @@ const mapReseller = (r: any): Reseller => ({
   balance: Number(r.balance) || 0,
   approvalStatus: r.approval_status || 'approved',
   deactivationNote: r.deactivation_note || '',
+  serialNumber: r.serial_number || undefined,
 });
 
 const mapOrder = (r: any): ResellerOrder => ({
