@@ -132,6 +132,7 @@ const ProductPage = () => {
   const initialized = useProductStore((s) => s.initialized);
   const product = getProductBySlug(slug || "");
   const [slugFetchDone, setSlugFetchDone] = useState(false);
+  const [resellerCustomPrice, setResellerCustomPrice] = useState<number | null>(null);
 
   // Direct slug fetch for deep links / refresh
   useEffect(() => {
@@ -139,6 +140,16 @@ const ProductPage = () => {
     if (product) { setSlugFetchDone(true); return; }
     fetchProductBySlug(slug).then(() => setSlugFetchDone(true));
   }, [slug]);
+
+  // Fetch reseller custom price
+  useEffect(() => {
+    if (!resellerRef || !product) return;
+    db.from('reseller_product_prices').select('custom_price')
+      .eq('reseller_id', resellerRef).eq('product_id', product.id).maybeSingle()
+      .then(({ data }: any) => {
+        if (data) setResellerCustomPrice(Number(data.custom_price));
+      });
+  }, [resellerRef, product?.id]);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedVariations, setSelectedVariations] = useState<Record<string, string>>({});
