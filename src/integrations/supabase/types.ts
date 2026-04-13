@@ -797,6 +797,7 @@ export type Database = {
           name: string
           password: string
           phone: string | null
+          serial_number: number
           shop_name: string | null
         }
         Insert: {
@@ -810,6 +811,7 @@ export type Database = {
           name: string
           password: string
           phone?: string | null
+          serial_number?: number
           shop_name?: string | null
         }
         Update: {
@@ -823,6 +825,7 @@ export type Database = {
           name?: string
           password?: string
           phone?: string | null
+          serial_number?: number
           shop_name?: string | null
         }
         Relationships: []
