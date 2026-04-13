@@ -194,6 +194,8 @@ const ProductPage = () => {
 
   const currentPrice = useMemo(() => {
     if (!product) return 0;
+    // If reseller has set a custom price, use it
+    if (resellerRef && resellerCustomPrice !== null) return resellerCustomPrice;
     let price = product.price;
     const vp = product.variationPrices;
     if (vp && vp.length > 0) {
@@ -211,7 +213,7 @@ const ProductPage = () => {
       }
     }
     return price;
-  }, [product, selectedColor, selectedSize, selectedWeight]);
+  }, [product, selectedColor, selectedSize, selectedWeight, resellerRef, resellerCustomPrice]);
 
   const productJsonLd = useMemo(() => {
     if (!product) return null;
