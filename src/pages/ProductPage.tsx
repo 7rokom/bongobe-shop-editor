@@ -634,20 +634,6 @@ const ProductPage = () => {
         </Button>
       </div>
 
-      {/* Fixed Floating Call & WhatsApp Buttons */}
-      <div className="fixed bottom-4 md:bottom-8 right-4 z-50 flex flex-col gap-2">
-        
-        <a href="tel:01948818255">
-          <button className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-[0_0_0_0_hsl(var(--primary))] animate-[ping-shadow_2s_ease-in-out_infinite] hover:scale-110 transition-transform">
-            <Phone className="h-4 w-4 md:h-6 md:w-6" />
-          </button>
-        </a>
-        <a href="https://wa.me/8801948818255" target="_blank" rel="noopener noreferrer">
-          <button className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-[0_0_0_0_#25D366] animate-[ping-shadow-wa_2s_ease-in-out_infinite] hover:scale-110 transition-transform">
-            <MessageCircle className="h-4 w-4 md:h-6 md:w-6" />
-          </button>
-        </a>
-      </div>
     </div>
   );
 };
