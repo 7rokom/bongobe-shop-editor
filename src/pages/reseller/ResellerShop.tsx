@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useProductStore } from '@/stores/useProductStore';
+import { useMohasagorStore } from '@/stores/useMohasagorStore';
 import { useResellerStore } from '@/stores/useResellerStore';
 import { ShoppingCart, Search, Link2, Check, Edit2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +11,8 @@ import { toast } from '@/hooks/use-toast';
 import { db } from '@/lib/supabase-db';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 
 export interface ResellerCartItem {
   product: any;
@@ -19,6 +22,7 @@ export interface ResellerCartItem {
 
 const ResellerShop = () => {
   const products = useProductStore((s) => s.products);
+  const { products: mohasagorProducts, loading: mohasagorLoading, fetchProducts: fetchMohasagor } = useMohasagorStore();
   const resellers = useResellerStore((s) => s.resellers);
   const fetchResellers = useResellerStore((s) => s.fetchResellers);
   const [search, setSearch] = useState('');
@@ -28,18 +32,18 @@ const ResellerShop = () => {
   const [editPrice, setEditPrice] = useState('');
   const navigate = useNavigate();
 
-  // Get reseller info from localStorage
   const auth = localStorage.getItem('reseller-auth');
   const resellerId = auth ? JSON.parse(auth).id : '';
-
-  // Get serial number for link
   const reseller = resellers.find(r => r.id === resellerId);
   const serialNumber = reseller?.serialNumber;
 
   useEffect(() => {
+    fetchMohasagor();
+  }, []);
+
+  useEffect(() => {
     if (!resellerId) return;
     if (!reseller) fetchResellers();
-    // Load custom prices
     db.from('reseller_product_prices').select('*').eq('reseller_id', resellerId)
       .then(({ data }: any) => {
         if (data) {
@@ -50,9 +54,8 @@ const ResellerShop = () => {
       });
   }, [resellerId]);
 
-  const filtered = products.filter((p) =>
-    p.title.toLowerCase().includes(search.toLowerCase())
-  );
+  const filterProducts = (list: any[]) =>
+    list.filter((p) => p.title.toLowerCase().includes(search.toLowerCase()));
 
   const handleOrder = (product: any) => {
     const sellingPrice = customPrices[product.id] || product.price;
@@ -61,7 +64,8 @@ const ResellerShop = () => {
 
   const handleCopyLink = (product: any) => {
     const ref = serialNumber || resellerId;
-    const link = `${window.location.origin}/r/${ref}/product/${product.slug}`;
+    const slug = product.slug.startsWith('mohasagor-') ? product.slug : product.slug;
+    const link = `${window.location.origin}/r/${ref}/product/${slug}`;
     navigator.clipboard.writeText(link).then(() => {
       setCopiedId(product.id);
       toast({ title: 'লিংক কপি হয়েছে!' });
@@ -76,7 +80,6 @@ const ResellerShop = () => {
       toast({ title: 'সঠিক দাম দিন', variant: 'destructive' });
       return;
     }
-    // Upsert custom price
     const existing = await db.from('reseller_product_prices')
       .select('id').eq('reseller_id', resellerId).eq('product_id', editingProduct.id).maybeSingle();
     if (existing.data) {
@@ -88,6 +91,61 @@ const ResellerShop = () => {
     toast({ title: 'দাম সেভ হয়েছে!' });
     setEditingProduct(null);
   };
+
+  const renderProductCard = (product: any, isMohasagor = false) => {
+    const resellerPrice = product.resellerPrice || product.price;
+    const sellingPrice = customPrices[product.id] || product.price;
+    return (
+      <Card key={product.id} className="border-0 shadow-sm overflow-hidden group">
+        <div className="aspect-square overflow-hidden bg-muted relative">
+          <img
+            src={product.featuredImage || product.images[0] || '/placeholder.svg'}
+            alt={product.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+          />
+          {isMohasagor && (
+            <Badge className="absolute top-1 left-1 text-[10px] bg-blue-600">Mohasagor</Badge>
+          )}
+        </div>
+        <CardContent className="p-3 space-y-2">
+          <p className="text-sm font-medium text-foreground line-clamp-2">{product.title}</p>
+          <div className="space-y-0.5">
+            <p className="text-xs text-muted-foreground">রিসেলার প্রাইস: ৳{resellerPrice}</p>
+            <div className="flex items-center gap-1">
+              <p className="text-lg font-bold text-primary">৳{sellingPrice}</p>
+              <button
+                className="text-muted-foreground hover:text-primary"
+                onClick={() => { setEditingProduct(product); setEditPrice(String(sellingPrice)); }}
+              >
+                <Edit2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+          <div className="flex gap-1.5">
+            <Button size="sm" className="flex-1 gap-1.5" onClick={() => handleOrder(product)}>
+              <ShoppingCart className="h-3.5 w-3.5" /> অর্ডার
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1 px-2"
+              onClick={() => handleCopyLink(product)}
+            >
+              {copiedId === product.id ? (
+                <Check className="h-3.5 w-3.5 text-green-600" />
+              ) : (
+                <Link2 className="h-3.5 w-3.5" />
+              )}
+              <span className="hidden sm:inline">লিংক</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const filteredOwn = filterProducts(products);
+  const filteredMohasagor = filterProducts(mohasagorProducts);
 
   return (
     <div className="space-y-6">
@@ -104,56 +162,30 @@ const ResellerShop = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {filtered.map((product) => {
-          const resellerPrice = product.resellerPrice || product.price;
-          const sellingPrice = customPrices[product.id] || product.price;
-          return (
-            <Card key={product.id} className="border-0 shadow-sm overflow-hidden group">
-              <div className="aspect-square overflow-hidden bg-muted">
-                <img
-                  src={product.featuredImage || product.images[0] || '/placeholder.svg'}
-                  alt={product.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                />
-              </div>
-              <CardContent className="p-3 space-y-2">
-                <p className="text-sm font-medium text-foreground line-clamp-2">{product.title}</p>
-                <div className="space-y-0.5">
-                  <p className="text-xs text-muted-foreground">রিসেলার প্রাইস: ৳{resellerPrice}</p>
-                  <div className="flex items-center gap-1">
-                    <p className="text-lg font-bold text-primary">৳{sellingPrice}</p>
-                    <button
-                      className="text-muted-foreground hover:text-primary"
-                      onClick={() => { setEditingProduct(product); setEditPrice(String(sellingPrice)); }}
-                    >
-                      <Edit2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                </div>
-                <div className="flex gap-1.5">
-                  <Button size="sm" className="flex-1 gap-1.5" onClick={() => handleOrder(product)}>
-                    <ShoppingCart className="h-3.5 w-3.5" /> অর্ডার
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="gap-1 px-2"
-                    onClick={() => handleCopyLink(product)}
-                  >
-                    {copiedId === product.id ? (
-                      <Check className="h-3.5 w-3.5 text-green-600" />
-                    ) : (
-                      <Link2 className="h-3.5 w-3.5" />
-                    )}
-                    <span className="hidden sm:inline">লিংক</span>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+      <Tabs defaultValue="own">
+        <TabsList>
+          <TabsTrigger value="own">আমাদের প্রোডাক্ট ({filteredOwn.length})</TabsTrigger>
+          <TabsTrigger value="mohasagor">সব প্রোডাক্ট ({filteredMohasagor.length})</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="own">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {filteredOwn.map((p) => renderProductCard(p))}
+          </div>
+          {filteredOwn.length === 0 && <p className="text-center text-muted-foreground py-8">কোন প্রোডাক্ট পাওয়া যায়নি</p>}
+        </TabsContent>
+
+        <TabsContent value="mohasagor">
+          {mohasagorLoading ? (
+            <p className="text-center text-muted-foreground py-8">লোড হচ্ছে...</p>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {filteredMohasagor.map((p) => renderProductCard(p, true))}
+            </div>
+          )}
+          {!mohasagorLoading && filteredMohasagor.length === 0 && <p className="text-center text-muted-foreground py-8">কোন প্রোডাক্ট পাওয়া যায়নি</p>}
+        </TabsContent>
+      </Tabs>
 
       {/* Edit Price Dialog */}
       <Dialog open={!!editingProduct} onOpenChange={(open) => !open && setEditingProduct(null)}>
