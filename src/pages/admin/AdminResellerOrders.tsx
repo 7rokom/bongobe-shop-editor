@@ -67,6 +67,10 @@ const AdminResellerOrders = () => {
   const [paidReturnOrder, setPaidReturnOrder] = useState<ResellerOrder | null>(null);
   const [paidReturnAmount, setPaidReturnAmount] = useState<number>(0);
 
+  // Note dialog state (unified admin+reseller note like main orders)
+  const [noteOrder, setNoteOrder] = useState<ResellerOrder | null>(null);
+  const [noteText, setNoteText] = useState('');
+
   // Edit order state
   const [editOrder, setEditOrder] = useState<ResellerOrder | null>(null);
   const [editCustomerName, setEditCustomerName] = useState('');
