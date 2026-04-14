@@ -357,13 +357,19 @@ const ResellerOrders = () => {
                               <div className="min-w-0">
                                 <p className="text-xs font-medium truncate max-w-[140px]">{item.productTitle}</p>
                                 <p className="text-[10px] text-muted-foreground">×{item.qty}</p>
-                                {(item.selectedColor || item.selectedSize || item.selectedWeight) && (
-                                  <div className="flex flex-wrap gap-1 mt-0.5">
-                                    {item.selectedColor && <span className="text-[9px] px-1.5 py-0.5 bg-pink-50 text-pink-700 rounded">{item.selectedColor}</span>}
-                                    {item.selectedSize && <span className="text-[9px] px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded">{item.selectedSize}</span>}
-                                    {item.selectedWeight && <span className="text-[9px] px-1.5 py-0.5 bg-green-50 text-green-700 rounded">{item.selectedWeight}</span>}
-                                  </div>
-                                )}
+                                 {(() => {
+                                   const knownKeys = ['কালার', 'color', 'সাইজ', 'size', 'ওজন', 'weight'];
+                                   const extraVars = item.selectedVariations ? Object.entries(item.selectedVariations).filter(([k]) => !knownKeys.includes(k)) : [];
+                                   const hasAny = item.selectedColor || item.selectedSize || item.selectedWeight || extraVars.length > 0;
+                                   return hasAny ? (
+                                     <div className="flex flex-wrap gap-1 mt-0.5">
+                                       {item.selectedColor && <span className="text-[9px] px-1.5 py-0.5 bg-pink-50 text-pink-700 rounded">{item.selectedColor}</span>}
+                                       {item.selectedSize && <span className="text-[9px] px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded">{item.selectedSize}</span>}
+                                       {item.selectedWeight && <span className="text-[9px] px-1.5 py-0.5 bg-green-50 text-green-700 rounded">{item.selectedWeight}</span>}
+                                       {extraVars.map(([k, v]) => <span key={k} className="text-[9px] px-1.5 py-0.5 bg-purple-50 text-purple-700 rounded">{String(v)}</span>)}
+                                     </div>
+                                   ) : null;
+                                 })()}
                               </div>
                             </div>
                           ))}
@@ -505,13 +511,19 @@ const ResellerOrders = () => {
                         <div>
                           <p className="text-[11px] font-medium truncate max-w-[100px]">{item.productTitle}</p>
                           <p className="text-[10px] text-muted-foreground">×{item.qty}</p>
-                          {(item.selectedColor || item.selectedSize || item.selectedWeight) && (
-                            <div className="flex flex-wrap gap-0.5">
-                              {item.selectedColor && <span className="text-[8px] px-1 py-0.5 bg-pink-50 text-pink-700 rounded">{item.selectedColor}</span>}
-                              {item.selectedSize && <span className="text-[8px] px-1 py-0.5 bg-blue-50 text-blue-700 rounded">{item.selectedSize}</span>}
-                              {item.selectedWeight && <span className="text-[8px] px-1 py-0.5 bg-green-50 text-green-700 rounded">{item.selectedWeight}</span>}
-                            </div>
-                          )}
+                           {(() => {
+                             const knownKeys = ['কালার', 'color', 'সাইজ', 'size', 'ওজন', 'weight'];
+                             const extraVars = item.selectedVariations ? Object.entries(item.selectedVariations).filter(([k]) => !knownKeys.includes(k)) : [];
+                             const hasAny = item.selectedColor || item.selectedSize || item.selectedWeight || extraVars.length > 0;
+                             return hasAny ? (
+                               <div className="flex flex-wrap gap-0.5">
+                                 {item.selectedColor && <span className="text-[8px] px-1 py-0.5 bg-pink-50 text-pink-700 rounded">{item.selectedColor}</span>}
+                                 {item.selectedSize && <span className="text-[8px] px-1 py-0.5 bg-blue-50 text-blue-700 rounded">{item.selectedSize}</span>}
+                                 {item.selectedWeight && <span className="text-[8px] px-1 py-0.5 bg-green-50 text-green-700 rounded">{item.selectedWeight}</span>}
+                                 {extraVars.map(([k, v]) => <span key={k} className="text-[8px] px-1 py-0.5 bg-purple-50 text-purple-700 rounded">{String(v)}</span>)}
+                               </div>
+                             ) : null;
+                           })()}
                         </div>
                       </div>
                     ))}
@@ -626,13 +638,19 @@ const ResellerOrders = () => {
                     <div className="flex-1">
                       <p className="text-sm">{item.productTitle}</p>
                       <p className="text-xs text-muted-foreground">×{item.qty}</p>
-                      {(item.selectedColor || item.selectedSize || item.selectedWeight) && (
-                        <div className="flex flex-wrap gap-1 mt-0.5">
-                          {item.selectedColor && <span className="text-[10px] px-1.5 py-0.5 bg-pink-50 text-pink-700 rounded">{item.selectedColor}</span>}
-                          {item.selectedSize && <span className="text-[10px] px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded">{item.selectedSize}</span>}
-                          {item.selectedWeight && <span className="text-[10px] px-1.5 py-0.5 bg-green-50 text-green-700 rounded">{item.selectedWeight}</span>}
-                        </div>
-                      )}
+                       {(() => {
+                         const knownKeys = ['কালার', 'color', 'সাইজ', 'size', 'ওজন', 'weight'];
+                         const extraVars = item.selectedVariations ? Object.entries(item.selectedVariations).filter(([k]) => !knownKeys.includes(k)) : [];
+                         const hasAny = item.selectedColor || item.selectedSize || item.selectedWeight || extraVars.length > 0;
+                         return hasAny ? (
+                           <div className="flex flex-wrap gap-1 mt-0.5">
+                             {item.selectedColor && <span className="text-[10px] px-1.5 py-0.5 bg-pink-50 text-pink-700 rounded">{item.selectedColor}</span>}
+                             {item.selectedSize && <span className="text-[10px] px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded">{item.selectedSize}</span>}
+                             {item.selectedWeight && <span className="text-[10px] px-1.5 py-0.5 bg-green-50 text-green-700 rounded">{item.selectedWeight}</span>}
+                             {extraVars.map(([k, v]) => <span key={k} className="text-[10px] px-1.5 py-0.5 bg-purple-50 text-purple-700 rounded">{String(v)}</span>)}
+                           </div>
+                         ) : null;
+                       })()}
                     </div>
                     <div className="text-right text-xs">
                       <p>SP: ৳{item.sellingPrice}</p>
