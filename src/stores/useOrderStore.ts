@@ -134,9 +134,21 @@ export const useOrderStore = create<OrderStore>()((set, get) => ({
   },
 
   createOrderFromCheckout: async (data) => {
-    // Get and increment counter atomically from counters table
+    // Get counter value AND max existing order ID, use whichever is higher
     const { data: counterRow } = await db.from('counters').select('value').eq('id', 'order_number').single();
-    const num = (counterRow?.value || 0) + 1;
+    const counterVal = counterRow?.value || 0;
+
+    // Also check max numeric ID from orders table to prevent overwrites
+    const { data: allOrders } = await db.from('orders').select('id');
+    let maxOrderId = 0;
+    if (allOrders) {
+      allOrders.forEach((o: any) => {
+        const n = parseInt(String(o.id).replace('#', ''));
+        if (!isNaN(n) && n > maxOrderId) maxOrderId = n;
+      });
+    }
+
+    const num = Math.max(counterVal, maxOrderId) + 1;
     await db.from('counters').update({ value: num }).eq('id', 'order_number');
 
     const invoiceId = formatInvoiceNumber(num);
