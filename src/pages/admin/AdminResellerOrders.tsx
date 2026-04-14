@@ -542,29 +542,23 @@ const AdminResellerOrders = () => {
         <Card className="border-0 shadow-sm bg-emerald-50"><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-emerald-700">৳{stats.totalProfit.toLocaleString('bn-BD')}</p><p className="text-xs text-emerald-600">মোট প্রফিট</p></CardContent></Card>
       </div>
 
-      {/* Date Filters */}
-      <div className="flex flex-wrap gap-2 items-center">
-        {(Object.keys(dateFilterLabels) as DateFilter[]).map((key) => (
-          <Button key={key} variant={dateFilter === key ? 'default' : 'outline'} size="sm" onClick={() => setDateFilter(key)}>
-            {dateFilterLabels[key]} {key !== 'custom' && <span className="ml-1 text-[10px] opacity-70">({dateFilterCounts[key] || 0})</span>}
-          </Button>
-        ))}
-      </div>
-
-      {dateFilter === 'custom' && (
-        <div className="flex flex-wrap gap-3 items-center">
-          <Popover><PopoverTrigger asChild><Button variant="outline" size="sm" className={cn('gap-2', !customStart && 'text-muted-foreground')}><CalendarIcon className="w-4 h-4" />{customStart ? format(customStart, 'dd/MM/yyyy') : 'শুরু তারিখ'}</Button></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={customStart} onSelect={setCustomStart} className="p-3 pointer-events-auto" /></PopoverContent></Popover>
-          <span className="text-muted-foreground">—</span>
-          <Popover><PopoverTrigger asChild><Button variant="outline" size="sm" className={cn('gap-2', !customEnd && 'text-muted-foreground')}><CalendarIcon className="w-4 h-4" />{customEnd ? format(customEnd, 'dd/MM/yyyy') : 'শেষ তারিখ'}</Button></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={customEnd} onSelect={setCustomEnd} className="p-3 pointer-events-auto" /></PopoverContent></Popover>
-        </div>
-      )}
-
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-center">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder="অর্ডার, কাস্টমার বা রিসেলার খুঁজুন..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
         </div>
+        <Select value={resellerFilter} onValueChange={setResellerFilter}>
+          <SelectTrigger className="w-[180px] h-9 text-xs"><SelectValue placeholder="রিসেলার ফিল্টার" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">সব রিসেলার</SelectItem>
+            {resellers.map(r => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Popover><PopoverTrigger asChild><Button variant="outline" size="sm" className={cn('gap-2', !customStart && 'text-muted-foreground')}><CalendarIcon className="w-4 h-4" />{customStart ? format(customStart, 'dd/MM/yyyy') : 'শুরু তারিখ'}</Button></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={customStart} onSelect={(d) => { setCustomStart(d); setDateFilter('custom'); }} className="p-3 pointer-events-auto" /></PopoverContent></Popover>
+        <span className="text-muted-foreground">—</span>
+        <Popover><PopoverTrigger asChild><Button variant="outline" size="sm" className={cn('gap-2', !customEnd && 'text-muted-foreground')}><CalendarIcon className="w-4 h-4" />{customEnd ? format(customEnd, 'dd/MM/yyyy') : 'শেষ তারিখ'}</Button></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={customEnd} onSelect={(d) => { setCustomEnd(d); setDateFilter('custom'); }} className="p-3 pointer-events-auto" /></PopoverContent></Popover>
+        {dateFilter === 'custom' && <Button variant="ghost" size="sm" onClick={() => { setDateFilter('all'); setCustomStart(undefined); setCustomEnd(undefined); }}>রিসেট</Button>}
       </div>
 
       {/* Bulk Actions Bar */}
