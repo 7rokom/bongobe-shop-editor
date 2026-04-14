@@ -19,15 +19,28 @@ export const checkFraud = async (phone: string): Promise<FraudCheckResult> => {
 
   try {
     const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/courier-check`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        phone: normalized,
-        ...(settings.bdcourierApiKey ? { apiKey: settings.bdcourierApiKey } : {}),
-      }),
-    });
-    const data = await res.json();
+    
+    const doCheck = async (): Promise<{all: number; delivered: number; returned: number}> => {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/courier-check`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: normalized,
+          ...(settings.bdcourierApiKey ? { apiKey: settings.bdcourierApiKey } : {}),
+        }),
+      });
+      return await res.json();
+    };
+
+    let data: any;
+    try {
+      data = await doCheck();
+    } catch {
+      // Retry once on network failure
+      await new Promise(r => setTimeout(r, 1000));
+      data = await doCheck();
+    }
+
     const all = data.all || 0;
     const delivered = data.delivered || 0;
     const returned = data.returned || 0;
@@ -49,7 +62,8 @@ export const checkFraud = async (phone: string): Promise<FraudCheckResult> => {
       all, delivered, returned, deliveryPercent,
     };
   } catch {
-    return { passed: true };
+    // Both attempts failed — don't auto-pass, treat as no data
+    return { passed: !settings.blockOnNoData, reason: 'no_data' };
   }
 };
 
