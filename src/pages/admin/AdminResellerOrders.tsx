@@ -13,7 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Search, Eye, CalendarIcon, Send, RefreshCw, Loader2, Phone, Copy, MessageCircle, Truck, Package, ExternalLink, ShieldAlert, CheckSquare, Edit, Plus, Trash2 } from 'lucide-react';
+import { Search, Eye, CalendarIcon, Send, RefreshCw, Loader2, Phone, Copy, MessageCircle, Truck, Package, ExternalLink, ShieldAlert, CheckSquare, Edit, Plus, Trash2, StickyNote } from 'lucide-react';
 import ImportExportButtons from '@/components/admin/ImportExportButtons';
 import { cn } from '@/lib/utils';
 import { format, startOfDay, endOfDay, subDays, startOfMonth, endOfMonth, subMonths } from 'date-fns';
