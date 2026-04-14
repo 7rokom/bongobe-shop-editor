@@ -293,6 +293,19 @@ const Checkout = () => {
       }
     }
 
+    // Save courier ratio to cache for normal orders too
+    if (fraudResult && (fraudResult.all || fraudResult.delivered || fraudResult.returned)) {
+      const { useCourierRatioStore } = await import('@/stores/useCourierRatioStore');
+      const normalized = (await import('@/lib/order-validation')).normalizePhone(phone);
+      useCourierRatioStore.setState((s) => ({
+        data: { ...s.data, [normalized]: { all: fraudResult.all || 0, delivered: fraudResult.delivered || 0, returned: fraudResult.returned || 0, loading: false } },
+      }));
+      const { db: dbClient } = await import('@/lib/supabase-db');
+      await dbClient.from('courier_ratio_cache').upsert({
+        phone: normalized, all_count: fraudResult.all || 0, delivered: fraudResult.delivered || 0, returned: fraudResult.returned || 0, checked_at: new Date().toISOString(),
+      }, { onConflict: 'phone' });
+    }
+
     // Normal (non-reseller) order: create main order
     const id = await createOrder({
       name, phone, address,
