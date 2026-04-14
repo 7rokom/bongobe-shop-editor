@@ -187,11 +187,12 @@ const Checkout = () => {
       return;
     }
 
-    // Fraud check (courier ratio)
+    // Fraud check (courier ratio) — always use latest store state to avoid stale closure
     let fraudFailed = false;
     let fraudBlockNote = '';
     let fraudResult: any = null;
-    if (fraudEnabled) {
+    const currentFraudEnabled = useFraudSettingsStore.getState().enabled;
+    if (currentFraudEnabled) {
       setFraudChecking(true);
       fraudResult = await checkFraud(phone);
       setFraudChecking(false);
