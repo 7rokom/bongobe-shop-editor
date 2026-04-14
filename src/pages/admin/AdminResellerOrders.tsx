@@ -136,11 +136,6 @@ const AdminResellerOrders = () => {
     const now = new Date();
     switch (filter) {
       case 'all': return null;
-      case 'today': return { start: startOfDay(now), end: endOfDay(now) };
-      case 'yesterday': return { start: startOfDay(subDays(now, 1)), end: endOfDay(subDays(now, 1)) };
-      case '7days': return { start: startOfDay(subDays(now, 6)), end: endOfDay(now) };
-      case 'this_month': return { start: startOfMonth(now), end: endOfDay(now) };
-      case 'last_month': { const lm = subMonths(now, 1); return { start: startOfMonth(lm), end: endOfMonth(lm) }; }
       case 'custom': return { start: customStart ? startOfDay(customStart) : startOfDay(now), end: customEnd ? endOfDay(customEnd) : endOfDay(now) };
     }
   };
