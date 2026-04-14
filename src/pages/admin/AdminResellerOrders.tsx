@@ -1128,6 +1128,17 @@ const AdminResellerOrders = () => {
                   <div className="flex justify-between"><span className="text-muted-foreground">- COD চার্জ (১%):</span><span>৳{pb.codCharge}</span></div>
                   <div className="flex justify-between text-green-600 font-bold border-t pt-2 mt-2"><span>প্রফিট:</span><span>৳{pb.profit}</span></div>
                 </div>
+                {/* Notes Section */}
+                {viewOrder.notes && viewOrder.notes.length > 0 && (
+                  <div className="border-t pt-3">
+                    <p className="text-sm font-semibold mb-1.5 flex items-center gap-1.5">📝 নোট</p>
+                    <div className="bg-amber-50/50 rounded-lg p-3 space-y-1">
+                      {viewOrder.notes.map((n: string, i: number) => (
+                        <p key={i} className="text-sm text-foreground">• {n}</p>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })()}
