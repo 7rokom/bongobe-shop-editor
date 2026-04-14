@@ -11,15 +11,19 @@ export interface CourierRatioData {
 
 interface CourierRatioStore {
   data: Record<string, CourierRatioData>;
+  checkCounts: Record<string, number>;
   loaded: boolean;
   loadCache: () => Promise<void>;
   checkRatio: (phone: string, apiKey?: string, force?: boolean) => Promise<void>;
+  getCheckCount: (phone: string) => number;
 }
 
+const MAX_CHECKS_PER_PHONE = 3;
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
 export const useCourierRatioStore = create<CourierRatioStore>()((set, get) => ({
   data: {},
+  checkCounts: {},
   loaded: false,
 
   loadCache: async () => {
@@ -40,12 +44,25 @@ export const useCourierRatioStore = create<CourierRatioStore>()((set, get) => ({
     }
   },
 
+  getCheckCount: (phone: string) => get().checkCounts[phone] || 0,
+
   checkRatio: async (phone: string, apiKey?: string, force?: boolean) => {
     const existing = get().data[phone];
+    const currentCount = get().checkCounts[phone] || 0;
+
     // If cached and not forcing refresh, skip
     if (existing && !existing.loading && !force) return;
 
-    set((s) => ({ data: { ...s.data, [phone]: { all: 0, delivered: 0, returned: 0, loading: true } } }));
+    // Enforce max check limit
+    if (currentCount >= MAX_CHECKS_PER_PHONE) {
+      toast.error(`এই নম্বরের কুরিয়ার রেশিও সর্বোচ্চ ${MAX_CHECKS_PER_PHONE} বার চেক করা যায়`);
+      return;
+    }
+
+    set((s) => ({
+      data: { ...s.data, [phone]: { all: 0, delivered: 0, returned: 0, loading: true } },
+      checkCounts: { ...s.checkCounts, [phone]: currentCount + 1 },
+    }));
 
     try {
       const res = await fetch(`${SUPABASE_URL}/functions/v1/courier-check`, {
