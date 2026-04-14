@@ -31,8 +31,8 @@ const deliveryOptions = [
 const Checkout = () => {
   const navigate = useNavigate();
   const resellerRef = useResellerRef();
-  const thankYouPath = resellerRef ? `/r/${resellerRef}/thank-you` : '/thank-you';
-  const fakeThankYouPath = resellerRef ? `/r/${resellerRef}/confirm-order` : '/order-confirmed';
+  const thankYouPath = resellerRef ? '/r/thank-you' : '/thank-you';
+  const fakeThankYouPath = resellerRef ? '/r/confirm-order' : '/order-confirmed';
   const { items, totalPrice, clearCart } = useCartStore();
   const createOrder = useOrderStore((s) => s.createOrderFromCheckout);
   const { coupons, applyCoupon: storeApplyCoupon } = useCouponStore();
