@@ -231,7 +231,7 @@ const ResellerOrders = () => {
       </div>
 
       {/* Status Tabs - Card Style */}
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-10 gap-2">
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-11 gap-2">
         {STATUS_TABS.map((tab) => {
           const isActive = activeTab === tab.value;
           return (
