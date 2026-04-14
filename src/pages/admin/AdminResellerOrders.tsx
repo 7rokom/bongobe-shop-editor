@@ -654,12 +654,19 @@ const AdminResellerOrders = () => {
                       </td>
                       <td className="py-3 px-3">
                         <div className="space-y-1.5">
-                          {order.items.map((item, i) => (
+                          {order.items.map((item: any, i) => (
                             <div key={i} className="flex items-center gap-2">
                               <img src={item.image} alt="" className="w-9 h-9 rounded object-cover border" />
                               <div className="min-w-0">
                                 <p className="text-xs font-medium truncate">{item.productTitle}</p>
                                 <p className="text-[10px] text-muted-foreground">×{item.qty}</p>
+                                {(item.selectedColor || item.selectedSize || item.selectedWeight) && (
+                                  <div className="flex flex-wrap gap-1 mt-0.5">
+                                    {item.selectedColor && <span className="text-[9px] px-1.5 py-0.5 bg-pink-50 text-pink-700 rounded">{item.selectedColor}</span>}
+                                    {item.selectedSize && <span className="text-[9px] px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded">{item.selectedSize}</span>}
+                                    {item.selectedWeight && <span className="text-[9px] px-1.5 py-0.5 bg-green-50 text-green-700 rounded">{item.selectedWeight}</span>}
+                                  </div>
+                                )}
                               </div>
                             </div>
                           ))}
@@ -758,11 +765,16 @@ const AdminResellerOrders = () => {
                           <Button
                             variant="outline" size="sm" className="h-6 w-6 p-0 border-amber-300 hover:bg-amber-50"
                             title="নোট"
-                            onClick={() => { setNoteOrder(order); setNoteText(order.adminNote || ''); }}
+                            onClick={() => {
+                              setNoteOrder(order);
+                              // Combine existing notes array into text
+                              const existingNotes = (order.notes || []).join('\n');
+                              setNoteText(existingNotes);
+                            }}
                           >
                             <StickyNote className="w-3.5 h-3.5 text-amber-500" />
                           </Button>
-                          {order.adminNote && <p className="text-[9px] text-amber-600 mt-0.5 truncate max-w-[120px]">{order.adminNote}</p>}
+                          {(order.notes && order.notes.length > 0) && <p className="text-[9px] text-amber-600 mt-0.5 truncate max-w-[120px]">{order.notes[order.notes.length - 1]}</p>}
                         </div>
                       </td>
                     </tr>
@@ -824,10 +836,20 @@ const AdminResellerOrders = () => {
                   </div>
                 </div>
                 <div className="border-t pt-2 space-y-1.5">
-                  {order.items.map((item, i) => (
+                  {order.items.map((item: any, i) => (
                     <div key={i} className="flex items-center gap-2">
                       <img src={item.image} alt="" className="w-8 h-8 rounded object-cover border" />
-                      <div className="flex-1 min-w-0"><p className="text-xs font-medium truncate">{item.productTitle}</p><p className="text-[10px] text-muted-foreground">×{item.qty}</p></div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium truncate">{item.productTitle}</p>
+                        <p className="text-[10px] text-muted-foreground">×{item.qty}</p>
+                        {(item.selectedColor || item.selectedSize || item.selectedWeight) && (
+                          <div className="flex flex-wrap gap-1 mt-0.5">
+                            {item.selectedColor && <span className="text-[9px] px-1 py-0.5 bg-pink-50 text-pink-700 rounded">{item.selectedColor}</span>}
+                            {item.selectedSize && <span className="text-[9px] px-1 py-0.5 bg-blue-50 text-blue-700 rounded">{item.selectedSize}</span>}
+                            {item.selectedWeight && <span className="text-[9px] px-1 py-0.5 bg-green-50 text-green-700 rounded">{item.selectedWeight}</span>}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))}
                   {/* Price breakdown mobile */}
@@ -1078,10 +1100,20 @@ const AdminResellerOrders = () => {
                 </div>
                 <div className="border-t pt-3">
                   <p className="text-sm font-semibold mb-2">প্রোডাক্ট সমূহ</p>
-                  {viewOrder.items.map((item, i) => (
+                  {viewOrder.items.map((item: any, i) => (
                     <div key={i} className="flex items-center gap-3 py-2 border-b last:border-0">
                       <img src={item.image} alt="" className="w-12 h-12 rounded object-cover" />
-                      <div className="flex-1"><p className="text-sm">{item.productTitle}</p><p className="text-xs text-muted-foreground">পরিমাণ: {item.qty}</p></div>
+                      <div className="flex-1">
+                        <p className="text-sm">{item.productTitle}</p>
+                        <p className="text-xs text-muted-foreground">পরিমাণ: {item.qty}</p>
+                        {(item.selectedColor || item.selectedSize || item.selectedWeight) && (
+                          <div className="flex flex-wrap gap-1 mt-0.5">
+                            {item.selectedColor && <span className="text-[10px] px-1.5 py-0.5 bg-pink-50 text-pink-700 rounded">{item.selectedColor}</span>}
+                            {item.selectedSize && <span className="text-[10px] px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded">{item.selectedSize}</span>}
+                            {item.selectedWeight && <span className="text-[10px] px-1.5 py-0.5 bg-green-50 text-green-700 rounded">{item.selectedWeight}</span>}
+                          </div>
+                        )}
+                      </div>
                       <div className="text-right text-xs">
                         <p>SP: ৳{item.sellingPrice}</p><p className="text-muted-foreground">RP: ৳{item.resellerPrice}</p>
                       </div>
@@ -1096,6 +1128,17 @@ const AdminResellerOrders = () => {
                   <div className="flex justify-between"><span className="text-muted-foreground">- COD চার্জ (১%):</span><span>৳{pb.codCharge}</span></div>
                   <div className="flex justify-between text-green-600 font-bold border-t pt-2 mt-2"><span>প্রফিট:</span><span>৳{pb.profit}</span></div>
                 </div>
+                {/* Notes Section */}
+                {viewOrder.notes && viewOrder.notes.length > 0 && (
+                  <div className="border-t pt-3">
+                    <p className="text-sm font-semibold mb-1.5 flex items-center gap-1.5">📝 নোট</p>
+                    <div className="bg-amber-50/50 rounded-lg p-3 space-y-1">
+                      {viewOrder.notes.map((n: string, i: number) => (
+                        <p key={i} className="text-sm text-foreground">• {n}</p>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })()}
@@ -1323,29 +1366,38 @@ const AdminResellerOrders = () => {
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-3 pt-1">
-              <p className="text-sm text-muted-foreground">অর্ডারে নোট লিখুন (মুছে সেভ দিলে নোট ডিলিট হবে):</p>
-              <Textarea
-                value={noteText}
-                onChange={(e) => setNoteText(e.target.value)}
-                placeholder="যেমন: কাস্টমার ফোন ধরছে না, পরে কল করতে হবে..."
-                rows={3}
-                className="text-sm"
-              />
+              {/* Show existing notes (read-only) */}
+              {noteOrder.notes && noteOrder.notes.length > 0 && (
+                <div className="bg-muted/50 rounded-lg p-3 space-y-1.5">
+                  <p className="text-xs font-semibold text-muted-foreground">বিদ্যমান নোট:</p>
+                  {noteOrder.notes.map((n: string, i: number) => (
+                    <p key={i} className="text-sm text-foreground">• {n}</p>
+                  ))}
+                </div>
+              )}
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">নতুন নোট যোগ করুন:</p>
+                <Textarea
+                  value={noteText}
+                  onChange={(e) => setNoteText(e.target.value)}
+                  placeholder="যেমন: কাস্টমার ফোন ধরছে না, পরে কল করতে হবে..."
+                  rows={3}
+                  className="text-sm"
+                />
+              </div>
               <div className="flex justify-end gap-2">
                 <Button variant="outline" size="sm" onClick={() => { setNoteOrder(null); setNoteText(''); }}>বাতিল</Button>
                 <Button size="sm" className="gap-1.5 bg-amber-500 hover:bg-amber-600 text-white" onClick={async () => {
                   if (!noteOrder) return;
-                  const val = noteText.trim();
+                  const newNote = noteText.trim();
+                  const existingNotes = noteOrder.notes || [];
+                  const updatedNotes = newNote ? [...existingNotes.filter((n: string) => n !== newNote), newNote] : existingNotes;
                   const { db: dbClient } = await import('@/lib/supabase-db');
-                  await dbClient.from('reseller_orders').update({ admin_note: val, notes: val ? [val] : [] }).eq('id', noteOrder.id);
+                  await dbClient.from('reseller_orders').update({ admin_note: newNote, notes: updatedNotes }).eq('id', noteOrder.id);
                   useResellerStore.setState((s) => ({
-                    orders: s.orders.map(o => o.id === noteOrder.id ? { ...o, adminNote: val, notes: val ? [val] : [] } : o),
+                    orders: s.orders.map(o => o.id === noteOrder.id ? { ...o, adminNote: newNote, notes: updatedNotes } : o),
                   }));
-                  if (val) {
-                    toast.success(`অর্ডার ${noteOrder.id}-এ নোট সেভ হয়েছে`);
-                  } else {
-                    toast.success(`অর্ডার ${noteOrder.id}-এর নোট মুছে ফেলা হয়েছে`);
-                  }
+                  toast.success(newNote ? `অর্ডার ${noteOrder.id}-এ নোট সেভ হয়েছে` : 'নোট আপডেট হয়েছে');
                   setNoteOrder(null);
                   setNoteText('');
                 }}>
