@@ -154,6 +154,11 @@ const Checkout = () => {
   };
 
   const handleSubmit = async () => {
+    // Safety: if we're on a reseller route but ref not resolved, block
+    if (window.location.pathname.startsWith('/r/') && !resellerRef) {
+      toast({ title: "রিসেলার তথ্য লোড হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন", variant: "destructive" });
+      return;
+    }
     if (!name || !phone || !address) { toast({ title: "সকল তথ্য পূরণ করুন", variant: "destructive" }); return; }
     const nameErr = validateName(name);
     if (nameErr) { setValidationMsg(nameErr); return; }
@@ -297,7 +302,10 @@ const Checkout = () => {
             return;
           }
           trackPurchase(roId, items.map((i) => ({ item_id: i.product.id, item_name: i.product.title, price: i.product.price, quantity: i.quantity, item_category: i.product.category })), total, deliveryCharge, discount);
-          navigate(thankYouPath, { state: { orderId: roId } });
+          
+          const popupEnabled = useFraudSettingsStore.getState().postOrderPopupEnabled;
+          if (popupEnabled) { setPendingOrderId(roId); setShowPostOrderPopup(true); }
+          else { navigate(thankYouPath, { state: { orderId: roId } }); }
           return;
         }
       } catch (e) {

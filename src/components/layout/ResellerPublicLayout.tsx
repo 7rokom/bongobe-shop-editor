@@ -27,6 +27,15 @@ const ResellerPublicLayout = () => {
     }
   }, [resellerId]);
 
+  // Don't render child routes until reseller ID is resolved
+  if (!resolvedId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
   return (
     <ResellerRefContext.Provider value={resolvedId}>
       <Header />
