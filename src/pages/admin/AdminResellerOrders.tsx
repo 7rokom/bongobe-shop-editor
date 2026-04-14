@@ -669,7 +669,7 @@ const AdminResellerOrders = () => {
                                       {item.selectedColor && <span className="text-[9px] px-1.5 py-0.5 bg-pink-50 text-pink-700 rounded">{item.selectedColor}</span>}
                                       {item.selectedSize && <span className="text-[9px] px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded">{item.selectedSize}</span>}
                                       {item.selectedWeight && <span className="text-[9px] px-1.5 py-0.5 bg-green-50 text-green-700 rounded">{item.selectedWeight}</span>}
-                                      {extraVars.map(([k, v]) => <span key={k} className="text-[9px] px-1.5 py-0.5 bg-purple-50 text-purple-700 rounded">{v}</span>)}
+                                      {extraVars.map(([k, v]) => <span key={k} className="text-[9px] px-1.5 py-0.5 bg-purple-50 text-purple-700 rounded">{String(v)}</span>)}
                                     </div>
                                   ) : null;
                                 })()}
@@ -857,7 +857,7 @@ const AdminResellerOrders = () => {
                               {item.selectedColor && <span className="text-[9px] px-1 py-0.5 bg-pink-50 text-pink-700 rounded">{item.selectedColor}</span>}
                               {item.selectedSize && <span className="text-[9px] px-1 py-0.5 bg-blue-50 text-blue-700 rounded">{item.selectedSize}</span>}
                               {item.selectedWeight && <span className="text-[9px] px-1 py-0.5 bg-green-50 text-green-700 rounded">{item.selectedWeight}</span>}
-                              {extraVars.map(([k, v]) => <span key={k} className="text-[9px] px-1 py-0.5 bg-purple-50 text-purple-700 rounded">{v}</span>)}
+                              {extraVars.map(([k, v]) => <span key={k} className="text-[9px] px-1 py-0.5 bg-purple-50 text-purple-700 rounded">{String(v)}</span>)}
                             </div>
                           ) : null;
                         })()}
