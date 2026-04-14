@@ -13,10 +13,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Search, Eye, CalendarIcon, Send, RefreshCw, Loader2, Phone, Copy, MessageCircle, Truck, Package, ExternalLink, ShieldAlert, CheckSquare, Edit, Plus, Trash2 } from 'lucide-react';
+import { Search, Eye, CalendarIcon, Send, RefreshCw, Loader2, Phone, Copy, MessageCircle, Truck, Package, ExternalLink, ShieldAlert, CheckSquare, Edit, Plus, Trash2, StickyNote } from 'lucide-react';
 import ImportExportButtons from '@/components/admin/ImportExportButtons';
 import { cn } from '@/lib/utils';
-import { format, startOfDay, endOfDay, subDays, startOfMonth, endOfMonth, subMonths } from 'date-fns';
+import { format, startOfDay, endOfDay, startOfMonth, endOfMonth } from 'date-fns';
 import { toast } from 'sonner';
 import { useSteadfastStore } from '@/stores/useSteadfastStore';
 import { useCarrybeeStore } from '@/stores/useCarrybeeStore';
@@ -25,12 +25,7 @@ import { useFraudSettingsStore } from '@/stores/useFraudSettingsStore';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
-type DateFilter = 'all' | 'today' | 'yesterday' | '7days' | 'this_month' | 'last_month' | 'custom';
-
-const dateFilterLabels: Record<DateFilter, string> = {
-  all: 'সব', today: 'আজকে', yesterday: 'গতকাল', '7days': 'গত ৭ দিন',
-  this_month: 'এই মাস', last_month: 'গত মাস', custom: 'কাস্টম',
-};
+type DateFilter = 'all' | 'custom';
 
 const STATUS_OPTIONS = [
   'পেন্ডিং', 'হোল্ড', 'কনফার্মড', 'প্যাকেজিং', 'শিপমেন্ট', 'এসাইন',
@@ -67,6 +62,10 @@ const AdminResellerOrders = () => {
   // Paid return popup state
   const [paidReturnOrder, setPaidReturnOrder] = useState<ResellerOrder | null>(null);
   const [paidReturnAmount, setPaidReturnAmount] = useState<number>(0);
+
+  // Note dialog state (unified admin+reseller note like main orders)
+  const [noteOrder, setNoteOrder] = useState<ResellerOrder | null>(null);
+  const [noteText, setNoteText] = useState('');
 
   // Edit order state
   const [editOrder, setEditOrder] = useState<ResellerOrder | null>(null);
@@ -137,30 +136,13 @@ const AdminResellerOrders = () => {
     const now = new Date();
     switch (filter) {
       case 'all': return null;
-      case 'today': return { start: startOfDay(now), end: endOfDay(now) };
-      case 'yesterday': return { start: startOfDay(subDays(now, 1)), end: endOfDay(subDays(now, 1)) };
-      case '7days': return { start: startOfDay(subDays(now, 6)), end: endOfDay(now) };
-      case 'this_month': return { start: startOfMonth(now), end: endOfDay(now) };
-      case 'last_month': { const lm = subMonths(now, 1); return { start: startOfMonth(lm), end: endOfMonth(lm) }; }
       case 'custom': return { start: customStart ? startOfDay(customStart) : startOfDay(now), end: customEnd ? endOfDay(customEnd) : endOfDay(now) };
     }
   };
 
   const dateRange = useMemo(() => getDateRangeForFilter(dateFilter), [dateFilter, customStart, customEnd]);
 
-  const dateFilterCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    (Object.keys(dateFilterLabels) as DateFilter[]).forEach((key) => {
-      if (key === 'custom') { counts[key] = 0; return; }
-      const range = getDateRangeForFilter(key);
-      if (!range) { counts[key] = orders.length; return; }
-      counts[key] = orders.filter((o) => {
-        const d = parseOrderDate(o.date);
-        return d ? d >= range.start && d <= range.end : false;
-      }).length;
-    });
-    return counts;
-  }, [orders]);
+
 
   const filtered = useMemo(() => {
     return orders.filter((o) => {
@@ -544,29 +526,23 @@ const AdminResellerOrders = () => {
         <Card className="border-0 shadow-sm bg-emerald-50"><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-emerald-700">৳{stats.totalProfit.toLocaleString('bn-BD')}</p><p className="text-xs text-emerald-600">মোট প্রফিট</p></CardContent></Card>
       </div>
 
-      {/* Date Filters */}
-      <div className="flex flex-wrap gap-2 items-center">
-        {(Object.keys(dateFilterLabels) as DateFilter[]).map((key) => (
-          <Button key={key} variant={dateFilter === key ? 'default' : 'outline'} size="sm" onClick={() => setDateFilter(key)}>
-            {dateFilterLabels[key]} {key !== 'custom' && <span className="ml-1 text-[10px] opacity-70">({dateFilterCounts[key] || 0})</span>}
-          </Button>
-        ))}
-      </div>
-
-      {dateFilter === 'custom' && (
-        <div className="flex flex-wrap gap-3 items-center">
-          <Popover><PopoverTrigger asChild><Button variant="outline" size="sm" className={cn('gap-2', !customStart && 'text-muted-foreground')}><CalendarIcon className="w-4 h-4" />{customStart ? format(customStart, 'dd/MM/yyyy') : 'শুরু তারিখ'}</Button></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={customStart} onSelect={setCustomStart} className="p-3 pointer-events-auto" /></PopoverContent></Popover>
-          <span className="text-muted-foreground">—</span>
-          <Popover><PopoverTrigger asChild><Button variant="outline" size="sm" className={cn('gap-2', !customEnd && 'text-muted-foreground')}><CalendarIcon className="w-4 h-4" />{customEnd ? format(customEnd, 'dd/MM/yyyy') : 'শেষ তারিখ'}</Button></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={customEnd} onSelect={setCustomEnd} className="p-3 pointer-events-auto" /></PopoverContent></Popover>
-        </div>
-      )}
-
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-center">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder="অর্ডার, কাস্টমার বা রিসেলার খুঁজুন..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
         </div>
+        <Select value={resellerFilter} onValueChange={setResellerFilter}>
+          <SelectTrigger className="w-[180px] h-9 text-xs"><SelectValue placeholder="রিসেলার ফিল্টার" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">সব রিসেলার</SelectItem>
+            {resellers.map(r => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Popover><PopoverTrigger asChild><Button variant="outline" size="sm" className={cn('gap-2', !customStart && 'text-muted-foreground')}><CalendarIcon className="w-4 h-4" />{customStart ? format(customStart, 'dd/MM/yyyy') : 'শুরু তারিখ'}</Button></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={customStart} onSelect={(d) => { setCustomStart(d); setDateFilter('custom'); }} className="p-3 pointer-events-auto" /></PopoverContent></Popover>
+        <span className="text-muted-foreground">—</span>
+        <Popover><PopoverTrigger asChild><Button variant="outline" size="sm" className={cn('gap-2', !customEnd && 'text-muted-foreground')}><CalendarIcon className="w-4 h-4" />{customEnd ? format(customEnd, 'dd/MM/yyyy') : 'শেষ তারিখ'}</Button></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={customEnd} onSelect={(d) => { setCustomEnd(d); setDateFilter('custom'); }} className="p-3 pointer-events-auto" /></PopoverContent></Popover>
+        {dateFilter === 'custom' && <Button variant="ghost" size="sm" onClick={() => { setDateFilter('all'); setCustomStart(undefined); setCustomEnd(undefined); }}>রিসেট</Button>}
       </div>
 
       {/* Bulk Actions Bar */}
@@ -777,25 +753,16 @@ const AdminResellerOrders = () => {
                           <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setViewOrder(order)}><Eye className="w-4 h-4" /></Button>
                           <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEditOrder(order)} title="এডিট"><Edit className="w-4 h-4" /></Button>
                         </div>
-                        {/* Admin Note */}
-                        <div className="mt-2">
-                          <Input
-                            placeholder="অ্যাডমিন নোট..."
-                            defaultValue={order.adminNote || ''}
-                            className="h-6 text-[10px] px-2"
-                            onBlur={async (e) => {
-                              const val = e.target.value.trim();
-                              if (val !== (order.adminNote || '')) {
-                                const { db: dbClient } = await import('@/lib/supabase-db');
-                                await dbClient.from('reseller_orders').update({ admin_note: val }).eq('id', order.id);
-                                useResellerStore.setState((s) => ({
-                                  orders: s.orders.map(o => o.id === order.id ? { ...o, adminNote: val } : o),
-                                }));
-                                toast.success('নোট সেভ হয়েছে');
-                              }
-                            }}
-                            onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
-                          />
+                        {/* Note Button */}
+                        <div className="mt-1">
+                          <Button
+                            variant="outline" size="sm" className="h-6 w-6 p-0 border-amber-300 hover:bg-amber-50"
+                            title="নোট"
+                            onClick={() => { setNoteOrder(order); setNoteText(order.adminNote || ''); }}
+                          >
+                            <StickyNote className="w-3.5 h-3.5 text-amber-500" />
+                          </Button>
+                          {order.adminNote && <p className="text-[9px] text-amber-600 mt-0.5 truncate max-w-[120px]">{order.adminNote}</p>}
                         </div>
                       </td>
                     </tr>
@@ -933,25 +900,15 @@ const AdminResellerOrders = () => {
                   <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setViewOrder(order)}><Eye className="w-3.5 h-3.5" /></Button>
                   <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEditOrder(order)}><Edit className="w-3.5 h-3.5" /></Button>
                 </div>
-                {/* Admin Note Mobile */}
-                <div className="border-t pt-2">
-                  <Input
-                    placeholder="অ্যাডমিন নোট..."
-                    defaultValue={order.adminNote || ''}
-                    className="h-7 text-xs"
-                    onBlur={async (e) => {
-                      const val = e.target.value.trim();
-                      if (val !== (order.adminNote || '')) {
-                        const { db: dbClient } = await import('@/lib/supabase-db');
-                        await dbClient.from('reseller_orders').update({ admin_note: val }).eq('id', order.id);
-                        useResellerStore.setState((s) => ({
-                          orders: s.orders.map(o => o.id === order.id ? { ...o, adminNote: val } : o),
-                        }));
-                        toast.success('নোট সেভ হয়েছে');
-                      }
-                    }}
-                    onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
-                  />
+                {/* Note Button Mobile */}
+                <div className="border-t pt-2 flex items-center gap-2">
+                  <Button
+                    variant="outline" size="sm" className="h-7 gap-1.5 border-amber-300 hover:bg-amber-50"
+                    onClick={() => { setNoteOrder(order); setNoteText(order.adminNote || ''); }}
+                  >
+                    <StickyNote className="w-3.5 h-3.5 text-amber-500" /> নোট
+                  </Button>
+                  {order.adminNote && <p className="text-[10px] text-amber-600 truncate flex-1">{order.adminNote}</p>}
                 </div>
               </CardContent>
             </Card>
@@ -1351,6 +1308,50 @@ const AdminResellerOrders = () => {
               <Button className="w-full" onClick={handlePaidReturnConfirm} disabled={paidReturnAmount <= 0}>
                 পেইড রিটার্ন কনফার্ম করুন
               </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Note Dialog */}
+      {noteOrder && (
+        <Dialog open={true} onOpenChange={(open) => { if (!open) { setNoteOrder(null); setNoteText(''); } }}>
+          <DialogContent className="sm:max-w-sm">
+            <DialogHeader>
+              <DialogTitle className="text-lg flex items-center gap-2">
+                <StickyNote className="w-5 h-5 text-amber-500" /> নোট — {noteOrder.id}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 pt-1">
+              <p className="text-sm text-muted-foreground">অর্ডারে নোট লিখুন (মুছে সেভ দিলে নোট ডিলিট হবে):</p>
+              <Textarea
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                placeholder="যেমন: কাস্টমার ফোন ধরছে না, পরে কল করতে হবে..."
+                rows={3}
+                className="text-sm"
+              />
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" size="sm" onClick={() => { setNoteOrder(null); setNoteText(''); }}>বাতিল</Button>
+                <Button size="sm" className="gap-1.5 bg-amber-500 hover:bg-amber-600 text-white" onClick={async () => {
+                  if (!noteOrder) return;
+                  const val = noteText.trim();
+                  const { db: dbClient } = await import('@/lib/supabase-db');
+                  await dbClient.from('reseller_orders').update({ admin_note: val, notes: val ? [val] : [] }).eq('id', noteOrder.id);
+                  useResellerStore.setState((s) => ({
+                    orders: s.orders.map(o => o.id === noteOrder.id ? { ...o, adminNote: val, notes: val ? [val] : [] } : o),
+                  }));
+                  if (val) {
+                    toast.success(`অর্ডার ${noteOrder.id}-এ নোট সেভ হয়েছে`);
+                  } else {
+                    toast.success(`অর্ডার ${noteOrder.id}-এর নোট মুছে ফেলা হয়েছে`);
+                  }
+                  setNoteOrder(null);
+                  setNoteText('');
+                }}>
+                  <StickyNote className="w-4 h-4" /> সেভ করুন
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
