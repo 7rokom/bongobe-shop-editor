@@ -302,7 +302,10 @@ const Checkout = () => {
             return;
           }
           trackPurchase(roId, items.map((i) => ({ item_id: i.product.id, item_name: i.product.title, price: i.product.price, quantity: i.quantity, item_category: i.product.category })), total, deliveryCharge, discount);
-          navigate(thankYouPath, { state: { orderId: roId } });
+          
+          const popupEnabled = useFraudSettingsStore.getState().postOrderPopupEnabled;
+          if (popupEnabled) { setPendingOrderId(roId); setShowPostOrderPopup(true); }
+          else { navigate(thankYouPath, { state: { orderId: roId } }); }
           return;
         }
       } catch (e) {
