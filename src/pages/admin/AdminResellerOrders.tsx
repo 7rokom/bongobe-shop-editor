@@ -25,11 +25,10 @@ import { useFraudSettingsStore } from '@/stores/useFraudSettingsStore';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
-type DateFilter = 'all' | 'today' | 'yesterday' | '7days' | 'this_month' | 'last_month' | 'custom';
+type DateFilter = 'all' | 'custom';
 
 const dateFilterLabels: Record<DateFilter, string> = {
-  all: 'সব', today: 'আজকে', yesterday: 'গতকাল', '7days': 'গত ৭ দিন',
-  this_month: 'এই মাস', last_month: 'গত মাস', custom: 'কাস্টম',
+  all: 'সব', custom: 'কাস্টম',
 };
 
 const STATUS_OPTIONS = [
