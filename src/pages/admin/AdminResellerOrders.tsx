@@ -146,19 +146,7 @@ const AdminResellerOrders = () => {
 
   const dateRange = useMemo(() => getDateRangeForFilter(dateFilter), [dateFilter, customStart, customEnd]);
 
-  const dateFilterCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    (Object.keys(dateFilterLabels) as DateFilter[]).forEach((key) => {
-      if (key === 'custom') { counts[key] = 0; return; }
-      const range = getDateRangeForFilter(key);
-      if (!range) { counts[key] = orders.length; return; }
-      counts[key] = orders.filter((o) => {
-        const d = parseOrderDate(o.date);
-        return d ? d >= range.start && d <= range.end : false;
-      }).length;
-    });
-    return counts;
-  }, [orders]);
+
 
   const filtered = useMemo(() => {
     return orders.filter((o) => {
