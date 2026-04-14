@@ -27,10 +27,6 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
 type DateFilter = 'all' | 'custom';
 
-const dateFilterLabels: Record<DateFilter, string> = {
-  all: 'সব', custom: 'কাস্টম',
-};
-
 const STATUS_OPTIONS = [
   'পেন্ডিং', 'হোল্ড', 'কনফার্মড', 'প্যাকেজিং', 'শিপমেন্ট', 'এসাইন',
   'ডেলিভারির পথে', 'ডেলিভারড', 'রিটার্ন', 'পেইড রিটার্ন', 'ক্যান্সেল', 'ড্রাফট',
