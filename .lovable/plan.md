@@ -1,81 +1,53 @@
-## পরিকল্পনা: Mohasagor API ইন্টিগ্রেশন ও রিসেলার মার্কআপ প্রাইসিং
 
-### সারাংশ
+সমস্যাটা আমি কোড দেখে নিশ্চিতভাবে ধরতে পেরেছি।
 
-বাহ্যিক ই-কমার্স সাইট (mohasagor.com.bd) এর API থেকে প্রোডাক্ট সরাসরি আপনার ওয়েবসাইটে দেখাবে — ডাটাবেসে সেভ না করে। রিসেলারদের জন্য মার্কআপ প্রাইসিং সিস্টেম তৈরি হবে।
+কি হচ্ছে:
+- রিসেলার শপ পেজ থেকে `/reseller/place-order` এ গেলে `selectedColor / selectedSize / selectedWeight` ঠিকমতো `reseller_orders.items` এ সেভ হচ্ছে, তাই সেখানে শো করে।
+- কিন্তু রিসেলারের শেয়ার করা সিঙ্গেল প্রডাক্ট পেজ `/r/:resellerId/product/:slug` থেকে অর্ডার গেলে ফ্লোটা `ProductPage -> cart -> Checkout` দিয়ে যায়।
+- এই Checkout-এর reseller-order create logic এ item বানানোর সময় selected variation গুলো database-এ পাঠানোই হচ্ছে না।
+- একইভাবে customer note-ও reseller order এ properভাবে merge/save হচ্ছে না; এখন শুধু fraud note save হয়।
+- আর order list/detail UI এখন mainly `selectedColor / selectedSize / selectedWeight`-ই render করে, তাই future-এ অন্য variation name থাকলেও সেগুলোও miss হতে পারে।
 
-### ধাপসমূহ
+আমি যেভাবে fix করবো:
 
-#### 1. API কী সিক্রেট হিসেবে সেভ করা
+1. Checkout-এর reseller order mapping ঠিক করবো
+- `src/pages/Checkout.tsx`-এ reseller referral branch-এ `resellerOrderItems` তৈরি করার সময়:
+  - `selectedColor`, `selectedSize`, `selectedWeight` cart-এর `selectedVariations` থেকে derive করবো
+  - generic `selectedVariations`/`variations` object-ও item-এর মধ্যে রেখে দেব, যাতে অন্য custom variant থাকলেও হারিয়ে না যায়
+- customer note + fraud note merge করে `notes` array-তে save করবো
 
-- `MOHASAGOR_API_KEY` ও `MOHASAGOR_SECRET_KEY` Supabase Edge Function secrets হিসেবে সেভ করতে হবে
-- এগুলো সরাসরি ফ্রন্টএন্ডে রাখা যাবে না (সিকিউরিটি রিস্ক)
+2. Reseller order item type update করবো
+- `src/stores/useResellerStore.ts`-এ `ResellerOrder.items` type expand করবো:
+  - `selectedColor?: string`
+  - `selectedSize?: string`
+  - `selectedWeight?: string`
+  - `selectedVariations?: Record<string, string>`
+- mapping existing data-safe রাখবো যাতে পুরনো অর্ডার break না করে
 
-#### 2. Supabase Edge Function তৈরি: `mohasagor-products`
+3. Admin ও reseller order UI genericভাবে variation show করবো
+- `src/pages/reseller/ResellerOrders.tsx`
+- `src/pages/admin/AdminResellerOrders.tsx`
+- existing color/size/weight badge রাখবো
+- সাথে generic variation renderer add করবো, যাতে extra variation names থাকলে সেগুলোও badge আকারে শো হয়
+- duplicate badge avoid করবো, যাতে “কালার/সাইজ/ওজন” দুইবার না আসে
 
-- `supabase/functions/mohasagor-products/index.ts` তৈরি হবে
-- এটি proxy হিসেবে কাজ করবে — `https://mohasagor.com.bd/api/reseller/product` থেকে ডাটা ফেচ করে ক্লায়েন্টে পাঠাবে
-- API Key ও Secret Key হেডারে যুক্ত করবে
-- প্রোডাক্ট ডাটা ফরম্যাট করে রিটার্ন করবে (আপনার সাইটের Product ইন্টারফেসে ম্যাপ করে)
+4. Notes persistence ঠিক করবো
+- single product reseller order থেকে customer note গেলে সেটা `notes` array-তে persist হবে
+- refresh-এর পরও note থাকবে, কারণ source of truth হবে DB
+- notes dialog/list দুদিকেই একই saved notes দেখাবে
 
-#### 3. নতুন স্টোর তৈরি: `useMohasagorStore.ts`
+5. Regression-safe review
+- existing `/reseller/place-order` flow যেন break না হয়, সেটা same structure-এ align করবো
+- reseller profit / selling price / packaging / COD logic untouched রাখবো
+- old orders without variation data graceful fallback-এ চলবে
 
-- Edge Function কল করে প্রোডাক্ট ফেচ করবে
-- ক্যাশিং করবে যাতে বারবার API কল না হয়
-- প্রোডাক্ট ডাটা আপনার `Product` ইন্টারফেসে ম্যাপ করবে
-- `reselling_price` ফিল্ড থেকে রিসেলার প্রাইস ক্যালকুলেট করবে
+টেকনিক্যাল নোট:
+- Root cause file: `src/pages/Checkout.tsx`
+- Working reference implementation: `src/pages/reseller/ResellerPlaceOrder.tsx`
+- Display files: `src/pages/reseller/ResellerOrders.tsx`, `src/pages/admin/AdminResellerOrders.tsx`
+- Store typing update: `src/stores/useResellerStore.ts`
 
-#### 4. রিসেলার মার্কআপ প্রাইসিং লজিক
-
-মার্কআপ ফর্মুলা (mohasagor এর `reselling_price` এর উপর ভিত্তি করে):
-
-```text
-রিসেলার প্রাইস রেঞ্জ     → মার্কআপ
-≤ ১০০ টাকা               → +৫ টাকা
-১০১ - ৩০০ টাকা           → +১৫ টাকা
-৩০১ - ৬০০ টাকা           → +২৫ টাকা
-৬০১ - ১০০০ টাকা          → +৩০ টাকা
-১০০১ - ১৫০০ টাকা         → +৫০ টাকা
-১৫০১ - ৩০০০ টাকা         → +৭০ টাকা
-৩০০০+ টাকা               → +১০০ টাকা
-```
-
-#### 5. রিসেলার শপ পেজে Mohasagor প্রোডাক্ট দেখানো
-
-- `ResellerShop.tsx` এ নতুন ট্যাব/সেকশন যোগ হবে: "সব প্রোডাক্ট"
-- এই প্রোডাক্টগুলোর রিসেলার প্রাইস = mohasagor reselling_price + মার্কআপ
-- রিসেলার এই প্রোডাক্টের লিংক কপি করতে পারবে ও অর্ডার দিতে পারবে
-- Mohasagor প্রোডাক্টগুলো আলাদাভাবে চিহ্নিত থাকবে (ব্যাজ দিয়ে)
-
-#### 6. পাবলিক পেজে Mohasagor প্রোডাক্ট শো (ঐচ্ছিক)
-
-- হোমপেজ ও শপ পেজে mohasagor প্রোডাক্টও দেখাবে 
-
-### টেকনিক্যাল ডিটেইলস
-
-**Edge Function গঠন:**
-
-```text
-GET /mohasagor-products
-  → fetch https://mohasagor.com.bd/api/reseller/product
-    Headers: api-key, secret-key
-  → ডাটা ম্যাপ করে রিটার্ন
-```
-
-**ডাটা ম্যাপিং** (API রেসপন্স → আপনার Product ইন্টারফেস):
-
-- `name` → `title`
-- `slug` → `slug`
-- `sale_price` → `price`
-- `price` → `originalPrice`
-- `reselling_price` → `resellerPrice` (+ মার্কআপ)
-- `product_image` → `images`
-- `thumbnail_img` → `featuredImage`
-
-**ফাইল পরিবর্তন:**
-
-- নতুন: `supabase/functions/mohasagor-products/index.ts`
-- নতুন: `src/stores/useMohasagorStore.ts`
-- নতুন: `src/lib/reseller-markup.ts` (মার্কআপ ক্যালকুলেশন)
-- এডিট: `src/pages/reseller/ResellerShop.tsx` (Mohasagor ট্যাব যোগ)
-- এডিট: `src/pages/ProductPage.tsx` (Mohasagor প্রোডাক্ট শো করার জন্য)
+Expected result after implementation:
+- `/r/.../product/...` থেকে reseller order দিলে selected size/color/other variant admin + reseller order page-এ শো করবে
+- customer note-ও note section-এ শো করবে
+- page refresh দিলেও note/variant আর হারাবে না
