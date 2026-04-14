@@ -1328,6 +1328,50 @@ const AdminResellerOrders = () => {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Note Dialog */}
+      {noteOrder && (
+        <Dialog open={true} onOpenChange={(open) => { if (!open) { setNoteOrder(null); setNoteText(''); } }}>
+          <DialogContent className="sm:max-w-sm">
+            <DialogHeader>
+              <DialogTitle className="text-lg flex items-center gap-2">
+                <StickyNote className="w-5 h-5 text-amber-500" /> নোট — {noteOrder.id}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 pt-1">
+              <p className="text-sm text-muted-foreground">অর্ডারে নোট লিখুন (মুছে সেভ দিলে নোট ডিলিট হবে):</p>
+              <Textarea
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                placeholder="যেমন: কাস্টমার ফোন ধরছে না, পরে কল করতে হবে..."
+                rows={3}
+                className="text-sm"
+              />
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" size="sm" onClick={() => { setNoteOrder(null); setNoteText(''); }}>বাতিল</Button>
+                <Button size="sm" className="gap-1.5 bg-amber-500 hover:bg-amber-600 text-white" onClick={async () => {
+                  if (!noteOrder) return;
+                  const val = noteText.trim();
+                  const { db: dbClient } = await import('@/lib/supabase-db');
+                  await dbClient.from('reseller_orders').update({ admin_note: val, notes: val ? [val] : [] }).eq('id', noteOrder.id);
+                  useResellerStore.setState((s) => ({
+                    orders: s.orders.map(o => o.id === noteOrder.id ? { ...o, adminNote: val, notes: val ? [val] : [] } : o),
+                  }));
+                  if (val) {
+                    toast.success(`অর্ডার ${noteOrder.id}-এ নোট সেভ হয়েছে`);
+                  } else {
+                    toast.success(`অর্ডার ${noteOrder.id}-এর নোট মুছে ফেলা হয়েছে`);
+                  }
+                  setNoteOrder(null);
+                  setNoteText('');
+                }}>
+                  <StickyNote className="w-4 h-4" /> সেভ করুন
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
