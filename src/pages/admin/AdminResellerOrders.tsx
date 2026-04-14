@@ -33,21 +33,22 @@ const dateFilterLabels: Record<DateFilter, string> = {
 };
 
 const STATUS_OPTIONS = [
-  'পেন্ডিং', 'কনফার্মড', 'প্যাকেজিং', 'শিপমেন্ট',
-  'ডেলিভারির পথে', 'ডেলিভারড', 'রিটার্ন', 'পেইড রিটার্ন', 'ক্যান্সেল', 'হোল্ড', 'ড্রাফট',
+  'পেন্ডিং', 'হোল্ড', 'কনফার্মড', 'প্যাকেজিং', 'শিপমেন্ট', 'এসাইন',
+  'ডেলিভারির পথে', 'ডেলিভারড', 'রিটার্ন', 'পেইড রিটার্ন', 'ক্যান্সেল', 'ড্রাফট',
 ];
 
 const statusColors: Record<string, string> = {
   'পেন্ডিং': 'bg-yellow-400 text-yellow-950',
+  'হোল্ড': 'bg-gray-500 text-white',
   'কনফার্মড': 'bg-blue-500 text-white',
   'প্যাকেজিং': 'bg-indigo-500 text-white',
   'শিপমেন্ট': 'bg-purple-500 text-white',
+  'এসাইন': 'bg-teal-500 text-white',
   'ডেলিভারির পথে': 'bg-cyan-500 text-white',
   'ডেলিভারড': 'bg-green-500 text-white',
   'রিটার্ন': 'bg-orange-500 text-white',
   'পেইড রিটার্ন': 'bg-pink-500 text-white',
   'ক্যান্সেল': 'bg-red-500 text-white',
-  'হোল্ড': 'bg-gray-500 text-white',
   'ড্রাফট': 'bg-slate-400 text-white',
 };
 
@@ -175,18 +176,24 @@ const AdminResellerOrders = () => {
         matchDate = d ? d >= dateRange.start && d <= dateRange.end : false;
       }
       return matchSearch && matchStatus && matchReseller && matchDate;
-    });
+    }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [orders, search, statusFilter, resellerFilter, dateRange]);
 
   const stats = useMemo(() => {
     const total = orders.length;
     const pending = orders.filter(o => o.status === 'পেন্ডিং').length;
+    const hold = orders.filter(o => o.status === 'হোল্ড').length;
     const confirmed = orders.filter(o => o.status === 'কনফার্মড').length;
+    const packaging = orders.filter(o => o.status === 'প্যাকেজিং').length;
+    const shipment = orders.filter(o => o.status === 'শিপমেন্ট').length;
+    const assigned = orders.filter(o => o.status === 'এসাইন').length;
     const delivered = orders.filter(o => o.status === 'ডেলিভারড').length;
     const cancelled = orders.filter(o => o.status === 'ক্যান্সেল').length;
+    const returned = orders.filter(o => o.status === 'রিটার্ন').length;
+    const paidReturn = orders.filter(o => o.status === 'পেইড রিটার্ন').length;
     const totalAmount = orders.reduce((s, o) => s + o.totalSellingPrice, 0);
     const totalProfit = orders.filter(o => o.status === 'ডেলিভারড').reduce((s, o) => s + o.totalProfit, 0);
-    return { total, pending, confirmed, delivered, cancelled, totalAmount, totalProfit };
+    return { total, pending, hold, confirmed, packaging, shipment, assigned, delivered, cancelled, returned, paidReturn, totalAmount, totalProfit };
   }, [orders]);
 
   const handleStatusChange = (orderId: string, newStatus: string) => {
@@ -522,12 +529,18 @@ const AdminResellerOrders = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
         <Card className={cn("border-0 shadow-sm cursor-pointer transition-all hover:shadow-md", statusFilter === 'all' && 'ring-2 ring-primary')} onClick={() => setStatusFilter('all')}><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-foreground">{stats.total}</p><p className="text-xs text-muted-foreground">মোট অর্ডার</p></CardContent></Card>
         <Card className={cn("border-0 shadow-sm bg-yellow-50 cursor-pointer transition-all hover:shadow-md", statusFilter === 'পেন্ডিং' && 'ring-2 ring-yellow-500')} onClick={() => setStatusFilter(statusFilter === 'পেন্ডিং' ? 'all' : 'পেন্ডিং')}><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-yellow-700">{stats.pending}</p><p className="text-xs text-yellow-600">পেন্ডিং</p></CardContent></Card>
+        <Card className={cn("border-0 shadow-sm bg-gray-50 cursor-pointer transition-all hover:shadow-md", statusFilter === 'হোল্ড' && 'ring-2 ring-gray-500')} onClick={() => setStatusFilter(statusFilter === 'হোল্ড' ? 'all' : 'হোল্ড')}><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-gray-700">{stats.hold}</p><p className="text-xs text-gray-600">হোল্ড</p></CardContent></Card>
         <Card className={cn("border-0 shadow-sm bg-blue-50 cursor-pointer transition-all hover:shadow-md", statusFilter === 'কনফার্মড' && 'ring-2 ring-blue-500')} onClick={() => setStatusFilter(statusFilter === 'কনফার্মড' ? 'all' : 'কনফার্মড')}><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-blue-700">{stats.confirmed}</p><p className="text-xs text-blue-600">কনফার্মড</p></CardContent></Card>
+        <Card className={cn("border-0 shadow-sm bg-indigo-50 cursor-pointer transition-all hover:shadow-md", statusFilter === 'প্যাকেজিং' && 'ring-2 ring-indigo-500')} onClick={() => setStatusFilter(statusFilter === 'প্যাকেজিং' ? 'all' : 'প্যাকেজিং')}><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-indigo-700">{stats.packaging}</p><p className="text-xs text-indigo-600">প্যাকেজিং</p></CardContent></Card>
+        <Card className={cn("border-0 shadow-sm bg-purple-50 cursor-pointer transition-all hover:shadow-md", statusFilter === 'শিপমেন্ট' && 'ring-2 ring-purple-500')} onClick={() => setStatusFilter(statusFilter === 'শিপমেন্ট' ? 'all' : 'শিপমেন্ট')}><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-purple-700">{stats.shipment}</p><p className="text-xs text-purple-600">শিপমেন্ট</p></CardContent></Card>
+        <Card className={cn("border-0 shadow-sm bg-teal-50 cursor-pointer transition-all hover:shadow-md", statusFilter === 'এসাইন' && 'ring-2 ring-teal-500')} onClick={() => setStatusFilter(statusFilter === 'এসাইন' ? 'all' : 'এসাইন')}><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-teal-700">{stats.assigned}</p><p className="text-xs text-teal-600">এসাইন</p></CardContent></Card>
         <Card className={cn("border-0 shadow-sm bg-green-50 cursor-pointer transition-all hover:shadow-md", statusFilter === 'ডেলিভারড' && 'ring-2 ring-green-500')} onClick={() => setStatusFilter(statusFilter === 'ডেলিভারড' ? 'all' : 'ডেলিভারড')}><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-green-700">{stats.delivered}</p><p className="text-xs text-green-600">ডেলিভারড</p></CardContent></Card>
         <Card className={cn("border-0 shadow-sm bg-red-50 cursor-pointer transition-all hover:shadow-md", statusFilter === 'ক্যান্সেল' && 'ring-2 ring-red-500')} onClick={() => setStatusFilter(statusFilter === 'ক্যান্সেল' ? 'all' : 'ক্যান্সেল')}><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-red-700">{stats.cancelled}</p><p className="text-xs text-red-600">ক্যান্সেল</p></CardContent></Card>
+        <Card className={cn("border-0 shadow-sm bg-orange-50 cursor-pointer transition-all hover:shadow-md", statusFilter === 'রিটার্ন' && 'ring-2 ring-orange-500')} onClick={() => setStatusFilter(statusFilter === 'রিটার্ন' ? 'all' : 'রিটার্ন')}><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-orange-700">{stats.returned}</p><p className="text-xs text-orange-600">রিটার্ন</p></CardContent></Card>
+        <Card className={cn("border-0 shadow-sm bg-pink-50 cursor-pointer transition-all hover:shadow-md", statusFilter === 'পেইড রিটার্ন' && 'ring-2 ring-pink-500')} onClick={() => setStatusFilter(statusFilter === 'পেইড রিটার্ন' ? 'all' : 'পেইড রিটার্ন')}><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-pink-700">{stats.paidReturn}</p><p className="text-xs text-pink-600">পেইড রিটার্ন</p></CardContent></Card>
         <Card className="border-0 shadow-sm bg-emerald-50"><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-emerald-700">৳{stats.totalProfit.toLocaleString('bn-BD')}</p><p className="text-xs text-emerald-600">মোট প্রফিট</p></CardContent></Card>
       </div>
 

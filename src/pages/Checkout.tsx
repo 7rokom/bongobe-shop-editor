@@ -190,9 +190,10 @@ const Checkout = () => {
     // Fraud check (courier ratio)
     let fraudFailed = false;
     let fraudBlockNote = '';
+    let fraudResult: any = null;
     if (fraudEnabled) {
       setFraudChecking(true);
-      const fraudResult = await checkFraud(phone);
+      fraudResult = await checkFraud(phone);
       setFraudChecking(false);
       if (!fraudResult.passed) {
         fraudFailed = true;
@@ -237,6 +238,24 @@ const Checkout = () => {
           const totalResellerCost = resellerOrderItems.reduce((s, i) => s + i.resellerPrice * i.qty, 0);
           const totalProfit = resellerOrderItems.reduce((s, i) => s + i.profit, 0);
 
+          const PACKAGING_CHARGE = 10;
+          const codCharge = Math.ceil((totalSellingPrice + deliveryCharge - discount) / 100);
+          const finalTotalSellingPrice = totalSellingPrice + deliveryCharge - discount;
+          const finalTotalProfit = finalTotalSellingPrice - totalResellerCost - deliveryCharge - PACKAGING_CHARGE - codCharge;
+
+          // Save courier ratio to cache if fraud check was done
+          if (fraudResult && (fraudResult.all || fraudResult.delivered || fraudResult.returned)) {
+            const { useCourierRatioStore } = await import('@/stores/useCourierRatioStore');
+            const normalized = (await import('@/lib/order-validation')).normalizePhone(phone);
+            useCourierRatioStore.setState((s) => ({
+              data: { ...s.data, [normalized]: { all: fraudResult.all || 0, delivered: fraudResult.delivered || 0, returned: fraudResult.returned || 0, loading: false } },
+            }));
+            const { db: dbClient } = await import('@/lib/supabase-db');
+            await dbClient.from('courier_ratio_cache').upsert({
+              phone: normalized, all_count: fraudResult.all || 0, delivered: fraudResult.delivered || 0, returned: fraudResult.returned || 0, checked_at: new Date().toISOString(),
+            }, { onConflict: 'phone' });
+          }
+
           const roId = 'RO-' + Date.now();
           await addResellerOrder({
             id: roId,
@@ -247,9 +266,11 @@ const Checkout = () => {
             customerAddress: address,
             items: resellerOrderItems,
             deliveryCharge,
-            totalSellingPrice: totalSellingPrice + deliveryCharge - discount,
+            packagingCharge: PACKAGING_CHARGE,
+            codCharge,
+            totalSellingPrice: finalTotalSellingPrice,
             totalResellerCost,
-            totalProfit,
+            totalProfit: finalTotalProfit,
             status: 'পেন্ডিং',
             date: new Date().toISOString(),
             notes: fraudFailed ? [`⚠️ ${fraudBlockNote}`] : undefined,
@@ -270,6 +291,19 @@ const Checkout = () => {
       } catch (e) {
         console.error('Failed to create reseller order:', e);
       }
+    }
+
+    // Save courier ratio to cache for normal orders too
+    if (fraudResult && (fraudResult.all || fraudResult.delivered || fraudResult.returned)) {
+      const { useCourierRatioStore } = await import('@/stores/useCourierRatioStore');
+      const normalized = (await import('@/lib/order-validation')).normalizePhone(phone);
+      useCourierRatioStore.setState((s) => ({
+        data: { ...s.data, [normalized]: { all: fraudResult.all || 0, delivered: fraudResult.delivered || 0, returned: fraudResult.returned || 0, loading: false } },
+      }));
+      const { db: dbClient } = await import('@/lib/supabase-db');
+      await dbClient.from('courier_ratio_cache').upsert({
+        phone: normalized, all_count: fraudResult.all || 0, delivered: fraudResult.delivered || 0, returned: fraudResult.returned || 0, checked_at: new Date().toISOString(),
+      }, { onConflict: 'phone' });
     }
 
     // Normal (non-reseller) order: create main order

@@ -39,7 +39,7 @@ const ResellerPlaceOrder = () => {
 
   const initialItems: ResellerCartItem[] = location.state?.products || [];
   const [items, setItems] = useState<ResellerCartItem[]>(initialItems);
-  const [customerForm, setCustomerForm] = useState({ name: '', phone: '', address: '' });
+  const [customerForm, setCustomerForm] = useState({ name: '', phone: '', address: '', note: '' });
   const [deliveryZone, setDeliveryZone] = useState('inside_dhaka');
   const [validationMsg, setValidationMsg] = useState('');
   const [showProductPicker, setShowProductPicker] = useState(false);
@@ -128,6 +128,7 @@ const ResellerPlaceOrder = () => {
       totalProfit,
       status: 'পেন্ডিং',
       date: new Date().toISOString(),
+      notes: customerForm.note.trim() ? [customerForm.note.trim()] : [],
     };
 
     try {
@@ -287,6 +288,14 @@ const ResellerPlaceOrder = () => {
                 value={customerForm.address}
                 onChange={(e) => setCustomerForm({ ...customerForm, address: e.target.value })}
                 placeholder="সম্পূর্ণ ঠিকানা"
+              />
+            </div>
+            <div>
+              <Label className="text-sm">নোট (ঐচ্ছিক)</Label>
+              <Input
+                value={customerForm.note}
+                onChange={(e) => setCustomerForm({ ...customerForm, note: e.target.value })}
+                placeholder="অর্ডার সম্পর্কিত কোনো নোট থাকলে লিখুন"
               />
             </div>
           </div>
