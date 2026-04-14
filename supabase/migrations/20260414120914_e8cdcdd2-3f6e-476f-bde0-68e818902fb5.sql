@@ -1,0 +1,1 @@
+UPDATE public.counters SET value = 211 WHERE id = 'order_number';
