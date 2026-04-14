@@ -224,6 +224,7 @@ const Checkout = () => {
           const resellerOrderItems = items.map((i) => {
             const resellerPrice = i.product.resellerPrice || i.product.price;
             const sellingPrice = customPriceMap[i.product.id] || i.product.price;
+            const vars = i.selectedVariations || {};
             return {
               productId: i.product.id,
               productTitle: i.product.title,
@@ -232,6 +233,10 @@ const Checkout = () => {
               resellerPrice,
               sellingPrice,
               profit: (sellingPrice - resellerPrice) * i.quantity,
+              selectedColor: vars['কালার'] || vars['color'] || undefined,
+              selectedSize: vars['সাইজ'] || vars['size'] || undefined,
+              selectedWeight: vars['ওজন'] || vars['weight'] || undefined,
+              selectedVariations: Object.keys(vars).length > 0 ? vars : undefined,
             };
           });
           const totalSellingPrice = resellerOrderItems.reduce((s, i) => s + i.sellingPrice * i.qty, 0);
@@ -273,7 +278,13 @@ const Checkout = () => {
             totalProfit: finalTotalProfit,
             status: 'পেন্ডিং',
             date: new Date().toISOString(),
-            notes: fraudFailed ? [`⚠️ ${fraudBlockNote}`] : undefined,
+            notes: [
+              ...(orderNote.trim() ? [`📝 কাস্টমার নোট: ${orderNote.trim()}`] : []),
+              ...(fraudFailed ? [`⚠️ ${fraudBlockNote}`] : []),
+            ].length > 0 ? [
+              ...(orderNote.trim() ? [`📝 কাস্টমার নোট: ${orderNote.trim()}`] : []),
+              ...(fraudFailed ? [`⚠️ ${fraudBlockNote}`] : []),
+            ] : undefined,
           });
 
           orderSubmitted.current = true;

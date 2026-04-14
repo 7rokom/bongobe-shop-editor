@@ -10,7 +10,7 @@ export interface Reseller {
 export interface ResellerOrder {
   id: string; resellerId: string; resellerName: string;
   customerName: string; customerPhone: string; customerAddress: string;
-  items: { productId: string; productTitle: string; image: string; qty: number; resellerPrice: number; sellingPrice: number; profit: number; }[];
+  items: { productId: string; productTitle: string; image: string; qty: number; resellerPrice: number; sellingPrice: number; profit: number; selectedColor?: string; selectedSize?: string; selectedWeight?: string; selectedVariations?: Record<string, string>; }[];
   deliveryCharge: number; packagingCharge?: number; codCharge?: number;
   totalSellingPrice: number; totalResellerCost: number; totalProfit: number;
   status: string; date: string; notes?: string[]; adminNote?: string;
