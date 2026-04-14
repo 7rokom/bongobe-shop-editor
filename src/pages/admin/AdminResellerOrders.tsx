@@ -39,15 +39,16 @@ const STATUS_OPTIONS = [
 
 const statusColors: Record<string, string> = {
   'পেন্ডিং': 'bg-yellow-400 text-yellow-950',
+  'হোল্ড': 'bg-gray-500 text-white',
   'কনফার্মড': 'bg-blue-500 text-white',
   'প্যাকেজিং': 'bg-indigo-500 text-white',
   'শিপমেন্ট': 'bg-purple-500 text-white',
+  'এসাইন': 'bg-teal-500 text-white',
   'ডেলিভারির পথে': 'bg-cyan-500 text-white',
   'ডেলিভারড': 'bg-green-500 text-white',
   'রিটার্ন': 'bg-orange-500 text-white',
   'পেইড রিটার্ন': 'bg-pink-500 text-white',
   'ক্যান্সেল': 'bg-red-500 text-white',
-  'হোল্ড': 'bg-gray-500 text-white',
   'ড্রাফট': 'bg-slate-400 text-white',
 };
 
