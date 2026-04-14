@@ -17,14 +17,15 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 const STATUS_TABS = [
   { label: 'সব', value: 'all', color: 'bg-blue-50 border-blue-200 text-blue-700', activeColor: 'bg-blue-100 border-blue-400 ring-2 ring-blue-300' },
   { label: 'পেন্ডিং', value: 'পেন্ডিং', color: 'bg-yellow-50 border-yellow-200 text-yellow-700', activeColor: 'bg-yellow-100 border-yellow-400 ring-2 ring-yellow-300' },
+  { label: 'হোল্ড', value: 'হোল্ড', color: 'bg-gray-50 border-gray-200 text-gray-700', activeColor: 'bg-gray-100 border-gray-400 ring-2 ring-gray-300' },
   { label: 'কনফার্মড', value: 'কনফার্মড', color: 'bg-blue-50 border-blue-200 text-blue-700', activeColor: 'bg-blue-100 border-blue-400 ring-2 ring-blue-300' },
   { label: 'প্যাকেজিং', value: 'প্যাকেজিং', color: 'bg-indigo-50 border-indigo-200 text-indigo-700', activeColor: 'bg-indigo-100 border-indigo-400 ring-2 ring-indigo-300' },
   { label: 'শিপমেন্ট', value: 'শিপমেন্ট', color: 'bg-purple-50 border-purple-200 text-purple-700', activeColor: 'bg-purple-100 border-purple-400 ring-2 ring-purple-300' },
-  { label: 'ডেলিভারির পথে', value: 'ডেলিভারির পথে', color: 'bg-cyan-50 border-cyan-200 text-cyan-700', activeColor: 'bg-cyan-100 border-cyan-400 ring-2 ring-cyan-300' },
+  { label: 'এসাইন', value: 'এসাইন', color: 'bg-teal-50 border-teal-200 text-teal-700', activeColor: 'bg-teal-100 border-teal-400 ring-2 ring-teal-300' },
   { label: 'ডেলিভারড', value: 'ডেলিভারড', color: 'bg-green-50 border-green-200 text-green-700', activeColor: 'bg-green-100 border-green-400 ring-2 ring-green-300' },
+  { label: 'ক্যান্সেল', value: 'ক্যান্সেল', color: 'bg-red-50 border-red-200 text-red-700', activeColor: 'bg-red-100 border-red-400 ring-2 ring-red-300' },
   { label: 'রিটার্ন', value: 'রিটার্ন', color: 'bg-orange-50 border-orange-200 text-orange-700', activeColor: 'bg-orange-100 border-orange-400 ring-2 ring-orange-300' },
   { label: 'পেইড রিটার্ন', value: 'পেইড রিটার্ন', color: 'bg-pink-50 border-pink-200 text-pink-700', activeColor: 'bg-pink-100 border-pink-400 ring-2 ring-pink-300' },
-  { label: 'ক্যান্সেল', value: 'ক্যান্সেল', color: 'bg-red-50 border-red-200 text-red-700', activeColor: 'bg-red-100 border-red-400 ring-2 ring-red-300' },
 ];
 
 const getResellerId = () => {
@@ -59,7 +60,7 @@ const ResellerOrders = () => {
   const resellerId = getResellerId();
   const store = useResellerStore();
   const allProducts = useProductStore((s) => s.products);
-  const allOrders = store.orders.filter((o) => o.resellerId === resellerId);
+  const allOrders = store.orders.filter((o) => o.resellerId === resellerId).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   const fraudSettings = useFraudSettingsStore();
   const courierData = useCourierRatioStore((s) => s.data);
   const loadCourierCache = useCourierRatioStore((s) => s.loadCache);
@@ -297,7 +298,7 @@ const ResellerOrders = () => {
                         <p className="text-xs text-muted-foreground leading-snug">{o.customerAddress}</p>
                         <p className="text-xs text-foreground mt-0.5">{o.customerPhone}</p>
                         
-                        {/* Fraud check */}
+                        {/* Courier ratio bar */}
                         <button
                           className="text-[11px] text-orange-600 hover:text-orange-700 inline-flex items-center gap-1 mt-1"
                           onClick={() => { if (!courierData[o.customerPhone]) checkCourierRatio(o.customerPhone); }}
@@ -309,13 +310,27 @@ const ResellerOrders = () => {
                           <div className="mt-1">
                             {courierData[o.customerPhone].loading ? (
                               <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />
-                            ) : (
-                              <div className="flex items-center gap-1.5 text-[10px]">
-                                <span>মোট: <b>{courierData[o.customerPhone].all}</b></span>
-                                <span className="text-green-600">✓{courierData[o.customerPhone].delivered}</span>
-                                <span className="text-red-600">✗{courierData[o.customerPhone].returned}</span>
-                              </div>
-                            )}
+                            ) : (() => {
+                              const d = courierData[o.customerPhone];
+                              const pct = d.all > 0 ? Math.round((d.delivered / d.all) * 100) : 0;
+                              return (
+                                <div className="w-full">
+                                  <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                                    <div
+                                      className={`h-full rounded-full transition-all ${pct >= 70 ? 'bg-green-500' : pct >= 40 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                                      style={{ width: `${pct}%` }}
+                                    />
+                                  </div>
+                                  <div className="flex items-center gap-1 mt-0.5 text-[10px]">
+                                    <span className="text-foreground font-semibold">all: {d.all}</span>
+                                    <span className="text-muted-foreground">|</span>
+                                    <span className="text-green-600 font-semibold">delivered: {d.delivered}</span>
+                                    <span className="text-muted-foreground">|</span>
+                                    <span className="text-red-600 font-semibold">return: {d.returned}</span>
+                                  </div>
+                                </div>
+                              );
+                            })()}
                           </div>
                         )}
 
