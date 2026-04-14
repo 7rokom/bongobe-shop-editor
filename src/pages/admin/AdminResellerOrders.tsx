@@ -124,7 +124,34 @@ const AdminResellerOrders = () => {
   };
 
   const checkCourierRatio = (phone: string) => {
-    checkCourierRatioAction(phone, fraudSettings.bdcourierApiKey || undefined);
+    checkCourierRatioAction(phone, fraudSettings.bdcourierApiKey || undefined, true);
+  };
+
+  // Courier ratio bar component (same as main orders)
+  const CourierFraudInline = ({ phone }: { phone: string }) => {
+    const data = courierData[phone];
+    if (!data || data.loading) return null;
+    if (!data.all && !data.delivered && !data.returned) return (
+      <span className="text-[10px] text-muted-foreground ml-1">ডাটা নেই</span>
+    );
+    const pct = data.all > 0 ? Math.round((data.delivered / data.all) * 100) : 0;
+    return (
+      <div className="w-full mt-1">
+        <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all ${pct >= 70 ? 'bg-green-500' : pct >= 40 ? 'bg-yellow-500' : 'bg-red-500'}`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+        <div className="flex items-center gap-1 mt-0.5 text-[10px]">
+          <span className="text-foreground font-semibold">all: {data.all}</span>
+          <span className="text-muted-foreground">|</span>
+          <span className="text-green-600 font-semibold">delivered: {data.delivered}</span>
+          <span className="text-muted-foreground">|</span>
+          <span className="text-red-600 font-semibold">return: {data.returned}</span>
+        </div>
+      </div>
+    );
   };
 
   const parseOrderDate = (d: string) => {
@@ -624,28 +651,15 @@ const AdminResellerOrders = () => {
                         <p className="font-semibold text-foreground text-sm">{order.customerName}</p>
                         <p className="text-xs text-muted-foreground">{order.customerAddress}</p>
                         <div className="flex items-center gap-1 mt-1">
-                          <button
-                            className="text-xs text-muted-foreground hover:text-primary cursor-pointer"
-                            onClick={() => { if (!courierData[order.customerPhone]) checkCourierRatio(order.customerPhone); }}
+                          <p
+                            className="text-foreground text-xs cursor-pointer hover:underline inline-flex items-center gap-0.5"
+                            onClick={() => checkCourierRatio(order.customerPhone)}
                           >
-                            {order.customerPhone}
-                          </button>
+                            <Phone className="w-3 h-3 text-muted-foreground shrink-0" />{order.customerPhone}
+                          </p>
+                          {courierData[order.customerPhone]?.loading && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />}
                         </div>
-                        {/* Courier Ratio Result */}
-                        {courierData[order.customerPhone] && (
-                          <div className="mt-1">
-                            {courierData[order.customerPhone].loading ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />
-                            ) : (
-                              <div className="flex items-center gap-1.5 text-[10px]">
-                                <ShieldAlert className="w-3 h-3 text-orange-500" />
-                                <span>মোট: <b>{courierData[order.customerPhone].all}</b></span>
-                                <span className="text-green-600">✓{courierData[order.customerPhone].delivered}</span>
-                                <span className="text-red-600">✗{courierData[order.customerPhone].returned}</span>
-                              </div>
-                            )}
-                          </div>
-                        )}
+                        <CourierFraudInline phone={order.customerPhone} />
                         <div className="flex gap-1 mt-1">
                           <Button variant="outline" size="sm" className="h-6 w-6 p-0" onClick={() => window.open(`tel:${order.customerPhone}`)}><Phone className="w-3 h-3 text-foreground" /></Button>
                           <Button variant="outline" size="sm" className="h-6 w-6 p-0" onClick={() => { navigator.clipboard.writeText(order.customerPhone); toast.success('কপি হয়েছে'); }}><Copy className="w-3 h-3 text-foreground" /></Button>
@@ -825,16 +839,26 @@ const AdminResellerOrders = () => {
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-sm">{order.customerName}</p>
-                    <button className="text-[10px] text-muted-foreground hover:text-primary" onClick={() => { if (!courierData[order.customerPhone]) checkCourierRatio(order.customerPhone); }}>
-                      {order.customerPhone}
+                    <button className="text-[10px] text-muted-foreground hover:text-primary hover:underline" onClick={() => checkCourierRatio(order.customerPhone)}>
+                      <Phone className="w-2.5 h-2.5 inline mr-0.5" />{order.customerPhone}
                     </button>
-                    {courierData[order.customerPhone] && !courierData[order.customerPhone].loading && (
-                      <div className="flex items-center gap-1 text-[9px] justify-end mt-0.5">
-                        <ShieldAlert className="w-2.5 h-2.5 text-orange-500" />
-                        <span>✓{courierData[order.customerPhone].delivered}</span>
-                        <span className="text-red-600">✗{courierData[order.customerPhone].returned}</span>
-                      </div>
-                    )}
+                    {courierData[order.customerPhone]?.loading && <Loader2 className="w-2.5 h-2.5 animate-spin text-muted-foreground inline ml-1" />}
+                    {courierData[order.customerPhone] && !courierData[order.customerPhone].loading && (() => {
+                      const d = courierData[order.customerPhone];
+                      const pct = d.all > 0 ? Math.round((d.delivered / d.all) * 100) : 0;
+                      return d.all || d.delivered || d.returned ? (
+                        <div className="mt-0.5">
+                          <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
+                            <div className={`h-full rounded-full ${pct >= 70 ? 'bg-green-500' : pct >= 40 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${pct}%` }} />
+                          </div>
+                          <div className="flex items-center gap-1 text-[9px] justify-end mt-0.5">
+                            <span>all: {d.all}</span>
+                            <span className="text-green-600">✓{d.delivered}</span>
+                            <span className="text-red-600">✗{d.returned}</span>
+                          </div>
+                        </div>
+                      ) : <span className="text-[9px] text-muted-foreground block">ডাটা নেই</span>;
+                    })()}
                     <div className="flex gap-1 mt-1 justify-end">
                       <Button variant="outline" size="sm" className="h-5 w-5 p-0" onClick={() => window.open(`tel:${order.customerPhone}`)}><Phone className="w-2.5 h-2.5" /></Button>
                       <Button variant="outline" size="sm" className="h-5 w-5 p-0" onClick={() => window.open(`https://wa.me/88${order.customerPhone}`, '_blank')}><MessageCircle className="w-2.5 h-2.5" /></Button>
