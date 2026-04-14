@@ -769,25 +769,16 @@ const AdminResellerOrders = () => {
                           <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setViewOrder(order)}><Eye className="w-4 h-4" /></Button>
                           <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEditOrder(order)} title="এডিট"><Edit className="w-4 h-4" /></Button>
                         </div>
-                        {/* Admin Note */}
-                        <div className="mt-2">
-                          <Input
-                            placeholder="অ্যাডমিন নোট..."
-                            defaultValue={order.adminNote || ''}
-                            className="h-6 text-[10px] px-2"
-                            onBlur={async (e) => {
-                              const val = e.target.value.trim();
-                              if (val !== (order.adminNote || '')) {
-                                const { db: dbClient } = await import('@/lib/supabase-db');
-                                await dbClient.from('reseller_orders').update({ admin_note: val }).eq('id', order.id);
-                                useResellerStore.setState((s) => ({
-                                  orders: s.orders.map(o => o.id === order.id ? { ...o, adminNote: val } : o),
-                                }));
-                                toast.success('নোট সেভ হয়েছে');
-                              }
-                            }}
-                            onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
-                          />
+                        {/* Note Button */}
+                        <div className="mt-1">
+                          <Button
+                            variant="outline" size="sm" className="h-6 w-6 p-0 border-amber-300 hover:bg-amber-50"
+                            title="নোট"
+                            onClick={() => { setNoteOrder(order); setNoteText(order.adminNote || ''); }}
+                          >
+                            <StickyNote className="w-3.5 h-3.5 text-amber-500" />
+                          </Button>
+                          {order.adminNote && <p className="text-[9px] text-amber-600 mt-0.5 truncate max-w-[120px]">{order.adminNote}</p>}
                         </div>
                       </td>
                     </tr>
