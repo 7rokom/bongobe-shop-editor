@@ -124,7 +124,34 @@ const AdminResellerOrders = () => {
   };
 
   const checkCourierRatio = (phone: string) => {
-    checkCourierRatioAction(phone, fraudSettings.bdcourierApiKey || undefined);
+    checkCourierRatioAction(phone, fraudSettings.bdcourierApiKey || undefined, true);
+  };
+
+  // Courier ratio bar component (same as main orders)
+  const CourierFraudInline = ({ phone }: { phone: string }) => {
+    const data = courierData[phone];
+    if (!data || data.loading) return null;
+    if (!data.all && !data.delivered && !data.returned) return (
+      <span className="text-[10px] text-muted-foreground ml-1">ডাটা নেই</span>
+    );
+    const pct = data.all > 0 ? Math.round((data.delivered / data.all) * 100) : 0;
+    return (
+      <div className="w-full mt-1">
+        <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all ${pct >= 70 ? 'bg-green-500' : pct >= 40 ? 'bg-yellow-500' : 'bg-red-500'}`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+        <div className="flex items-center gap-1 mt-0.5 text-[10px]">
+          <span className="text-foreground font-semibold">all: {data.all}</span>
+          <span className="text-muted-foreground">|</span>
+          <span className="text-green-600 font-semibold">delivered: {data.delivered}</span>
+          <span className="text-muted-foreground">|</span>
+          <span className="text-red-600 font-semibold">return: {data.returned}</span>
+        </div>
+      </div>
+    );
   };
 
   const parseOrderDate = (d: string) => {

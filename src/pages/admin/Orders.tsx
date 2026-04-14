@@ -308,7 +308,7 @@ const Orders = () => {
   }, [orders, employees, assignOrder]);
 
   const checkCourierRatio = (phone: string) => {
-    checkCourierRatioAction(phone, fraudSettings.bdcourierApiKey || undefined);
+    checkCourierRatioAction(phone, fraudSettings.bdcourierApiKey || undefined, true);
   };
 
   // Courier dispatch helpers

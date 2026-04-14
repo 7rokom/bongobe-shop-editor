@@ -113,7 +113,7 @@ const ResellerOrders = () => {
   useEffect(() => { loadCourierCache(); }, [loadCourierCache]);
 
   const checkCourierRatio = (phone: string) => {
-    checkCourierRatioAction(phone, fraudSettings.bdcourierApiKey || undefined);
+    checkCourierRatioAction(phone, fraudSettings.bdcourierApiKey || undefined, true);
   };
 
   const canChangeStatus = (status: string) => !LOCKED_STATUSES.includes(status);
