@@ -302,7 +302,7 @@ const ResellerOrders = () => {
                         {/* Courier ratio bar */}
                         <button
                           className="text-[11px] text-orange-600 hover:text-orange-700 inline-flex items-center gap-1 mt-1"
-                          onClick={() => { if (!courierData[o.customerPhone]) checkCourierRatio(o.customerPhone); }}
+                          onClick={() => checkCourierRatio(o.customerPhone)}
                         >
                           <ShieldAlert className="w-3 h-3" />
                           ফ্রড চেক

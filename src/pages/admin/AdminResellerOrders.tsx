@@ -839,16 +839,26 @@ const AdminResellerOrders = () => {
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-sm">{order.customerName}</p>
-                    <button className="text-[10px] text-muted-foreground hover:text-primary" onClick={() => { if (!courierData[order.customerPhone]) checkCourierRatio(order.customerPhone); }}>
-                      {order.customerPhone}
+                    <button className="text-[10px] text-muted-foreground hover:text-primary hover:underline" onClick={() => checkCourierRatio(order.customerPhone)}>
+                      <Phone className="w-2.5 h-2.5 inline mr-0.5" />{order.customerPhone}
                     </button>
-                    {courierData[order.customerPhone] && !courierData[order.customerPhone].loading && (
-                      <div className="flex items-center gap-1 text-[9px] justify-end mt-0.5">
-                        <ShieldAlert className="w-2.5 h-2.5 text-orange-500" />
-                        <span>✓{courierData[order.customerPhone].delivered}</span>
-                        <span className="text-red-600">✗{courierData[order.customerPhone].returned}</span>
-                      </div>
-                    )}
+                    {courierData[order.customerPhone]?.loading && <Loader2 className="w-2.5 h-2.5 animate-spin text-muted-foreground inline ml-1" />}
+                    {courierData[order.customerPhone] && !courierData[order.customerPhone].loading && (() => {
+                      const d = courierData[order.customerPhone];
+                      const pct = d.all > 0 ? Math.round((d.delivered / d.all) * 100) : 0;
+                      return d.all || d.delivered || d.returned ? (
+                        <div className="mt-0.5">
+                          <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
+                            <div className={`h-full rounded-full ${pct >= 70 ? 'bg-green-500' : pct >= 40 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${pct}%` }} />
+                          </div>
+                          <div className="flex items-center gap-1 text-[9px] justify-end mt-0.5">
+                            <span>all: {d.all}</span>
+                            <span className="text-green-600">✓{d.delivered}</span>
+                            <span className="text-red-600">✗{d.returned}</span>
+                          </div>
+                        </div>
+                      ) : <span className="text-[9px] text-muted-foreground block">ডাটা নেই</span>;
+                    })()}
                     <div className="flex gap-1 mt-1 justify-end">
                       <Button variant="outline" size="sm" className="h-5 w-5 p-0" onClick={() => window.open(`tel:${order.customerPhone}`)}><Phone className="w-2.5 h-2.5" /></Button>
                       <Button variant="outline" size="sm" className="h-5 w-5 p-0" onClick={() => window.open(`https://wa.me/88${order.customerPhone}`, '_blank')}><MessageCircle className="w-2.5 h-2.5" /></Button>
