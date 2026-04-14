@@ -116,6 +116,9 @@ const ResellerPlaceOrder = () => {
         resellerPrice: i.product.resellerPrice || i.product.price,
         sellingPrice: i.sellingPrice,
         profit: (i.sellingPrice - (i.product.resellerPrice || i.product.price)) * i.qty,
+        selectedColor: i.selectedColor || '',
+        selectedSize: i.selectedSize || '',
+        selectedWeight: i.selectedWeight || '',
       })),
       deliveryCharge: delivery,
       packagingCharge: PACKAGING_CHARGE,
@@ -157,8 +160,11 @@ const ResellerPlaceOrder = () => {
           {items.map((item, index) => {
             const resellerPrice = item.product.resellerPrice || item.product.price;
             const profit = (item.sellingPrice - resellerPrice) * item.qty;
+            const colors = item.product.colors || [];
+            const sizes = item.product.sizes || [];
+            const weights = item.product.weights || [];
             return (
-              <div key={item.product.id} className="flex gap-3 p-3 bg-muted/50 rounded-lg relative">
+              <div key={`${item.product.id}-${index}`} className="flex gap-3 p-3 bg-muted/50 rounded-lg relative">
                 <img
                   src={item.product.featuredImage || item.product.images[0] || '/placeholder.svg'}
                   alt=""
@@ -172,6 +178,57 @@ const ResellerPlaceOrder = () => {
                     </button>
                   </div>
                   <p className="text-xs text-muted-foreground">রিসেলার প্রাইজ: ৳{resellerPrice}</p>
+                  
+                  {/* Variation Selectors */}
+                  {colors.length > 0 && (
+                    <div>
+                      <Label className="text-xs">কালার</Label>
+                      <div className="flex flex-wrap gap-1.5 mt-1">
+                        {colors.map((c: string) => (
+                          <button
+                            key={c}
+                            onClick={() => updateItem(index, { selectedColor: c })}
+                            className={`px-2 py-0.5 text-xs rounded border transition-colors ${item.selectedColor === c ? 'border-primary bg-primary/10 text-primary font-medium' : 'border-border text-muted-foreground hover:border-primary/50'}`}
+                          >
+                            {c}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {sizes.length > 0 && (
+                    <div>
+                      <Label className="text-xs">সাইজ</Label>
+                      <div className="flex flex-wrap gap-1.5 mt-1">
+                        {sizes.map((s: string) => (
+                          <button
+                            key={s}
+                            onClick={() => updateItem(index, { selectedSize: s })}
+                            className={`px-2 py-0.5 text-xs rounded border transition-colors ${item.selectedSize === s ? 'border-primary bg-primary/10 text-primary font-medium' : 'border-border text-muted-foreground hover:border-primary/50'}`}
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {weights.length > 0 && (
+                    <div>
+                      <Label className="text-xs">ওজন</Label>
+                      <div className="flex flex-wrap gap-1.5 mt-1">
+                        {weights.map((w: string) => (
+                          <button
+                            key={w}
+                            onClick={() => updateItem(index, { selectedWeight: w })}
+                            className={`px-2 py-0.5 text-xs rounded border transition-colors ${item.selectedWeight === w ? 'border-primary bg-primary/10 text-primary font-medium' : 'border-border text-muted-foreground hover:border-primary/50'}`}
+                          >
+                            {w}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <Label className="text-xs">পরিমাণ</Label>

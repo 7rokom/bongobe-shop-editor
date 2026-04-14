@@ -18,6 +18,9 @@ export interface ResellerCartItem {
   product: any;
   qty: number;
   sellingPrice: number;
+  selectedColor?: string;
+  selectedSize?: string;
+  selectedWeight?: string;
 }
 
 const ResellerShop = () => {
