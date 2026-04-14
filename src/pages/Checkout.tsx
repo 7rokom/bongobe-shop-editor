@@ -42,7 +42,7 @@ const Checkout = () => {
   const markBlocked = useFraudBlockedStore((s) => s.markBlocked);
   const addIncomplete = useIncompleteOrderStore((s) => s.addOrder);
   const removeByPhone = useIncompleteOrderStore((s) => s.removeByPhone);
-  const fraudEnabled = useFraudSettingsStore((s) => s.enabled);
+  const fraudSettingsLoading = useFraudSettingsStore((s) => s.loading);
   const addResellerOrder = useResellerStore((s) => s.addResellerOrder);
   const fetchResellers = useResellerStore((s) => s.fetchResellers);
 
