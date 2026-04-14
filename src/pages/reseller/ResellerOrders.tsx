@@ -620,10 +620,20 @@ const ResellerOrders = () => {
               </div>
               <div className="border rounded-lg p-3 space-y-2">
                 <p className="font-medium text-sm">প্রোডাক্ট</p>
-                {viewOrder.items.map((item, idx) => (
+                {viewOrder.items.map((item: any, idx) => (
                   <div key={idx} className="flex items-center gap-3 py-1.5 border-b last:border-0">
                     <img src={item.image || '/placeholder.svg'} alt="" className="w-10 h-10 rounded object-cover" />
-                    <div className="flex-1"><p className="text-sm">{item.productTitle}</p><p className="text-xs text-muted-foreground">×{item.qty}</p></div>
+                    <div className="flex-1">
+                      <p className="text-sm">{item.productTitle}</p>
+                      <p className="text-xs text-muted-foreground">×{item.qty}</p>
+                      {(item.selectedColor || item.selectedSize || item.selectedWeight) && (
+                        <div className="flex flex-wrap gap-1 mt-0.5">
+                          {item.selectedColor && <span className="text-[10px] px-1.5 py-0.5 bg-pink-50 text-pink-700 rounded">{item.selectedColor}</span>}
+                          {item.selectedSize && <span className="text-[10px] px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded">{item.selectedSize}</span>}
+                          {item.selectedWeight && <span className="text-[10px] px-1.5 py-0.5 bg-green-50 text-green-700 rounded">{item.selectedWeight}</span>}
+                        </div>
+                      )}
+                    </div>
                     <div className="text-right text-xs">
                       <p>SP: ৳{item.sellingPrice}</p>
                       <p className="text-muted-foreground">RP: ৳{item.resellerPrice}</p>
@@ -632,6 +642,15 @@ const ResellerOrders = () => {
                   </div>
                 ))}
               </div>
+              {/* Notes Section */}
+              {viewOrder.notes && viewOrder.notes.length > 0 && (
+                <div className="border rounded-lg p-3 space-y-1.5 bg-amber-50/50">
+                  <p className="font-medium text-sm flex items-center gap-1.5">📝 নোট</p>
+                  {viewOrder.notes.map((n: string, i: number) => (
+                    <p key={i} className="text-sm text-foreground">• {n}</p>
+                  ))}
+                </div>
+              )}
               <div className="border rounded-lg p-3 space-y-1 text-sm">
                 <div className="flex justify-between"><span>ডেলিভারি:</span><span>৳{viewOrder.deliveryCharge}</span></div>
                 {viewOrder.packagingCharge && <div className="flex justify-between"><span>প্যাকেজিং:</span><span>৳{viewOrder.packagingCharge}</span></div>}
