@@ -765,11 +765,16 @@ const AdminResellerOrders = () => {
                           <Button
                             variant="outline" size="sm" className="h-6 w-6 p-0 border-amber-300 hover:bg-amber-50"
                             title="নোট"
-                            onClick={() => { setNoteOrder(order); setNoteText(order.adminNote || ''); }}
+                            onClick={() => {
+                              setNoteOrder(order);
+                              // Combine existing notes array into text
+                              const existingNotes = (order.notes || []).join('\n');
+                              setNoteText(existingNotes);
+                            }}
                           >
                             <StickyNote className="w-3.5 h-3.5 text-amber-500" />
                           </Button>
-                          {order.adminNote && <p className="text-[9px] text-amber-600 mt-0.5 truncate max-w-[120px]">{order.adminNote}</p>}
+                          {(order.notes && order.notes.length > 0) && <p className="text-[9px] text-amber-600 mt-0.5 truncate max-w-[120px]">{order.notes[order.notes.length - 1]}</p>}
                         </div>
                       </td>
                     </tr>
@@ -1350,29 +1355,38 @@ const AdminResellerOrders = () => {
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-3 pt-1">
-              <p className="text-sm text-muted-foreground">অর্ডারে নোট লিখুন (মুছে সেভ দিলে নোট ডিলিট হবে):</p>
-              <Textarea
-                value={noteText}
-                onChange={(e) => setNoteText(e.target.value)}
-                placeholder="যেমন: কাস্টমার ফোন ধরছে না, পরে কল করতে হবে..."
-                rows={3}
-                className="text-sm"
-              />
+              {/* Show existing notes (read-only) */}
+              {noteOrder.notes && noteOrder.notes.length > 0 && (
+                <div className="bg-muted/50 rounded-lg p-3 space-y-1.5">
+                  <p className="text-xs font-semibold text-muted-foreground">বিদ্যমান নোট:</p>
+                  {noteOrder.notes.map((n: string, i: number) => (
+                    <p key={i} className="text-sm text-foreground">• {n}</p>
+                  ))}
+                </div>
+              )}
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">নতুন নোট যোগ করুন:</p>
+                <Textarea
+                  value={noteText}
+                  onChange={(e) => setNoteText(e.target.value)}
+                  placeholder="যেমন: কাস্টমার ফোন ধরছে না, পরে কল করতে হবে..."
+                  rows={3}
+                  className="text-sm"
+                />
+              </div>
               <div className="flex justify-end gap-2">
                 <Button variant="outline" size="sm" onClick={() => { setNoteOrder(null); setNoteText(''); }}>বাতিল</Button>
                 <Button size="sm" className="gap-1.5 bg-amber-500 hover:bg-amber-600 text-white" onClick={async () => {
                   if (!noteOrder) return;
-                  const val = noteText.trim();
+                  const newNote = noteText.trim();
+                  const existingNotes = noteOrder.notes || [];
+                  const updatedNotes = newNote ? [...existingNotes.filter((n: string) => n !== newNote), newNote] : existingNotes;
                   const { db: dbClient } = await import('@/lib/supabase-db');
-                  await dbClient.from('reseller_orders').update({ admin_note: val, notes: val ? [val] : [] }).eq('id', noteOrder.id);
+                  await dbClient.from('reseller_orders').update({ admin_note: newNote, notes: updatedNotes }).eq('id', noteOrder.id);
                   useResellerStore.setState((s) => ({
-                    orders: s.orders.map(o => o.id === noteOrder.id ? { ...o, adminNote: val, notes: val ? [val] : [] } : o),
+                    orders: s.orders.map(o => o.id === noteOrder.id ? { ...o, adminNote: newNote, notes: updatedNotes } : o),
                   }));
-                  if (val) {
-                    toast.success(`অর্ডার ${noteOrder.id}-এ নোট সেভ হয়েছে`);
-                  } else {
-                    toast.success(`অর্ডার ${noteOrder.id}-এর নোট মুছে ফেলা হয়েছে`);
-                  }
+                  toast.success(newNote ? `অর্ডার ${noteOrder.id}-এ নোট সেভ হয়েছে` : 'নোট আপডেট হয়েছে');
                   setNoteOrder(null);
                   setNoteText('');
                 }}>
