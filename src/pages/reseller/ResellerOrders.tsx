@@ -499,12 +499,19 @@ const ResellerOrders = () => {
 
                   {/* Products */}
                   <div className="flex gap-2 overflow-x-auto">
-                    {o.items.map((item, idx) => (
+                    {o.items.map((item: any, idx) => (
                       <div key={idx} className="flex items-center gap-1.5 shrink-0">
                         <img src={item.image || '/placeholder.svg'} alt="" className="w-8 h-8 rounded object-cover border" />
                         <div>
                           <p className="text-[11px] font-medium truncate max-w-[100px]">{item.productTitle}</p>
                           <p className="text-[10px] text-muted-foreground">×{item.qty}</p>
+                          {(item.selectedColor || item.selectedSize || item.selectedWeight) && (
+                            <div className="flex flex-wrap gap-0.5">
+                              {item.selectedColor && <span className="text-[8px] px-1 py-0.5 bg-pink-50 text-pink-700 rounded">{item.selectedColor}</span>}
+                              {item.selectedSize && <span className="text-[8px] px-1 py-0.5 bg-blue-50 text-blue-700 rounded">{item.selectedSize}</span>}
+                              {item.selectedWeight && <span className="text-[8px] px-1 py-0.5 bg-green-50 text-green-700 rounded">{item.selectedWeight}</span>}
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}
