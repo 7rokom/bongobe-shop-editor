@@ -35,15 +35,16 @@ const getResellerId = () => {
 
 const statusColors: Record<string, string> = {
   'পেন্ডিং': 'bg-yellow-100 text-yellow-800 border-yellow-300',
+  'হোল্ড': 'bg-gray-100 text-gray-800 border-gray-300',
   'কনফার্মড': 'bg-blue-100 text-blue-800 border-blue-300',
   'প্যাকেজিং': 'bg-indigo-100 text-indigo-800 border-indigo-300',
   'শিপমেন্ট': 'bg-purple-100 text-purple-800 border-purple-300',
+  'এসাইন': 'bg-teal-100 text-teal-800 border-teal-300',
   'ডেলিভারির পথে': 'bg-cyan-100 text-cyan-800 border-cyan-300',
   'ডেলিভারড': 'bg-green-100 text-green-800 border-green-300',
   'ক্যান্সেল': 'bg-red-100 text-red-800 border-red-300',
   'রিটার্ন': 'bg-orange-100 text-orange-800 border-orange-300',
   'পেইড রিটার্ন': 'bg-pink-100 text-pink-800 border-pink-300',
-  'হোল্ড': 'bg-gray-100 text-gray-800 border-gray-300',
 };
 
 const LOCKED_STATUSES = ['প্যাকেজিং', 'শিপমেন্ট', 'ডেলিভারির পথে', 'ডেলিভারড', 'রিটার্ন', 'পেইড রিটার্ন', 'হোল্ড'];
