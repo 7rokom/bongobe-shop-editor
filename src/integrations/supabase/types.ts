@@ -682,6 +682,7 @@ export type Database = {
       }
       reseller_orders: {
         Row: {
+          admin_note: string | null
           cod_charge: number | null
           customer_address: string | null
           customer_name: string
@@ -700,6 +701,7 @@ export type Database = {
           total_selling_price: number | null
         }
         Insert: {
+          admin_note?: string | null
           cod_charge?: number | null
           customer_address?: string | null
           customer_name: string
@@ -718,6 +720,7 @@ export type Database = {
           total_selling_price?: number | null
         }
         Update: {
+          admin_note?: string | null
           cod_charge?: number | null
           customer_address?: string | null
           customer_name?: string

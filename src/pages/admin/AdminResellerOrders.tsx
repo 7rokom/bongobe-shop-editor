@@ -53,7 +53,7 @@ const statusColors: Record<string, string> = {
 };
 
 const AdminResellerOrders = () => {
-  const { orders, resellers, updateResellerOrderStatus, addResellerOrder } = useResellerStore();
+  const { orders, resellers, updateResellerOrderStatus, addResellerOrder, updateResellerOrder } = useResellerStore();
   const { products } = useProductStore();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -567,14 +567,6 @@ const AdminResellerOrders = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder="অর্ডার, কাস্টমার বা রিসেলার খুঁজুন..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[160px]"><SelectValue placeholder="স্ট্যাটাস" /></SelectTrigger>
-          <SelectContent><SelectItem value="all">সব স্ট্যাটাস</SelectItem>{STATUS_OPTIONS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-        </Select>
-        <Select value={resellerFilter} onValueChange={setResellerFilter}>
-          <SelectTrigger className="w-[180px]"><SelectValue placeholder="রিসেলার" /></SelectTrigger>
-          <SelectContent><SelectItem value="all">সব রিসেলার</SelectItem>{resellers.map(r => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}</SelectContent>
-        </Select>
       </div>
 
       {/* Bulk Actions Bar */}
@@ -785,6 +777,26 @@ const AdminResellerOrders = () => {
                           <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setViewOrder(order)}><Eye className="w-4 h-4" /></Button>
                           <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEditOrder(order)} title="এডিট"><Edit className="w-4 h-4" /></Button>
                         </div>
+                        {/* Admin Note */}
+                        <div className="mt-2">
+                          <Input
+                            placeholder="অ্যাডমিন নোট..."
+                            defaultValue={order.adminNote || ''}
+                            className="h-6 text-[10px] px-2"
+                            onBlur={async (e) => {
+                              const val = e.target.value.trim();
+                              if (val !== (order.adminNote || '')) {
+                                const { db: dbClient } = await import('@/lib/supabase-db');
+                                await dbClient.from('reseller_orders').update({ admin_note: val }).eq('id', order.id);
+                                useResellerStore.setState((s) => ({
+                                  orders: s.orders.map(o => o.id === order.id ? { ...o, adminNote: val } : o),
+                                }));
+                                toast.success('নোট সেভ হয়েছে');
+                              }
+                            }}
+                            onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+                          />
+                        </div>
                       </td>
                     </tr>
                   );
@@ -920,6 +932,26 @@ const AdminResellerOrders = () => {
                   )}
                   <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setViewOrder(order)}><Eye className="w-3.5 h-3.5" /></Button>
                   <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEditOrder(order)}><Edit className="w-3.5 h-3.5" /></Button>
+                </div>
+                {/* Admin Note Mobile */}
+                <div className="border-t pt-2">
+                  <Input
+                    placeholder="অ্যাডমিন নোট..."
+                    defaultValue={order.adminNote || ''}
+                    className="h-7 text-xs"
+                    onBlur={async (e) => {
+                      const val = e.target.value.trim();
+                      if (val !== (order.adminNote || '')) {
+                        const { db: dbClient } = await import('@/lib/supabase-db');
+                        await dbClient.from('reseller_orders').update({ admin_note: val }).eq('id', order.id);
+                        useResellerStore.setState((s) => ({
+                          orders: s.orders.map(o => o.id === order.id ? { ...o, adminNote: val } : o),
+                        }));
+                        toast.success('নোট সেভ হয়েছে');
+                      }
+                    }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+                  />
                 </div>
               </CardContent>
             </Card>

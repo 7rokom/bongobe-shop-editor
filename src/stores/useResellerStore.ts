@@ -13,7 +13,7 @@ export interface ResellerOrder {
   items: { productId: string; productTitle: string; image: string; qty: number; resellerPrice: number; sellingPrice: number; profit: number; }[];
   deliveryCharge: number; packagingCharge?: number; codCharge?: number;
   totalSellingPrice: number; totalResellerCost: number; totalProfit: number;
-  status: string; date: string; notes?: string[];
+  status: string; date: string; notes?: string[]; adminNote?: string;
 }
 
 export interface PaymentRequest {
@@ -58,7 +58,7 @@ const mapOrder = (r: any): ResellerOrder => ({
   codCharge: r.cod_charge ? Number(r.cod_charge) : undefined,
   totalSellingPrice: Number(r.total_selling_price), totalResellerCost: Number(r.total_reseller_cost),
   totalProfit: Number(r.total_profit), status: r.status, date: r.date || '',
-  notes: r.notes || [],
+  notes: r.notes || [], adminNote: r.admin_note || '',
 });
 
 const mapPayment = (r: any): PaymentRequest => ({
