@@ -5,7 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import PublicLayout from "@/components/layout/PublicLayout";
-import ResellerPublicLayout from "@/components/layout/ResellerPublicLayout";
+import ResellerPublicLayout, { ResellerCheckoutLayout } from "@/components/layout/ResellerPublicLayout";
 import ScrollToTop from "@/components/ScrollToTop";
 import SiteSettingsInitializer from "@/components/SiteSettingsInitializer";
 import DataLayerPageTracker from "@/components/DataLayerPageTracker";
@@ -144,7 +144,14 @@ const App = () => (
             
           </Route>
 
-          {/* Reseller Public Routes (shareable links) */}
+          {/* Reseller Checkout/Thank-you Routes (no reseller ID in URL) */}
+          <Route path="/r" element={<ResellerCheckoutLayout />}>
+            <Route path="checkout" element={<Checkout />} />
+            <Route path="thank-you" element={<ThankYou />} />
+            <Route path="confirm-order" element={<FakeThankYou />} />
+          </Route>
+
+          {/* Reseller Public Routes (shareable links with reseller ID) */}
           <Route path="/r/:resellerId" element={<ResellerPublicLayout />}>
             <Route path="product/:slug" element={<ProductPage />} />
             <Route path="cart" element={<Cart />} />
