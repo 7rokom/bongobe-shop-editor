@@ -933,6 +933,26 @@ const AdminResellerOrders = () => {
                   <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setViewOrder(order)}><Eye className="w-3.5 h-3.5" /></Button>
                   <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEditOrder(order)}><Edit className="w-3.5 h-3.5" /></Button>
                 </div>
+                {/* Admin Note Mobile */}
+                <div className="border-t pt-2">
+                  <Input
+                    placeholder="অ্যাডমিন নোট..."
+                    defaultValue={order.adminNote || ''}
+                    className="h-7 text-xs"
+                    onBlur={async (e) => {
+                      const val = e.target.value.trim();
+                      if (val !== (order.adminNote || '')) {
+                        const { db: dbClient } = await import('@/lib/supabase-db');
+                        await dbClient.from('reseller_orders').update({ admin_note: val }).eq('id', order.id);
+                        useResellerStore.setState((s) => ({
+                          orders: s.orders.map(o => o.id === order.id ? { ...o, adminNote: val } : o),
+                        }));
+                        toast.success('নোট সেভ হয়েছে');
+                      }
+                    }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+                  />
+                </div>
               </CardContent>
             </Card>
           );
