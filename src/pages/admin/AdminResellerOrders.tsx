@@ -567,14 +567,6 @@ const AdminResellerOrders = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder="অর্ডার, কাস্টমার বা রিসেলার খুঁজুন..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[160px]"><SelectValue placeholder="স্ট্যাটাস" /></SelectTrigger>
-          <SelectContent><SelectItem value="all">সব স্ট্যাটাস</SelectItem>{STATUS_OPTIONS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-        </Select>
-        <Select value={resellerFilter} onValueChange={setResellerFilter}>
-          <SelectTrigger className="w-[180px]"><SelectValue placeholder="রিসেলার" /></SelectTrigger>
-          <SelectContent><SelectItem value="all">সব রিসেলার</SelectItem>{resellers.map(r => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}</SelectContent>
-        </Select>
       </div>
 
       {/* Bulk Actions Bar */}
