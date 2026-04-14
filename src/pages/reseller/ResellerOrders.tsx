@@ -351,12 +351,19 @@ const ResellerOrders = () => {
                       {/* Products */}
                       <td className="px-4 py-3 align-top min-w-[180px]">
                         <div className="space-y-1.5">
-                          {o.items.map((item, idx) => (
+                          {o.items.map((item: any, idx) => (
                             <div key={idx} className="flex items-center gap-2">
                               <img src={item.image || '/placeholder.svg'} alt="" className="w-9 h-9 rounded object-cover border shrink-0" />
                               <div className="min-w-0">
                                 <p className="text-xs font-medium truncate max-w-[140px]">{item.productTitle}</p>
                                 <p className="text-[10px] text-muted-foreground">×{item.qty}</p>
+                                {(item.selectedColor || item.selectedSize || item.selectedWeight) && (
+                                  <div className="flex flex-wrap gap-1 mt-0.5">
+                                    {item.selectedColor && <span className="text-[9px] px-1.5 py-0.5 bg-pink-50 text-pink-700 rounded">{item.selectedColor}</span>}
+                                    {item.selectedSize && <span className="text-[9px] px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded">{item.selectedSize}</span>}
+                                    {item.selectedWeight && <span className="text-[9px] px-1.5 py-0.5 bg-green-50 text-green-700 rounded">{item.selectedWeight}</span>}
+                                  </div>
+                                )}
                               </div>
                             </div>
                           ))}
@@ -436,9 +443,20 @@ const ResellerOrders = () => {
 
                       {/* Actions */}
                       <td className="px-4 py-3 align-top text-center">
-                        <button className="p-1.5 rounded hover:bg-muted" onClick={() => setViewOrder(o)} title="বিস্তারিত">
-                          <Eye className="w-4 h-4 text-muted-foreground" />
-                        </button>
+                        <div className="flex flex-col items-center gap-1">
+                          <button className="p-1.5 rounded hover:bg-muted" onClick={() => setViewOrder(o)} title="বিস্তারিত">
+                            <Eye className="w-4 h-4 text-muted-foreground" />
+                          </button>
+                          {canEditOrder(o.status) && (
+                            <button className="p-1.5 rounded hover:bg-muted" onClick={() => { setViewOrder(o); startEditing(o); }} title="এডিট">
+                              <Pencil className="w-4 h-4 text-muted-foreground" />
+                            </button>
+                          )}
+                          {/* Notes indicator */}
+                          {o.notes && o.notes.length > 0 && (
+                            <span className="text-[9px] text-amber-600 px-1.5 py-0.5 bg-amber-50 rounded" title={o.notes.join(', ')}>📝 নোট</span>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
