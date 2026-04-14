@@ -150,7 +150,7 @@ const App = () => (
             <Route path="cart" element={<Cart />} />
             <Route path="checkout" element={<Checkout />} />
             <Route path="thank-you" element={<ThankYou />} />
-            <Route path="order-confirmed" element={<FakeThankYou />} />
+            <Route path="confirm-order" element={<FakeThankYou />} />
           </Route>
 
           {/* Public Routes */}
