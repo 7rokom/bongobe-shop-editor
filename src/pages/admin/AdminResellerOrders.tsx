@@ -654,12 +654,19 @@ const AdminResellerOrders = () => {
                       </td>
                       <td className="py-3 px-3">
                         <div className="space-y-1.5">
-                          {order.items.map((item, i) => (
+                          {order.items.map((item: any, i) => (
                             <div key={i} className="flex items-center gap-2">
                               <img src={item.image} alt="" className="w-9 h-9 rounded object-cover border" />
                               <div className="min-w-0">
                                 <p className="text-xs font-medium truncate">{item.productTitle}</p>
                                 <p className="text-[10px] text-muted-foreground">×{item.qty}</p>
+                                {(item.selectedColor || item.selectedSize || item.selectedWeight) && (
+                                  <div className="flex flex-wrap gap-1 mt-0.5">
+                                    {item.selectedColor && <span className="text-[9px] px-1.5 py-0.5 bg-pink-50 text-pink-700 rounded">{item.selectedColor}</span>}
+                                    {item.selectedSize && <span className="text-[9px] px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded">{item.selectedSize}</span>}
+                                    {item.selectedWeight && <span className="text-[9px] px-1.5 py-0.5 bg-green-50 text-green-700 rounded">{item.selectedWeight}</span>}
+                                  </div>
+                                )}
                               </div>
                             </div>
                           ))}
@@ -824,10 +831,20 @@ const AdminResellerOrders = () => {
                   </div>
                 </div>
                 <div className="border-t pt-2 space-y-1.5">
-                  {order.items.map((item, i) => (
+                  {order.items.map((item: any, i) => (
                     <div key={i} className="flex items-center gap-2">
                       <img src={item.image} alt="" className="w-8 h-8 rounded object-cover border" />
-                      <div className="flex-1 min-w-0"><p className="text-xs font-medium truncate">{item.productTitle}</p><p className="text-[10px] text-muted-foreground">×{item.qty}</p></div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium truncate">{item.productTitle}</p>
+                        <p className="text-[10px] text-muted-foreground">×{item.qty}</p>
+                        {(item.selectedColor || item.selectedSize || item.selectedWeight) && (
+                          <div className="flex flex-wrap gap-1 mt-0.5">
+                            {item.selectedColor && <span className="text-[9px] px-1 py-0.5 bg-pink-50 text-pink-700 rounded">{item.selectedColor}</span>}
+                            {item.selectedSize && <span className="text-[9px] px-1 py-0.5 bg-blue-50 text-blue-700 rounded">{item.selectedSize}</span>}
+                            {item.selectedWeight && <span className="text-[9px] px-1 py-0.5 bg-green-50 text-green-700 rounded">{item.selectedWeight}</span>}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))}
                   {/* Price breakdown mobile */}
@@ -1078,10 +1095,20 @@ const AdminResellerOrders = () => {
                 </div>
                 <div className="border-t pt-3">
                   <p className="text-sm font-semibold mb-2">প্রোডাক্ট সমূহ</p>
-                  {viewOrder.items.map((item, i) => (
+                  {viewOrder.items.map((item: any, i) => (
                     <div key={i} className="flex items-center gap-3 py-2 border-b last:border-0">
                       <img src={item.image} alt="" className="w-12 h-12 rounded object-cover" />
-                      <div className="flex-1"><p className="text-sm">{item.productTitle}</p><p className="text-xs text-muted-foreground">পরিমাণ: {item.qty}</p></div>
+                      <div className="flex-1">
+                        <p className="text-sm">{item.productTitle}</p>
+                        <p className="text-xs text-muted-foreground">পরিমাণ: {item.qty}</p>
+                        {(item.selectedColor || item.selectedSize || item.selectedWeight) && (
+                          <div className="flex flex-wrap gap-1 mt-0.5">
+                            {item.selectedColor && <span className="text-[10px] px-1.5 py-0.5 bg-pink-50 text-pink-700 rounded">{item.selectedColor}</span>}
+                            {item.selectedSize && <span className="text-[10px] px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded">{item.selectedSize}</span>}
+                            {item.selectedWeight && <span className="text-[10px] px-1.5 py-0.5 bg-green-50 text-green-700 rounded">{item.selectedWeight}</span>}
+                          </div>
+                        )}
+                      </div>
                       <div className="text-right text-xs">
                         <p>SP: ৳{item.sellingPrice}</p><p className="text-muted-foreground">RP: ৳{item.resellerPrice}</p>
                       </div>
