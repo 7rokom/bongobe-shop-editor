@@ -651,28 +651,15 @@ const AdminResellerOrders = () => {
                         <p className="font-semibold text-foreground text-sm">{order.customerName}</p>
                         <p className="text-xs text-muted-foreground">{order.customerAddress}</p>
                         <div className="flex items-center gap-1 mt-1">
-                          <button
-                            className="text-xs text-muted-foreground hover:text-primary cursor-pointer"
-                            onClick={() => { if (!courierData[order.customerPhone]) checkCourierRatio(order.customerPhone); }}
+                          <p
+                            className="text-foreground text-xs cursor-pointer hover:underline inline-flex items-center gap-0.5"
+                            onClick={() => checkCourierRatio(order.customerPhone)}
                           >
-                            {order.customerPhone}
-                          </button>
+                            <Phone className="w-3 h-3 text-muted-foreground shrink-0" />{order.customerPhone}
+                          </p>
+                          {courierData[order.customerPhone]?.loading && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />}
                         </div>
-                        {/* Courier Ratio Result */}
-                        {courierData[order.customerPhone] && (
-                          <div className="mt-1">
-                            {courierData[order.customerPhone].loading ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />
-                            ) : (
-                              <div className="flex items-center gap-1.5 text-[10px]">
-                                <ShieldAlert className="w-3 h-3 text-orange-500" />
-                                <span>মোট: <b>{courierData[order.customerPhone].all}</b></span>
-                                <span className="text-green-600">✓{courierData[order.customerPhone].delivered}</span>
-                                <span className="text-red-600">✗{courierData[order.customerPhone].returned}</span>
-                              </div>
-                            )}
-                          </div>
-                        )}
+                        <CourierFraudInline phone={order.customerPhone} />
                         <div className="flex gap-1 mt-1">
                           <Button variant="outline" size="sm" className="h-6 w-6 p-0" onClick={() => window.open(`tel:${order.customerPhone}`)}><Phone className="w-3 h-3 text-foreground" /></Button>
                           <Button variant="outline" size="sm" className="h-6 w-6 p-0" onClick={() => { navigator.clipboard.writeText(order.customerPhone); toast.success('কপি হয়েছে'); }}><Copy className="w-3 h-3 text-foreground" /></Button>
