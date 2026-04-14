@@ -190,9 +190,10 @@ const Checkout = () => {
     // Fraud check (courier ratio)
     let fraudFailed = false;
     let fraudBlockNote = '';
+    let fraudResult: any = null;
     if (fraudEnabled) {
       setFraudChecking(true);
-      const fraudResult = await checkFraud(phone);
+      fraudResult = await checkFraud(phone);
       setFraudChecking(false);
       if (!fraudResult.passed) {
         fraudFailed = true;
