@@ -8,7 +8,7 @@ const Cart = () => {
   const { items, removeItem, updateQuantity, totalPrice } = useCartStore();
   const navigate = useNavigate();
   const resellerRef = useResellerRef();
-  const checkoutPath = resellerRef ? `/r/${resellerRef}/checkout` : '/checkout';
+  const checkoutPath = resellerRef ? '/r/checkout' : '/checkout';
 
   if (items.length === 0) {
     return (
