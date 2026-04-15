@@ -143,7 +143,25 @@ const ResellerPlaceOrder = () => {
     };
 
     try {
-      await addResellerOrder(resellerOrder);
+      const { error: insertError } = await db.from('reseller_orders').insert({
+        id: resellerOrder.id, reseller_id: resellerOrder.resellerId, reseller_name: resellerOrder.resellerName,
+        customer_name: resellerOrder.customerName, customer_phone: resellerOrder.customerPhone,
+        customer_address: resellerOrder.customerAddress, items: resellerOrder.items,
+        delivery_charge: resellerOrder.deliveryCharge, packaging_charge: resellerOrder.packagingCharge,
+        cod_charge: resellerOrder.codCharge, total_selling_price: resellerOrder.totalSellingPrice,
+        total_reseller_cost: resellerOrder.totalResellerCost, total_profit: resellerOrder.totalProfit,
+        status: resellerOrder.status, date: resellerOrder.date, notes: resellerOrder.notes,
+      });
+      if (insertError) {
+        // If duplicate key, throw to trigger retry message
+        if (insertError.code === '23505') {
+          toast({ title: 'ডুপ্লিকেট অর্ডার আইডি, আবার চেষ্টা করুন', variant: 'destructive' });
+          return;
+        }
+        throw insertError;
+      }
+      // Update local state
+      useResellerStore.getState().fetchResellerOrders();
       toast({ title: 'অর্ডার সাবমিট হয়েছে!', description: `অর্ডার নং: ${orderId}, লাভ: ৳${totalProfit}` });
       navigate('/reseller/orders');
     } catch (err) {
