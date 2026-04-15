@@ -31,7 +31,12 @@ const PostOrderPopup = ({ orderId, isOpen, onComplete }: PostOrderPopupProps) =>
   const handleDirectShip = async () => {
     setUpdating(true);
     try {
-      await db.from("orders").update({ status: "কনফার্মড" }).eq("id", orderId);
+      // Check if this is a reseller order (RO- prefix) or main order
+      if (orderId.startsWith('RO')) {
+        await db.from("reseller_orders").update({ status: "কনফার্মড" }).eq("id", orderId);
+      } else {
+        await db.from("orders").update({ status: "কনফার্মড" }).eq("id", orderId);
+      }
     } catch {
       // proceed anyway
     }
