@@ -155,9 +155,6 @@ const App = () => (
           <Route path="/r/:resellerId" element={<ResellerPublicLayout />}>
             <Route path="product/:slug" element={<ProductPage />} />
             <Route path="cart" element={<Cart />} />
-            <Route path="checkout" element={<Checkout />} />
-            <Route path="thank-you" element={<ThankYou />} />
-            <Route path="confirm-order" element={<FakeThankYou />} />
           </Route>
 
           {/* Public Routes */}
