@@ -126,7 +126,7 @@ const ProductPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const resellerRef = useResellerRef();
-  const checkoutPath = resellerRef ? `/r/${resellerRef}/checkout` : '/checkout';
+  const checkoutPath = resellerRef ? '/r/checkout' : '/checkout';
   const { getProductBySlug, getRelatedProducts, fetchProductBySlug } = useProductStore();
   const storeLoading = useProductStore((s) => s.loading);
   const initialized = useProductStore((s) => s.initialized);
