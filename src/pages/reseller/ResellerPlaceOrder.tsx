@@ -95,10 +95,21 @@ const ResellerPlaceOrder = () => {
 
     const resellerCost = subtotalReseller + delivery + PACKAGING_CHARGE + codCharge;
 
-    // Get and increment reseller order counter from DB
+    // Get max order number from both counter AND existing reseller_orders
     const { data: counterRow } = await db.from('counters').select('value').eq('id', 'reseller_order_number').single();
-    const maxNum = counterRow?.value || 0;
-    const nextNum = maxNum + 1;
+    const counterVal = counterRow?.value || 0;
+
+    // Also check max numeric ID from existing reseller_orders (e.g. "RO15" → 15)
+    const { data: existingOrders } = await db.from('reseller_orders').select('id');
+    let maxExisting = 0;
+    if (existingOrders) {
+      for (const o of existingOrders) {
+        const num = parseInt(String(o.id).replace(/^RO/i, ''), 10);
+        if (!isNaN(num) && num > maxExisting) maxExisting = num;
+      }
+    }
+
+    const nextNum = Math.max(counterVal, maxExisting) + 1;
     await db.from('counters').update({ value: nextNum }).eq('id', 'reseller_order_number');
     const orderId = 'RO' + String(nextNum).padStart(2, '0');
     const resellerOrder = {
