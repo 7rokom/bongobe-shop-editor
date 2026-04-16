@@ -21,7 +21,7 @@ serve(async (req) => {
 
     const key = apiKey || Deno.env.get("BDCOURIER_API_KEY") || "";
     
-    const res = await fetch("https://bdcourier.com/api/courier-check", {
+    const res = await fetch("https://api.bdcourier.com/courier-check", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -32,8 +32,16 @@ serve(async (req) => {
 
     const data = await res.json();
 
+    // Check for API errors (limit exceeded, invalid key, etc.)
+    if (data?.status === "error" || data?.error) {
+      return new Response(
+        JSON.stringify({ error: data?.message || data?.error || "API error", all: 0, delivered: 0, returned: 0 }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // bdcourier API returns: { courierData: { summary: { total_parcel, success_parcel, cancelled_parcel, success_ratio } } }
-    const summary = data?.courierData?.summary || data?.courier_data?.summary || {};
+    const summary = data?.courierData?.summary || data?.courier_data?.summary || data?.data?.summary || {};
     const all = summary.total_parcel || 0;
     const delivered = summary.success_parcel || 0;
     const returned = summary.cancelled_parcel || 0;
